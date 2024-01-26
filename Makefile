@@ -1,7 +1,8 @@
-xCC = g++-13
+CC = g++
 
 CFLAGS = \
-	-std=c++20 \
+	-std=c++17 \
+	-O3 \
 	-Wall      \
 	-Wextra    \
 	-Werror
@@ -38,8 +39,7 @@ CFLAGS += -I $(abspath include)
 
 # List of sources:
 SOURCES = \
-	calculate_pi.cpp \
-	test.cpp
+	calculate_pi.cpp
 
 OBJECTS = $(SOURCES:%.cpp=build/%.o)
 

@@ -10,6 +10,8 @@ const int maxn = 1 << 17;
 typedef complex<double> ftype;
 ftype w[maxn];
 
+using digit = int16_t;
+
 class FFT {
 
 public:
@@ -40,7 +42,7 @@ public:
         }
     }
 
-    vector<ftype> evaluate(vector<int> p) {
+    vector<ftype> evaluate(vector<digit> p) {
         while(__builtin_popcount(p.size()) != 1) {
             p.push_back(0);
         }
@@ -49,11 +51,11 @@ public:
         return res;
     }
 
-    vector<int> interpolate(vector<ftype> p) {
+    vector<digit> interpolate(vector<ftype> p) {
         int n = p.size();
         vector<ftype> inv(n);
         fft(p.data(), inv.data(), n);
-        vector<int> res(n);
+        vector<digit> res(n);
         for(int i = 0; i < n; i++) {
             res[i] = round(real(inv[i]) / n);
         }
@@ -61,7 +63,7 @@ public:
         return res;
     }
 
-    void align(vector<int> &a, vector<int> &b) {
+    void align(vector<digit> &a, vector<digit> &b) {
         int n = a.size() + b.size() - 1;
         while((int)a.size() < n) {
             a.push_back(0);
@@ -71,7 +73,7 @@ public:
         }
     }
 
-    vector<int> poly_multiply(vector<int> a, vector<int> b) {
+    vector<digit> poly_multiply(vector<digit> a, vector<digit> b) {
         align(a, b);
         auto A = evaluate(a);
         auto B = evaluate(b);
@@ -81,7 +83,7 @@ public:
         return interpolate(A);
     }
 
-    vector<int> normalize(vector<int> c, int base=10) {
+    vector<digit> normalize(vector<digit> c, int base=10) {
         int carry = 0;
         for(auto &it: c) {
             it += carry;
@@ -95,7 +97,7 @@ public:
         return c;
     }
 
-    vector<int> multiply(vector<int> a, vector<int> b, int base=10) {
+    vector<digit> multiply(vector<digit> a, vector<digit> b, int base=10) {
         return normalize(poly_multiply(a, b), base);
     }
 
