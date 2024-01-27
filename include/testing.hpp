@@ -1,8 +1,12 @@
-#include <arithmetic.hpp>
+#include <arithmetic1.hpp>
 #include <assert.h>
-#include <bits/stdc++.h>
+
+#if __cplusplus >= 201103L
+#include <random>
+#endif
 
 using namespace std;
+using namespace arithmetic1;
 
 std::mt19937 rnd(7327158);
 
@@ -11,7 +15,7 @@ namespace testing {
 	public:
 		string name = "Empty test";
 		void test() {};
-		void _test() {cout << "Testing " + name + "...\n";};
+		void _test() {cout << "Testing " + name + "..." << endl;};
 	};
 
 	class TestInit : public Test {
@@ -85,8 +89,11 @@ namespace testing {
 			_test();
 			int count = 100;
 			for (int i = 0; i < count; i++) {
-				int x = (long long) rnd() - rnd(), y = (long long) rnd() - rnd();
-				assert(LongDouble(round((double)x / y)) == LongDouble(x, 0) / LongDouble(y));
+				int x = (long long) rnd() - rnd(), y = ((long long) rnd() - rnd()) / 100;
+				LongDouble res = LongDouble(x) / LongDouble(y);
+				res.round();
+
+				assert(LongDouble(round((double)x / y)) == res);
 			}
 		}
 	};
@@ -100,16 +107,17 @@ namespace testing {
 			_test();
 			int count = 100;
 			for (int i = 0; i < count; i++) {
-				int len = 30; // тестируем числа с len цифрами
-				LongDouble x(0, len + 1), y;
+				int len = 10; // тестируем числа с len цифрами
+				LongDouble x(0, len * 3 / 2), y(0, 10);
 				for (int j = 0; j < len; j++) {
-					x = x * LongDouble(10) + LongDouble((int) (rnd() % 9) + 1);
-					y = y * LongDouble(10) + LongDouble((int) (rnd() % 9) + 1);
+					x = x * LongDouble(10) + LongDouble((int) (rnd() % 10));
+					y = y * LongDouble(10) + LongDouble((int) (rnd() % 10));
 				}
-				x.mantissa = rnd() % (len / 2);
-				y.mantissa = rnd() % (len / 2);
-				LongDouble power = string("1"); power.divBase(x.mantissa);
-				assert(x - x / y * y < LongDouble(1, x.mantissa) / power);
+				int expx = rnd() % (len / 2);
+				x.divBase(expx);
+				y.divBase(rnd() % (len / 2));
+				LongDouble power = 1; power.divBase(expx);
+				assert(x - x / y * y < power);
 			}
 		}
 	};
@@ -140,13 +148,19 @@ namespace testing {
 			assert(n == 123.457);
 			n.round(2);
 			assert(n == 123.46);
-			n = LongDouble(123, 1) / 13;
+			n = LongDouble(123) / 13;
+			n.round(1);
 			assert(n == 9.5);
-			assert(LongDouble(123, 2) / 13 == 9.46);	
+			n = LongDouble(123) / 13;
+			n.round(2);
+			assert(n == 9.46);	
 		}
 	};
 
 	void test() {
+		auto a = LongDouble(10005, 100);
+		a.sqrt();
+		cout << a << endl;
  		TestInit().test();
 		TestAddition().test();
 		TestSubstracion().test();

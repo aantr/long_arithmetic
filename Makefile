@@ -1,4 +1,4 @@
-CC = g++-13
+CC = g++
 
 CFLAGS = \
 	-std=c++17 \
@@ -33,6 +33,7 @@ RESET   = \033[0m
 INCLUDES = \
 	include/testing.hpp \
 	include/arithmetic.hpp \
+	include/arithmetic1.hpp \
 	include/fft.hpp
 
 # Add "include" folder to header search path:

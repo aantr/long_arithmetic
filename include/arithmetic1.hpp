@@ -1,5 +1,5 @@
-#ifndef ARITHMETIC_HPP
-#define ARITHMETIC_HPP
+#ifndef ARITHMETIC1_HPP
+#define ARITHMETIC1_HPP
 
 #include <iostream>
 #include <string>
@@ -8,7 +8,7 @@
 #include <assert.h>
 using namespace std;
 
-namespace arithmetic {
+namespace arithmetic1 {
 
 FFT fft;
 
@@ -17,8 +17,8 @@ public:
     int sign = 1;
     vector<digit> digits; 
     int base = 10;
-    int precision = 16; // >= 2
-    int exponent = 0;
+    int precision = -1;
+    int mantissa = 0;
 
     LongDouble(); 
     LongDouble(const LongDouble& x); 
@@ -96,24 +96,27 @@ LongDouble& LongDouble::operator=(const LongDouble& other) // C5267
     digits = other.digits;
     base = other.base;
     precision = other.precision;
-    exponent = other.exponent;
+    mantissa = other.mantissa;
     return *this;
 }
 
 LongDouble::LongDouble() {
-    *this = 0;
+    sign = 1; 
+    digits = vector<digit>(0, 0);
+    precision = -1;
+    mantissa = 0;
 }
 
 LongDouble::LongDouble(const LongDouble& x) {
     sign = x.sign; 
-    exponent = x.exponent; 
+    mantissa = x.mantissa; 
     precision = x.precision;
     digits = vector<digit>(x.digits);
 }
 
 LongDouble::LongDouble(const LongDouble& x, int precision): precision(precision) {
     sign = x.sign; 
-    exponent = x.exponent; 
+    mantissa = x.mantissa; 
     precision = x.precision;
     digits = vector<digit>(x.digits);
 }
@@ -127,18 +130,18 @@ LongDouble::LongDouble(const string& value) {
         sign = 1;
         index = 0;
     }
-    exponent = 0; 
+    mantissa = 0; 
     while (index < (int)value.length()) {
         if (value[index] == '.') 
-            exponent = -((int)value.length() - 1 - index); 
+            mantissa = value.length() - 1 - index; 
         else {
             digits.push_back(value[index] - '0');
         }
+
         index++;
     }
     reverse(digits.begin(), digits.end());
     removeZeroes();
-    if ((int) digits.size() == 0) sign = 1;
 }
 
 LongDouble::LongDouble(const string& value, int precision): precision(precision) {
@@ -150,10 +153,10 @@ LongDouble::LongDouble(const string& value, int precision): precision(precision)
         sign = 1;
         index = 0;
     }
-    exponent = 0; 
+    mantissa = 0; 
     while (index < (int)value.length()) {
         if (value[index] == '.') 
-            exponent = -((int)value.length() - 1 - index); 
+            mantissa = value.length() - 1 - index; 
         else {
             digits.push_back(value[index] - '0');
         }
@@ -161,8 +164,6 @@ LongDouble::LongDouble(const string& value, int precision): precision(precision)
     }
     reverse(digits.begin(), digits.end());
     removeZeroes();
-    if ((int) digits.size() == 0) sign = 1;
-
 }
 
 LongDouble::LongDouble(const int &v) {
@@ -172,9 +173,7 @@ LongDouble::LongDouble(const int &v) {
         digits.push_back(x % base);
         x /= base;
     }
-    exponent = 0;
-    removeZeroes();
-
+    mantissa = 0;
 }
 
 LongDouble::LongDouble(const int &v, int precision): precision(precision) {
@@ -184,9 +183,7 @@ LongDouble::LongDouble(const int &v, int precision): precision(precision) {
         digits.push_back(x % base);
         x /= base;
     }
-    exponent = 0;
-    removeZeroes();
-
+    mantissa = 0;
 }
 
 LongDouble::LongDouble(const long long &v) {
@@ -196,9 +193,7 @@ LongDouble::LongDouble(const long long &v) {
         digits.push_back(x % base);
         x /= base;
     }
-    exponent = 0;
-    removeZeroes();
-
+    mantissa = 0;
 }
 
 LongDouble::LongDouble(const long long &v, int precision): precision(precision) {
@@ -208,9 +203,7 @@ LongDouble::LongDouble(const long long &v, int precision): precision(precision) 
         digits.push_back(x % base);
         x /= base;
     }
-    exponent = 0;
-    removeZeroes();
-
+    mantissa = 0;
 }
 
 LongDouble::LongDouble(const double &v) {
@@ -223,10 +216,10 @@ LongDouble::LongDouble(const double &v) {
         sign = 1;
         index = 0;
     }
-    exponent = 0; 
+    mantissa = 0; 
     while (index < (int)value.length()) {
         if (value[index] == '.') 
-            exponent = -((int)value.length() - 1 - index); 
+            mantissa = value.length() - 1 - index; 
         else {
             digits.push_back(value[index] - '0');
         }
@@ -234,8 +227,6 @@ LongDouble::LongDouble(const double &v) {
     }
     reverse(digits.begin(), digits.end());
     removeZeroes();
-    if ((int) digits.size() == 0) sign = 1;
-
 }
 
 LongDouble::LongDouble(const double &v, int precision): precision(precision) {
@@ -248,10 +239,10 @@ LongDouble::LongDouble(const double &v, int precision): precision(precision) {
         sign = 1;
         index = 0;
     }
-    exponent = 0; 
+    mantissa = 0; 
     while (index < (int)value.length()) {
         if (value[index] == '.') 
-            exponent = -((int)value.length() - 1 - index); 
+            mantissa = value.length() - 1 - index; 
         else {
             digits.push_back(value[index] - '0');
         }
@@ -259,50 +250,36 @@ LongDouble::LongDouble(const double &v, int precision): precision(precision) {
     }
     reverse(digits.begin(), digits.end());
     removeZeroes();
-    if ((int) digits.size() == 0) sign = 1;
-
 }
 
 void LongDouble::removeZeroes() {
     int left = 0, right = 0;
      for (int i = (int)digits.size() - 1; i >= 0; i--) {
-        if (digits[i] == 0) {
+        if (digits[i] == 0 && mantissa < (int) digits.size() - right) {
             right++;
         } else {
             break;
         }
     }
     for (int i = 0; i < (int)digits.size(); i++) {
-        if (digits[i] == 0) {
-            exponent++;
+        if (digits[i] == 0 && mantissa > 0) {
+            mantissa--;
             left++;
         } else {
             break;
         }
     }
-    if (left == (int) digits.size()) {
-        digits.clear();
-        sign = 1;
-        exponent = 0;
-    }
-    else {
-        if (left == 0) {
-            for (int i = 0; i < right; i++) {
-                digits.pop_back();
-            }
-        } else {
-            vector<digit> temp {digits.begin() + left, digits.end() - right};
-            digits = temp;
-        }
-    }
-        
+    vector<digit> temp {digits.begin() + left, digits.end() - right};
+
+    digits = temp;
 }
 
 void LongDouble::removeFirst(int value) {
-    assert((int) digits.size() >= value && value >= 0);
+    assert((int) digits.size() >= value);
     vector<digit> temp {digits.begin() + value, digits.end()};
     digits = temp;
-    exponent += value;
+    mantissa -= value;
+    if (mantissa < 0) mantissa = 0;
 }
 
 istream& operator>>(istream& os, LongDouble& value) {
@@ -315,51 +292,40 @@ istream& operator>>(istream& os, LongDouble& value) {
 ostream& operator<<(ostream& os, const LongDouble& value) {
     if (value.sign == -1)
         os << '-';
-    if ((int)value.digits.size() == 0) {
+    if (value.mantissa == (int) value.digits.size()) {
         os << '0';
-        return os;
     }
-    if (value.exponent == -(int) value.digits.size()) {
-        os << '0' << '.';
-        for (int i = (int)value.digits.size() - 1; i >= 0; i--) {
-            os << value.digits[i];
-        }
-        return os;
-    }   
-    if (value.exponent < -(int)value.digits.size()) {
-        for (int i = (int)value.digits.size() - 1; i >= 0; i--) {
-            os << value.digits[i];
-        }
-        os << 'e' << value.exponent;
-    } else if (value.exponent > 0) {
-        for (int i = (int)value.digits.size() - 1; i >= 0; i--) {
-            os << value.digits[i];
-        }
-        os << 'e' << '+' << value.exponent;
-    } else {
-        for (int i = (int)value.digits.size() - 1; i >= 0; i--) {
-            os << value.digits[i];
-            if (i > 0 && i == -value.exponent) os << '.';
-        }
+    for (int i = 0; i < (int)value.digits.size(); i++) {
+        if (i == (int) value.digits.size() - value.mantissa) os << '.';
+        os << value.digits[(int) value.digits.size() - 1 - i];
     }
     return os;
 }
 
 void LongDouble::mulBase(int power) {
-    exponent += power;
+    int m = min(mantissa, power);
+    mantissa -= m;
+    power -= m;
+    vector<digit> dig(power, 0);
+    for (digit i : digits) dig.push_back(i);
+    digits = dig;
+    removeZeroes();
 }
 
 void LongDouble::divBase(int power) {
-    exponent -= power;
+    int m = min((int) digits.size() - mantissa, power);
+    mantissa += m;
+    power -= m;
+    for (int i = 0; i < power; i++) {
+        mantissa++;
+        digits.push_back(0);
+    }
+    removeZeroes();
 }
 
 void LongDouble::round(int number) {
-    if (-exponent <= number) return;
-    if (-exponent - number - 1 >= (int)digits.size()) {
-        *this = 0;
-        return;
-    }
-    removeFirst(-exponent - number - 1);
+    if (mantissa <= number) return;
+    removeFirst(mantissa - number - 1);
     bool was = true;
     if (digits[0] < 5) was = false;
     if (was) {
@@ -369,7 +335,6 @@ void LongDouble::round(int number) {
     }
     removeFirst(1);
     removeZeroes();
-    if (digits.empty()) sign = 1;
 }
 
 void LongDouble::round() {
@@ -379,15 +344,21 @@ void LongDouble::round() {
 void LongDouble::sqrt() {
     assert(sign == 1);
     LongDouble x = *this;
-    x.precision *= 2;
     LongDouble res = x;
     LongDouble prev = x + 1;
+    if (precision == -1) {
+        x.precision = 16;
+    } else {
+        x.precision = precision;
+    }
     LongDouble st(1);
-    st.divBase(x.precision);
-    while (prev - res > st){
+    st.divBase(x.precision + 1);
+    while (prev - res != 0){
         swap(res, prev);
         res = (prev + x / prev) * 0.5;
+        res.round(x.precision + 2);
     }
+
     *this = res;
 }
 
@@ -397,48 +368,55 @@ LongDouble LongDouble::operator*(const LongDouble& x) const {
     return res;
 }
 
+
 void LongDouble::operator*=(const LongDouble& x) {
     sign = sign * x.sign;
-    exponent = exponent + x.exponent;
+    mantissa = mantissa + x.mantissa;
     digits = fft.multiply(digits, x.digits, base);
-    removeZeroes();
-    if ((int)digits.size() > precision) {
-        removeFirst((int)digits.size() - precision);
+    if (precision != -1 && mantissa > precision) {
+        removeFirst(mantissa - precision);
+    }
+    while ((int) digits.size() < mantissa) {
+        digits.push_back(0);
     }
     removeZeroes();
+    if (digits.empty()) sign = 1;
 }
 
 LongDouble LongDouble::operator-() const {
-    LongDouble res(*this);
-    res.sign = -res.sign;
+    LongDouble res;
+    res.precision = precision;
+    res.sign = -sign; 
+    res.mantissa = mantissa; 
+    res.digits = vector<digit>(digits);
     return res;
 }
 
 bool LongDouble::operator<(const LongDouble& x) const {
-    if ((int)digits.size() == 0) return x.sign == 1 && (int) x.digits.size() > 0;
-    if ((int)x.digits.size() == 0) return x.sign == -1 && (int) digits.size() > 0;
-    if (sign != x.sign) return sign < x.sign && ((int) digits.size() > 0 || (int) x.digits.size() > 0); 
+    if (sign != x.sign)
+        return sign < x.sign && ((int) digits.size() > 0 || (int) x.digits.size() > 0); 
 
-    if ((int) digits.size() + exponent != (int)x.digits.size() + x.exponent)
-        return ((int) digits.size() + exponent < (int)x.digits.size() + x.exponent) ^ (sign == -1);
+    if ((int) digits.size() - mantissa != (int)x.digits.size() - x.mantissa)
+        return ((int) digits.size() - mantissa < (int)x.digits.size() - x.mantissa) ^ (sign == -1);
     
     for (int i = 0; i < min((int) digits.size(), (int) x.digits.size()); i++) {
         if (digits[digits.size() - 1 - i] < x.digits[x.digits.size() - 1 - i]) return true;
         if (digits[digits.size() - 1 - i] > x.digits[x.digits.size() - 1 - i]) return false;
     }
-    return digits.size() < x.digits.size();
+    if (x.digits.size() > digits.size()) return true;
+    return false;
 }
 
 bool LongDouble::operator==(const LongDouble& x) const {
     if (sign != x.sign)
         return ((int) digits.size() == 0 && (int) x.digits.size() == 0); 
-    return exponent == x.exponent && digits == x.digits;
+    return mantissa == x.mantissa && digits == x.digits;
 }
 
 bool LongDouble::operator!=(const LongDouble& x) const {
     if (sign != x.sign)
         return ((int) digits.size() > 0 || (int) x.digits.size() > 0); 
-    return exponent != x.exponent || digits != x.digits;
+    return mantissa != x.mantissa || digits != x.digits;
 }
 
 bool LongDouble::operator>(const LongDouble& x) const {
@@ -458,23 +436,13 @@ LongDouble LongDouble::operator+(const LongDouble& x) const {
         LongDouble res;
         res.precision = precision;
         res.sign = sign;
-        vector<digit> resd(max((int)digits.size() + exponent, (int)x.digits.size() + x.exponent) - min(exponent, x.exponent));
-        if (exponent <= x.exponent) {
-            res.exponent = exponent;
-            for (int i = 0; i < (int) digits.size(); i++) {
-                resd[i] += digits[i];
-            }
-            for (int i = 0; i < (int) x.digits.size(); i++) {
-                resd[i + x.exponent - exponent] += x.digits[i];
-            }
-        } else {
-            res.exponent = x.exponent;
-            for (int i = 0; i < (int) x.digits.size(); i++) {
-                resd[i] += x.digits[i];
-            }
-            for (int i = 0; i < (int) digits.size(); i++) {
-                resd[i + exponent - x.exponent] += digits[i];
-            }
+        res.mantissa = max(mantissa, x.mantissa);
+        vector<digit> resd(max(mantissa, x.mantissa) + max((int)digits.size() - mantissa, (int)x.digits.size() - x.mantissa));
+        for (int i = 0; i < (int) digits.size(); i++) {
+            resd[res.mantissa + i - mantissa] += digits[i];
+        }
+        for (int i = 0; i < (int) x.digits.size(); i++) {
+            resd[res.mantissa + i - x.mantissa] += x.digits[i];
         }
         int carry = 0;
         for (int i = 0; i < (int) resd.size(); i++) {
@@ -503,29 +471,21 @@ LongDouble LongDouble::operator-(const LongDouble& x) const {
 
         if (*this < x) {
             LongDouble res = x - *this;
-            return -res;
+            res.sign = -res.sign;
+            return res;
         }
+
 
         LongDouble res;
         res.sign = 1;
         res.precision = precision;
-        vector<digit> resd(max((int)digits.size() + exponent, (int)x.digits.size() + x.exponent) - min(exponent, x.exponent));
-        if (exponent <= x.exponent) {
-            res.exponent = exponent;
-            for (int i = 0; i < (int) digits.size(); i++) {
-                resd[i] += digits[i];
-            }
-            for (int i = 0; i < (int) x.digits.size(); i++) {
-                resd[i + x.exponent - exponent] -= x.digits[i];
-            }
-        } else {
-            res.exponent = x.exponent;
-            for (int i = 0; i < (int) x.digits.size(); i++) {
-                resd[i] -= x.digits[i];
-            }
-            for (int i = 0; i < (int) digits.size(); i++) {
-                resd[i + exponent - x.exponent] += digits[i];
-            }
+        res.mantissa = max(mantissa, x.mantissa);
+        vector<digit> resd(max(mantissa, x.mantissa) + max((int)digits.size() - mantissa, (int)x.digits.size() - x.mantissa));
+        for (int i = 0; i < (int) digits.size(); i++) {
+            resd[res.mantissa + i - mantissa] += digits[i];
+        }
+        for (int i = 0; i < (int) x.digits.size(); i++) {
+            resd[res.mantissa + i - x.mantissa] -= x.digits[i];
         }
 
         int carry = 0;
@@ -537,7 +497,6 @@ LongDouble LongDouble::operator-(const LongDouble& x) const {
         assert(carry == 0);
         res.digits = resd;
         res.removeZeroes();
-        if ((int) res.digits.size() == 0) res.sign = 1;
         return res;
     }
 
@@ -552,7 +511,7 @@ void LongDouble::operator-=(const LongDouble& x) {
 }
 
 LongDouble IntegerDivision(const LongDouble &x, const LongDouble &y) { // n * n * log^2(n)
-    assert(x.exponent == 0 && y.exponent == 0);
+    assert(x.mantissa == 0 && y.mantissa == 0);
     if (y == LongDouble(0)) throw exception();
     LongDouble b = y;
     LongDouble result(0), current(0);
@@ -560,47 +519,61 @@ LongDouble IntegerDivision(const LongDouble &x, const LongDouble &y) { // n * n 
     result.digits.resize((int) x.digits.size());
     for (int i = (int) (x.digits.size()) - 1; i >= 0; i--) {
         current.mulBase(1);
-        current += x.digits[i];
+        if ((int) current.digits.size() == 0) {
+            current.digits.push_back(x.digits[i]);
+        } else {
+            current.digits[0] = x.digits[i];
+        }
+        current.removeZeroes();
         int l = 0, r = LongDouble().base;
         while (r - l > 1) {
             int m = (l + r) / 2;
-            LongDouble t = b * m;
-            if (t <= current) l = m;
+            LongDouble t = b * LongDouble(m);
+            if (t < current || t == current) {
+                l = m;
+            }
             else r = m;
         }
         result.digits[i] = l;
-        current -= b * l;
+        current = current - LongDouble(l) * b;
     }
     result.sign = x.sign * y.sign;
     result.removeZeroes();
-
     return result;
 }
 
-LongDouble LongDouble::operator/(const LongDouble& other) const {
+LongDouble LongDouble::operator/(const LongDouble& other) const { // окргуление по матеше
     LongDouble x (*this);
     x.sign = 1;
     LongDouble y (other);
     y.sign = 1;
-    int res_exponent = exponent - other.exponent;
-    x.exponent = 0;
-    y.exponent = 0;
 
-    int plus = precision - (int)digits.size() + (int)x.digits.size() + 2;
-    vector<digit> temp(plus + (int)x.digits.size(), 0);
-    for (int i = 0; i < (int) x.digits.size(); i++) {
-        temp[plus + i] = x.digits[i];
+    if (y.mantissa > x.mantissa) {
+        int temp = x.mantissa;
+        x.mantissa = 0;
+        y.mantissa -= temp;
+        x.mulBase(y.mantissa);
+        y.mantissa = 0; 
+    } else {
+        x.mantissa -= y.mantissa;
+        y.mantissa = 0;
+        y.mulBase(x.mantissa);
+        x.mantissa = 0;
     }
-    x.digits = temp;
-    res_exponent -= plus;
+    int plus = max(16, mantissa); // минимальная точность при делении 16 зн после запятой
+    if (precision != -1) {
+        plus = precision;
+    }
+    x.mulBase(plus + 1); // + 1 знак
     LongDouble res = IntegerDivision(x, y);
-
     res.precision = precision;
-    res.exponent += res_exponent;
-    res.sign = sign * other.sign;
+    res.mantissa = plus + 1;
+    while (res.mantissa > (int) res.digits.size()) res.digits.push_back(0);
     res.removeZeroes();
-    if ((int)res.digits.size() - res.precision > 0) res.removeFirst((int)res.digits.size() - res.precision);
-
+    res.sign = sign * other.sign;
+    if (res.precision != -1) {
+        res.round(res.precision);
+    }
     return res;
 }
 
@@ -684,4 +657,3 @@ LongDouble& LongDouble::operator=(const T& x) {
 };
 
 #endif
-
