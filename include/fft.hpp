@@ -1,3 +1,6 @@
+#ifndef FFT_HPP
+#define FFT_HPP
+
 #include <math.h>
 #include <vector>
 #include <complex.h>
@@ -102,3 +105,5 @@ public:
     }
 
 };
+
+#endif

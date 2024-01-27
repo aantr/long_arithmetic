@@ -1,3 +1,6 @@
+#ifndef ARITHMETIC_HPP
+#define ARITHMETIC_HPP
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -17,15 +20,19 @@ public:
 
     LongDouble(); 
     LongDouble(const LongDouble& x); 
+    LongDouble(const LongDouble& x, int precision); 
     LongDouble(const string &value); 
     LongDouble(const string &value, int precision);
     LongDouble(const int &value);
     LongDouble(const int &value, int precision); 
+    LongDouble(const long long &value);
+    LongDouble(const long long &value, int precision); 
     LongDouble(const double &value); 
     LongDouble(const double &value, int precision); 
     void removeZeroes(); 
     void removeFirst(int value);
     void mulBase(int power);
+    void divBase(int power);
     LongDouble operator+(const LongDouble& x) const;
     void operator+=(const LongDouble& x);
     LongDouble operator-(const LongDouble& x) const;
@@ -34,6 +41,24 @@ public:
     void operator*=(const LongDouble& x);
     LongDouble operator/(const LongDouble& x) const;
     void operator/=(const LongDouble& x);
+
+    template<class T>
+    LongDouble operator+(const T& x) const;
+    template<class T>
+    void operator+=(const T& x);
+    template<class T>
+    LongDouble operator-(const T& x) const;
+    template<class T>
+    void operator-=(const T& x);
+    template<class T>
+    LongDouble operator*(const T& x) const;
+    template<class T>
+    void operator*=(const T& x);
+    template<class T>
+    LongDouble operator/(const T& x) const;
+    template<class T>
+    void operator/=(const T& x);
+
     LongDouble operator-() const;
     bool operator<(const LongDouble& x) const;
     bool operator<=(const LongDouble& x) const;
@@ -41,7 +66,22 @@ public:
     bool operator>=(const LongDouble& x) const;
     bool operator==(const LongDouble& x) const;
     bool operator!=(const LongDouble& x) const;
-    LongDouble& operator=(const LongDouble& x); // assign"ent operatorter
+    LongDouble& operator=(const LongDouble& x); // assignment operator
+
+    template<class T>
+    bool operator<(const T& x) const;
+    template<class T>
+    bool operator<=(const T& x) const;
+    template<class T>
+    bool operator>(const T& x) const;
+    template<class T>
+    bool operator>=(const T& x) const;
+    template<class T>
+    bool operator==(const T& x) const;
+    template<class T>
+    bool operator!=(const T& x) const;
+    template<class T>
+    LongDouble& operator=(const T& x);
 
 };
 
@@ -63,6 +103,13 @@ LongDouble::LongDouble() {
 }
 
 LongDouble::LongDouble(const LongDouble& x) {
+    sign = x.sign; 
+    mantissa = x.mantissa; 
+    precision = x.precision;
+    digits = vector<digit>(x.digits);
+}
+
+LongDouble::LongDouble(const LongDouble& x, int precision): precision(precision) {
     sign = x.sign; 
     mantissa = x.mantissa; 
     precision = x.precision;
@@ -126,6 +173,26 @@ LongDouble::LongDouble(const int &v) {
 
 LongDouble::LongDouble(const int &v, int precision): precision(precision) {
     int x = v;
+    if (x < 0) sign = -1, x = -x;
+    while (x) {
+        digits.push_back(x % base);
+        x /= base;
+    }
+    mantissa = 0;
+}
+
+LongDouble::LongDouble(const long long &v) {
+    long long x = v;
+    if (x < 0) sign = -1, x = -x;
+    while (x) {
+        digits.push_back(x % base);
+        x /= base;
+    }
+    mantissa = 0;
+}
+
+LongDouble::LongDouble(const long long &v, int precision): precision(precision) {
+    long long x = v;
     if (x < 0) sign = -1, x = -x;
     while (x) {
         digits.push_back(x % base);
@@ -237,6 +304,17 @@ void LongDouble::mulBase(int power) {
     vector<digit> dig(power, 0);
     for (digit i : digits) dig.push_back(i);
     digits = dig;
+    removeZeroes();
+}
+
+void LongDouble::divBase(int power) {
+    int m = min((int) digits.size() - mantissa, power);
+    mantissa += m;
+    power -= m;
+    for (int i = 0; i < power; i++) {
+        mantissa++;
+        digits.push_back(0);
+    }
     removeZeroes();
 }
 
@@ -438,8 +516,10 @@ LongDouble LongDouble::operator/(const LongDouble& other) const { // окргу�
         y.mulBase(x.mantissa);
         x.mantissa = 0;
     }
-    int plus = mantissa;
-    if (precision != -1) plus = precision;
+    int plus = max(16, mantissa); // минимальная точность при делении 16 зн после запятой
+    if (precision != -1) {
+        plus = precision;
+    }
     x.mulBase(plus);
     LongDouble res = IntegerDivision(x, y);
     res.precision = precision;
@@ -453,3 +533,79 @@ LongDouble LongDouble::operator/(const LongDouble& other) const { // окргу�
 void LongDouble::operator/=(const LongDouble& other) { // окргуление последнего знака вниз
     *this = *this / other;
 }
+
+template<class T>
+LongDouble LongDouble::operator+(const T& other) const { // окргуление последнего знака вниз
+    return *this + LongDouble(other);
+}
+
+template<class T>
+LongDouble LongDouble::operator-(const T& other) const { // окргуление последнего знака вниз
+    return *this - LongDouble(other);
+}
+
+template<class T>
+void LongDouble::operator+=(const T& other) { // окргуление последнего знака вниз
+    *this += LongDouble(other);
+}
+
+template<class T>
+void LongDouble::operator-=(const T& other) { // окргуление последнего знака вниз
+    *this -= LongDouble(other);
+}
+
+template<class T>
+LongDouble LongDouble::operator*(const T& other) const { // окргуление последнего знака вниз
+    return *this * LongDouble(other);
+}
+
+template<class T>
+LongDouble LongDouble::operator/(const T& other) const { // окргуление последнего знака вниз
+    return *this / LongDouble(other);
+}
+
+template<class T>
+void LongDouble::operator*=(const T& other) { // окргуление последнего знака вниз
+    *this *= LongDouble(other);
+}
+
+template<class T>
+void LongDouble::operator/=(const T& other) { // окргуление последнего знака вниз
+    *this /= LongDouble(other);
+}
+
+template<class T>
+bool LongDouble::operator<(const T& x) const {
+    return *this < LongDouble(x);
+}
+template<class T>
+bool LongDouble::operator<=(const T& x) const {
+    return *this <= LongDouble(x);
+}
+template<class T>
+bool LongDouble::operator>(const T& x) const {
+    return *this > LongDouble(x);
+}
+
+template<class T>
+bool LongDouble::operator>=(const T& x) const {
+    return *this >= LongDouble(x);
+}
+
+template<class T>
+bool LongDouble::operator==(const T& x) const {
+    return *this == LongDouble(x);
+}
+
+template<class T>
+bool LongDouble::operator!=(const T& x) const {
+    return *this != LongDouble(x);
+}
+
+template<class T>
+LongDouble& LongDouble::operator=(const T& x) {
+    return *this = LongDouble(x);
+}
+
+
+#endif

@@ -1,4 +1,4 @@
-CC = g++
+CC = g++-13
 
 CFLAGS = \
 	-std=c++17 \
@@ -31,6 +31,7 @@ BCYAN   = \033[1;36m
 RESET   = \033[0m
 
 INCLUDES = \
+	include/testing.hpp \
 	include/arithmetic.hpp \
 	include/fft.hpp
 
@@ -74,6 +75,9 @@ build/%.o: src/%.cpp $(INCLUDES)
 run: $(EXECUTABLE)
 	./$(EXECUTABLE)
 
+test: $(EXECUTABLE)
+	./$(EXECUTABLE) --test
+
 #---------------
 # Miscellaneous
 #---------------
@@ -83,4 +87,4 @@ clean:
 	rm -rf build
 
 # List of non-file targets:
-.PHONY: run clean default
+.PHONY: run test clean default
