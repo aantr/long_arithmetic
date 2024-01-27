@@ -530,47 +530,47 @@ LongDouble LongDouble::operator/(const LongDouble& other) const { // окргу�
     return res;
 }
 
-void LongDouble::operator/=(const LongDouble& other) { // окргуление последнего знака вниз
+void LongDouble::operator/=(const LongDouble& other) { 
     *this = *this / other;
 }
 
 template<class T>
-LongDouble LongDouble::operator+(const T& other) const { // окргуление последнего знака вниз
+LongDouble LongDouble::operator+(const T& other) const {
     return *this + LongDouble(other);
 }
 
 template<class T>
-LongDouble LongDouble::operator-(const T& other) const { // окргуление последнего знака вниз
+LongDouble LongDouble::operator-(const T& other) const { 
     return *this - LongDouble(other);
 }
 
 template<class T>
-void LongDouble::operator+=(const T& other) { // окргуление последнего знака вниз
+void LongDouble::operator+=(const T& other) { 
     *this += LongDouble(other);
 }
 
 template<class T>
-void LongDouble::operator-=(const T& other) { // окргуление последнего знака вниз
+void LongDouble::operator-=(const T& other) { 
     *this -= LongDouble(other);
 }
 
 template<class T>
-LongDouble LongDouble::operator*(const T& other) const { // окргуление последнего знака вниз
+LongDouble LongDouble::operator*(const T& other) const { 
     return *this * LongDouble(other);
 }
 
 template<class T>
-LongDouble LongDouble::operator/(const T& other) const { // окргуление последнего знака вниз
+LongDouble LongDouble::operator/(const T& other) const { 
     return *this / LongDouble(other);
 }
 
 template<class T>
-void LongDouble::operator*=(const T& other) { // окргуление последнего знака вниз
+void LongDouble::operator*=(const T& other) { 
     *this *= LongDouble(other);
 }
 
 template<class T>
-void LongDouble::operator/=(const T& other) { // окргуление последнего знака вниз
+void LongDouble::operator/=(const T& other) { 
     *this /= LongDouble(other);
 }
 
