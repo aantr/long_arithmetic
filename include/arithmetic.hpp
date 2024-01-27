@@ -33,6 +33,9 @@ public:
     void removeFirst(int value);
     void mulBase(int power);
     void divBase(int power);
+    void round(int number);
+    void round();
+    void sqrt();
     LongDouble operator+(const LongDouble& x) const;
     void operator+=(const LongDouble& x);
     LongDouble operator-(const LongDouble& x) const;
@@ -318,6 +321,45 @@ void LongDouble::divBase(int power) {
     removeZeroes();
 }
 
+void LongDouble::round(int number) {
+    if (mantissa <= number) return;
+    removeFirst(mantissa - number - 1);
+    bool was = true;
+    if (digits[0] < 5) was = false;
+    if (was) {
+        LongDouble st(sign);
+        st.divBase(number);
+        *this += st;
+    }
+    removeFirst(1);
+    removeZeroes();
+}
+
+void LongDouble::round() {
+    round(0);
+}
+
+void LongDouble::sqrt() {
+    assert(sign == 1);
+    LongDouble x = *this;
+    LongDouble res = x;
+    LongDouble prev = x + 1;
+    if (precision == -1) {
+        x.precision = 16;
+    } else {
+        x.precision = precision;
+    }
+    LongDouble st(1);
+    st.divBase(x.precision + 1);
+    while (prev - res != 0){
+        swap(res, prev);
+        res = (prev + x / prev) * 0.5;
+        res.round(x.precision + 2);
+    }
+
+    *this = res;
+}
+
 LongDouble LongDouble::operator*(const LongDouble& x) const {
     LongDouble res = (*this);
     res *= x;
@@ -498,7 +540,7 @@ LongDouble IntegerDivision(const LongDouble &x, const LongDouble &y) { // n * n 
     return result;
 }
 
-LongDouble LongDouble::operator/(const LongDouble& other) const { // окргуление последнего знака вниз
+LongDouble LongDouble::operator/(const LongDouble& other) const { // окргуление по матеше
     LongDouble x (*this);
     x.sign = 1;
     LongDouble y (other);
@@ -520,13 +562,16 @@ LongDouble LongDouble::operator/(const LongDouble& other) const { // окргу�
     if (precision != -1) {
         plus = precision;
     }
-    x.mulBase(plus);
+    x.mulBase(plus + 1); // + 1 знак
     LongDouble res = IntegerDivision(x, y);
     res.precision = precision;
-    res.mantissa = plus;
+    res.mantissa = plus + 1;
     while (res.mantissa > (int) res.digits.size()) res.digits.push_back(0);
     res.removeZeroes();
     res.sign = sign * other.sign;
+    if (res.precision != -1) {
+        res.round(res.precision);
+    }
     return res;
 }
 

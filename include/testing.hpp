@@ -86,7 +86,7 @@ namespace testing {
 			int count = 100;
 			for (int i = 0; i < count; i++) {
 				int x = (long long) rnd() - rnd(), y = (long long) rnd() - rnd();
-				assert(LongDouble(x / y) == LongDouble(x, 0) / LongDouble(y));
+				assert(LongDouble(round((double)x / y)) == LongDouble(x, 0) / LongDouble(y));
 			}
 		}
 	};
@@ -114,6 +114,38 @@ namespace testing {
 		}
 	};
 
+	class TestRound : public Test {
+	public:
+		TestRound() {
+			name = "TestRound";
+		}
+		void test() {
+			_test();
+			LongDouble a = 1.5, b = 1.4, c = -1.4, d = -1.5, e = -1.6, n = 123.45678;
+			a.round();
+			b.round();
+			c.round();
+			d.round();
+			e.round();
+			assert(a == 2);
+			assert(b == 1);
+			assert(c == -1);
+			assert(d == -2);
+			assert(e == -2);
+			n.round(5);
+			assert(n == 123.45678);
+			n.round(4);
+			assert(n == 123.4568);
+			n.round(3);
+			assert(n == 123.457);
+			n.round(2);
+			assert(n == 123.46);
+			n = LongDouble(123, 1) / 13;
+			assert(n == 9.5);
+			assert(LongDouble(123, 2) / 13 == 9.46);	
+		}
+	};
+
 	void test() {
  		TestInit().test();
 		TestAddition().test();
@@ -121,6 +153,7 @@ namespace testing {
 		TestMult().test();
 		TestDiv().test();
 		TestPrecision().test();
+		TestRound().test();
 		cout << "Finished in " << (double) clock() / CLOCKS_PER_SEC << " sec\n";
 	};
 }
