@@ -25,13 +25,31 @@ namespace testing {
 		}
 		void test() {
 			_test();
-			LongDouble a(123), b(0), c, d(-123), e("0123"), k("0");
+			LongDouble a(123), b, c, d = -123, e("0123"), k = string("0");
 			assert(a == e);
 			assert(b == k);
 			assert(a != d);
 			assert(c == k);
 			assert(d == -a);
 			assert(d != a);
+		}
+	};
+
+	class TestInequlity : public Test {
+	public:
+		TestInequlity() {
+			name = "TestInequlity";
+		}
+		void test() {
+			_test();
+			LongDouble a(123), b, c, d = -123, e("0123"), k = string("0");
+			assert((a >= d) == true);
+			assert((b <= k) == true);
+			assert((d > a) == false);
+			assert((e < d) == false);
+			assert((d > c) == false);
+			assert((k < b) == false);
+
 		}
 	};
 
@@ -91,9 +109,34 @@ namespace testing {
 			for (int i = 0; i < count; i++) {
 				int x = (long long) rnd() - rnd(), y = ((long long) rnd() - rnd()) / 100;
 				LongDouble res = LongDouble(x) / LongDouble(y);
-				res.round();
+				res.floor();
+				assert(LongDouble(x / y) == res);
 
-				assert(LongDouble(round((double)x / y)) == res);
+				LongDouble res_round = LongDouble(x) / LongDouble(y);
+				res_round.round(5);
+				assert(res_round == (double)round((double)x / y * pow(10, 5)) / pow(10, 5));
+			}
+		}
+	};
+
+	class TestSqrt : public Test {
+	public:
+		TestSqrt() {
+			name = "TestSqrt";
+		}
+		void test() {
+			_test();
+			int count = 100;
+			for (int i = 0; i < count; i++) {
+				double x = rnd() % 1000000000;
+				x /= pow(10, rnd() % 5);
+				LongDouble X ((double)x, 16);
+				X.sqrt();
+				x = sqrtl(x);
+				LongDouble st = 1;
+				int check = 6;
+				st.divBase(check);
+				assert((X - (double)x).abs() < st);
 			}
 		}
 	};
@@ -107,15 +150,15 @@ namespace testing {
 			_test();
 			int count = 100;
 			for (int i = 0; i < count; i++) {
-				int len = 10; // тестируем числа с len цифрами
+				int len = 40; // тестируем числа с len цифрами
 				LongDouble x(0, len * 3 / 2), y(0, 10);
 				for (int j = 0; j < len; j++) {
 					x = x * LongDouble(10) + LongDouble((int) (rnd() % 10));
 					y = y * LongDouble(10) + LongDouble((int) (rnd() % 10));
 				}
-				int expx = rnd() % (len / 2);
+				int expx = rnd() % len;
 				x.divBase(expx);
-				y.divBase(rnd() % (len / 2));
+				y.divBase(rnd() % len);
 				LongDouble power = 1; power.divBase(expx);
 				assert(x - x / y * y < power);
 			}
@@ -152,6 +195,13 @@ namespace testing {
 			assert(n == 120);
 			n.round(-2);
 			assert(n == 100);
+
+			n = 3453345.44563636;
+			n.floor(5);
+			assert(n == 3453345.44563);
+			n.floor(-2);
+			assert(n == 3453300);
+
 			n = LongDouble(123) / 13;
 			n.round(1);
 			assert(n == 9.5);
@@ -163,10 +213,12 @@ namespace testing {
 
 	void test() {
  		TestInit().test();
+ 		TestInequlity().test();
 		TestAddition().test();
 		TestSubstracion().test();
 		TestMult().test();
 		TestDiv().test();
+		TestSqrt().test();
 		TestPrecision().test();
 		TestRound().test();
 		cout << "Finished in " << (double) clock() / CLOCKS_PER_SEC << " sec\n";

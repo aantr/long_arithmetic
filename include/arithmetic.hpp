@@ -40,6 +40,7 @@ public:
     void floor(int number);
     void floor();
     void sqrt();
+    LongDouble abs() const;
     LongDouble operator+(const LongDouble& x) const;
     void operator+=(const LongDouble& x);
     LongDouble operator-(const LongDouble& x) const;
@@ -410,6 +411,12 @@ void LongDouble::sqrt() { // bs
     }
     if ((int) l.digits.size() > l.precision) l.removeFirst((int) l.digits.size() - l.precision);
     *this = l;
+}
+
+LongDouble LongDouble::abs() const {
+    if ((int) digits.size() == 0) return 0;
+    if (sign == -1) return -(*this);
+    return *this;
 }
 
 LongDouble LongDouble::operator*(const LongDouble& x) const {
