@@ -28,10 +28,10 @@ array<LongDouble, 3> binary_split(int l, int r, int digits) {
 }
 
 LongDouble Chudnovsky(int digits) {
-    int eps = 40; // approximate for 1000 digits
+    int eps = 40; // approximate value for 1000 digits
     LongDouble sq10005(10005, digits + eps);
     sq10005.sqrt();
-    int n = digits / 10 + 2; // approximate value
+    int n = digits / 10 + 2;
     auto [P1n, Q1n, R1n] = binary_split(1, n, (long long)1e9);  
 
     Q1n.precision = digits + eps;

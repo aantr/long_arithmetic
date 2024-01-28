@@ -11,8 +11,9 @@ using namespace arithmetic;
 std::mt19937 rnd(7327158);
 
 namespace testing {
+
 	class Test {
-	public:
+public:
 		string name = "Empty test";
 		void test() {};
 		void _test() {cout << "Testing " + name + "..." << endl;};
