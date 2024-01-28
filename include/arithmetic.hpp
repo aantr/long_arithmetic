@@ -37,6 +37,8 @@ public:
     void divBase(int power);
     void round(int number);
     void round();
+    void floor(int number);
+    void floor();
     void sqrt();
     LongDouble operator+(const LongDouble& x) const;
     void operator+=(const LongDouble& x);
@@ -319,27 +321,26 @@ ostream& operator<<(ostream& os, const LongDouble& value) {
         os << '0';
         return os;
     }
-    if (value.exponent == -(int) value.digits.size()) {
-        os << '0' << '.';
+    if ((int)value.digits.size() > 16 || (value.exponent > 0 && (int)value.digits.size() + value.exponent > 16)|| 
+                (value.exponent <= -(int)value.digits.size() && -value.exponent + 1 > 16)) {
         for (int i = (int)value.digits.size() - 1; i >= 0; i--) {
             os << value.digits[i];
+            if ((int) value.digits.size() > 1 && i == (int)value.digits.size() - 1) os << '.';
         }
-        return os;
-    }   
-    if (value.exponent < -(int)value.digits.size()) {
-        for (int i = (int)value.digits.size() - 1; i >= 0; i--) {
-            os << value.digits[i];
-        }
-        os << 'e' << value.exponent;
-    } else if (value.exponent > 0) {
-        for (int i = (int)value.digits.size() - 1; i >= 0; i--) {
-            os << value.digits[i];
-        }
-        os << 'e' << '+' << value.exponent;
+        int val = value.exponent + (int)value.digits.size() - 1;
+        if (val > 0) os << 'e' << '+' << val;
+        else if (val < 0) os << 'e' << val;
     } else {
+        for (int i = -value.exponent; i > (int)value.digits.size() - 1; i--) {
+            os << '0';
+            if (i == -value.exponent) os << '.';
+        }
         for (int i = (int)value.digits.size() - 1; i >= 0; i--) {
             os << value.digits[i];
             if (i > 0 && i == -value.exponent) os << '.';
+        }
+        for (int i = 0; i < value.exponent; i++) {
+            os << '0';
         }
     }
     return os;
@@ -361,6 +362,7 @@ void LongDouble::round(int number) {
     }
     removeFirst(-exponent - number - 1);
     bool was = true;
+    assert((int) digits.size() >= 1);
     if (digits[0] < 5) was = false;
     if (was) {
         LongDouble st(sign);
@@ -369,26 +371,45 @@ void LongDouble::round(int number) {
     }
     removeFirst(1);
     removeZeroes();
-    if (digits.empty()) sign = 1;
 }
 
 void LongDouble::round() {
     round(0);
 }
 
-void LongDouble::sqrt() {
-    assert(sign == 1);
-    LongDouble x = *this;
-    x.precision *= 2;
-    LongDouble res = x;
-    LongDouble prev = x + 1;
-    LongDouble st(1);
-    st.divBase(x.precision);
-    while (prev - res > st){
-        swap(res, prev);
-        res = (prev + x / prev) * 0.5;
+void LongDouble::floor(int number) {
+    if (-exponent <= number) return;
+    if (-exponent - number >= (int)digits.size()) {
+        *this = 0;
+        return;
     }
-    *this = res;
+    removeFirst(-exponent - number);
+    removeZeroes();
+}
+
+void LongDouble::floor() {
+    floor(0);
+}
+
+void LongDouble::sqrt() { // bs
+    assert(sign == 1);
+    LongDouble l, r = *this;
+    l.precision = precision;
+    r.precision = precision;
+    LongDouble prev = -1;
+    while (1) {
+        LongDouble m = (l + r) * 0.5;
+        if ((int) m.digits.size() > m.precision) m.removeFirst((int) m.digits.size() - m.precision);
+        if (m * m <= *this) {
+            l = m;
+        } else {
+            r = m;
+        }
+        if (prev == m) break;
+        prev = m;
+    }
+    if ((int) l.digits.size() > l.precision) l.removeFirst((int) l.digits.size() - l.precision);
+    *this = l;
 }
 
 LongDouble LongDouble::operator*(const LongDouble& x) const {
@@ -402,8 +423,8 @@ void LongDouble::operator*=(const LongDouble& x) {
     exponent = exponent + x.exponent;
     digits = fft.multiply(digits, x.digits, base);
     removeZeroes();
-    if ((int)digits.size() > precision) {
-        removeFirst((int)digits.size() - precision);
+    if ((int)digits.size() > precision * 2) {
+        removeFirst((int)digits.size() - precision * 2);
     }
     removeZeroes();
 }
@@ -505,6 +526,7 @@ LongDouble LongDouble::operator-(const LongDouble& x) const {
             LongDouble res = x - *this;
             return -res;
         }
+        // cout << *this << " " << x << endl;
 
         LongDouble res;
         res.sign = 1;

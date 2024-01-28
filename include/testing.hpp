@@ -1,4 +1,4 @@
-#include <arithmetic1.hpp>
+#include <arithmetic.hpp>
 #include <assert.h>
 
 #if __cplusplus >= 201103L
@@ -6,7 +6,7 @@
 #endif
 
 using namespace std;
-using namespace arithmetic1;
+using namespace arithmetic;
 
 std::mt19937 rnd(7327158);
 
@@ -148,6 +148,10 @@ namespace testing {
 			assert(n == 123.457);
 			n.round(2);
 			assert(n == 123.46);
+			n.round(-1);
+			assert(n == 120);
+			n.round(-2);
+			assert(n == 100);
 			n = LongDouble(123) / 13;
 			n.round(1);
 			assert(n == 9.5);

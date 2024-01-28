@@ -37,6 +37,8 @@ public:
     void divBase(int power);
     void round(int number);
     void round();
+    void floor(int number);
+    void floor();
     void sqrt();
     LongDouble operator+(const LongDouble& x) const;
     void operator+=(const LongDouble& x);
@@ -340,6 +342,21 @@ void LongDouble::round(int number) {
 void LongDouble::round() {
     round(0);
 }
+
+void LongDouble::floor(int number) {
+    if (mantissa <= number) return;
+    if (mantissa - number >= (int)digits.size()) {
+        *this = 0;
+        return;
+    }
+    removeFirst(mantissa - number);
+    removeZeroes();
+}
+
+void LongDouble::floor() {
+    floor(0);
+}
+
 
 void LongDouble::sqrt() {
     assert(sign == 1);

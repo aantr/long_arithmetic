@@ -2,9 +2,12 @@
 #include <iomanip>
 #include <math.h>
 #include <testing.hpp>
+#include <arithmetic.hpp>
 #include <arithmetic1.hpp>
 
-using namespace arithmetic1;
+#define TIME (double) clock() / CLOCKS_PER_SEC
+
+using namespace arithmetic;
 using namespace std;
 
 LongDouble Leibnica(int iter, int digits) {
@@ -15,20 +18,21 @@ LongDouble Leibnica(int iter, int digits) {
         else       pi += LongDouble(1, digits + eps) / LongDouble(i * 2 + 1);
     }
     pi *= 4;
-    pi.round(digits);
+    pi.floor(digits);
     return pi;
 }
 
-array<LongDouble, 3> binary_split(int l, int r) {
+array<LongDouble, 3> binary_split(int l, int r, int digits) {
     LongDouble Pab, Qab, Rab;
     if (r == l + 1) {
-        Pab = LongDouble(-(6 * l - 5) * (2 * l - 1) * (6 * l - 1));
-        Qab = LongDouble(l) * LongDouble(l) * LongDouble(l) * LongDouble(10939058860032000ll);
-        Rab = Pab * LongDouble(545140134ll * l + 13591409);
+        Pab = LongDouble(-(6 * l - 5), digits) * 
+                LongDouble((2 * l - 1), digits) * LongDouble((6 * l - 1), digits);
+        Qab = LongDouble(l, digits) * LongDouble(l, digits) * LongDouble(l, digits) * LongDouble(10939058860032000ll, digits);
+        Rab = Pab * LongDouble(545140134ll * l + 13591409, digits);
     } else {
         int m = (l + r) / 2;
-        auto [Pam, Qam, Ram] = binary_split(l, m);
-        auto [Pmb, Qmb, Rmb] = binary_split(m, r);
+        auto [Pam, Qam, Ram] = binary_split(l, m, digits);
+        auto [Pmb, Qmb, Rmb] = binary_split(m, r, digits);
         Pab = Pam * Pmb;
         Qab = Qam * Qmb;
         Rab = Qmb * Ram + Pam * Rmb;
@@ -37,15 +41,17 @@ array<LongDouble, 3> binary_split(int l, int r) {
 }
 
 LongDouble Chudnovsky(int digits) {
-    int eps = 5;
+    int eps = 40;
     LongDouble sq10005(10005, digits + eps);
     sq10005.sqrt();
-    auto [P1n, Q1n, R1n] = binary_split(1, digits / 10);  
+    auto [P1n, Q1n, R1n] = binary_split(1, digits / 10 + 2, (long long)1e9);  
+
     Q1n.precision = digits + eps;
     LongDouble res = (Q1n * LongDouble(426880, digits + eps) * sq10005);
-    LongDouble res2 = (LongDouble(13591409) * Q1n + R1n);
+
+    LongDouble res2 = (Q1n * LongDouble(13591409, digits + eps) + R1n);
     res /= res2;
-    res.round(digits);
+    res.floor(digits);
     return res;
 }
 
@@ -65,7 +71,7 @@ LongDouble calcpi(int digits) {
     }
     digits -= eps;
     sum *= 2;
-    sum.round(digits);
+    sum.floor(digits);
     return sum;
 }
 
@@ -89,12 +95,9 @@ int main(int argc, char* argv[]) {
     }
 
     double start = (double) clock() / CLOCKS_PER_SEC;
-    cout << "Chudnovsky:\n" << Chudnovsky(digits) << "\n";
-    cerr << "TIME: " << (double) clock() / CLOCKS_PER_SEC - start<< " sec (total " << (double) clock() / CLOCKS_PER_SEC << " sec)\n";
-    
-    start = (double) clock() / CLOCKS_PER_SEC;
-    cout << "Leibnica:\n" << calcpi(digits) << "\n";
-    cerr << "TIME: " << (double) clock() / CLOCKS_PER_SEC - start << " sec (total " << (double) clock() / CLOCKS_PER_SEC << " sec)\n";
+    cout << "PI:\n" << Chudnovsky(digits) << "\n";
+    cerr << "TIME: " << TIME - start<< " sec (total " << TIME << " sec)\n";
+
 
     return 0;
 }
