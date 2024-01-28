@@ -120,150 +120,78 @@ LongDouble::LongDouble(const LongDouble& x, int precision): precision(precision)
     precision = x.precision;
     digits = vector<digit>(x.digits);
 }
-
-LongDouble::LongDouble(const string& value) {
+template<class T>
+void init_from_string(LongDouble& res, const T& value) {
     int index;
     if (value[0] == '-') {
-        sign = -1; 
+        res.sign = -1; 
         index = 1; 
     } else {
-        sign = 1;
+        res.sign = 1;
         index = 0;
     }
-    exponent = 0; 
+    res.exponent = 0; 
     while (index < (int)value.length()) {
         if (value[index] == '.') 
-            exponent = -((int)value.length() - 1 - index); 
+            res.exponent = -((int)value.length() - 1 - index); 
         else {
-            digits.push_back(value[index] - '0');
+            res.digits.push_back(value[index] - '0');
         }
         index++;
     }
-    reverse(digits.begin(), digits.end());
-    removeZeroes();
-    if ((int) digits.size() == 0) sign = 1;
+    reverse(res.digits.begin(), res.digits.end());
+    res.removeZeroes();
+    if ((int) res.digits.size() == 0) res.sign = 1;
+}
+template<class T>
+void init_from_int(LongDouble& res, T value) {
+    T x = value;
+    if (x < 0) res.sign = -1, x = -x;
+    while (x) {
+        res.digits.push_back(x % res.base);
+        x /= res.base;
+    }
+    res.exponent = 0;
+    res.removeZeroes();
+}
+
+template<class T>
+void init_from_double(LongDouble& res, T& v) {
+    stringstream ss;
+    ss << setprecision(14) << v;
+    init_from_string(res, ss.str());
+}
+
+LongDouble::LongDouble(const string& value) {
+    init_from_string(*this, value);
 }
 
 LongDouble::LongDouble(const string& value, int precision): precision(precision) {
-    int index;
-    if (value[0] == '-') {
-        sign = -1; 
-        index = 1; 
-    } else {
-        sign = 1;
-        index = 0;
-    }
-    exponent = 0; 
-    while (index < (int)value.length()) {
-        if (value[index] == '.') 
-            exponent = -((int)value.length() - 1 - index); 
-        else {
-            digits.push_back(value[index] - '0');
-        }
-        index++;
-    }
-    reverse(digits.begin(), digits.end());
-    removeZeroes();
-    if ((int) digits.size() == 0) sign = 1;
-
+    init_from_string(*this, value);
 }
 
 LongDouble::LongDouble(const int &v) {
-    int x = v;
-    if (x < 0) sign = -1, x = -x;
-    while (x) {
-        digits.push_back(x % base);
-        x /= base;
-    }
-    exponent = 0;
-    removeZeroes();
-
+    init_from_int(*this, v);
 }
 
 LongDouble::LongDouble(const int &v, int precision): precision(precision) {
-    int x = v;
-    if (x < 0) sign = -1, x = -x;
-    while (x) {
-        digits.push_back(x % base);
-        x /= base;
-    }
-    exponent = 0;
-    removeZeroes();
-
+    init_from_int(*this, v);
 }
 
 LongDouble::LongDouble(const long long &v) {
-    long long x = v;
-    if (x < 0) sign = -1, x = -x;
-    while (x) {
-        digits.push_back(x % base);
-        x /= base;
-    }
-    exponent = 0;
-    removeZeroes();
-
+    init_from_int(*this, v);
 }
 
 LongDouble::LongDouble(const long long &v, int precision): precision(precision) {
-    long long x = v;
-    if (x < 0) sign = -1, x = -x;
-    while (x) {
-        digits.push_back(x % base);
-        x /= base;
-    }
-    exponent = 0;
-    removeZeroes();
-
+    init_from_int(*this, v);
 }
 
 LongDouble::LongDouble(const double &v) {
-    string value = to_string(v);
-    int index;
-    if (value[0] == '-') {
-        sign = -1; 
-        index = 1; 
-    } else {
-        sign = 1;
-        index = 0;
-    }
-    exponent = 0; 
-    while (index < (int)value.length()) {
-        if (value[index] == '.') 
-            exponent = -((int)value.length() - 1 - index); 
-        else {
-            digits.push_back(value[index] - '0');
-        }
-        index++;
-    }
-    reverse(digits.begin(), digits.end());
-    removeZeroes();
-    if ((int) digits.size() == 0) sign = 1;
-
+    init_from_double(*this, v);
 }
 
 LongDouble::LongDouble(const double &v, int precision): precision(precision) {
-    string value = to_string(v);
-    int index;
-    if (value[0] == '-') {
-        sign = -1; 
-        index = 1; 
-    } else {
-        sign = 1;
-        index = 0;
-    }
-    exponent = 0; 
-    while (index < (int)value.length()) {
-        if (value[index] == '.') 
-            exponent = -((int)value.length() - 1 - index); 
-        else {
-            digits.push_back(value[index] - '0');
-        }
-        index++;
-    }
-    reverse(digits.begin(), digits.end());
-    removeZeroes();
-    if ((int) digits.size() == 0) sign = 1;
-
+    init_from_double(*this, v);
 }
 
 void LongDouble::removeZeroes() {
