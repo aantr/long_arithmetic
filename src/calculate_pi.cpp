@@ -10,18 +10,6 @@
 using namespace arithmetic;
 using namespace std;
 
-LongDouble Leibnica(int iter, int digits) {
-    int eps = 5;
-    LongDouble pi;
-    for (int i = 0; i < iter; i++) {
-        if (i & 1) pi -= LongDouble(1, digits + eps) / LongDouble(i * 2 + 1);
-        else       pi += LongDouble(1, digits + eps) / LongDouble(i * 2 + 1);
-    }
-    pi *= 4;
-    pi.floor(digits);
-    return pi;
-}
-
 array<LongDouble, 3> binary_split(int l, int r, int digits) {
     LongDouble Pab, Qab, Rab;
     if (r == l + 1) {
@@ -41,10 +29,11 @@ array<LongDouble, 3> binary_split(int l, int r, int digits) {
 }
 
 LongDouble Chudnovsky(int digits) {
-    int eps = 40;
+    int eps = 40; // approximate for 1000 digits
     LongDouble sq10005(10005, digits + eps);
     sq10005.sqrt();
-    auto [P1n, Q1n, R1n] = binary_split(1, digits / 10 + 2, (long long)1e9);  
+    int n = digits / 10 + 2 // approximate value
+    auto [P1n, Q1n, R1n] = binary_split(1, n, (long long)1e9);  
 
     Q1n.precision = digits + eps;
     LongDouble res = (Q1n * LongDouble(426880, digits + eps) * sq10005);
@@ -55,7 +44,7 @@ LongDouble Chudnovsky(int digits) {
     return res;
 }
 
-LongDouble calcpi(int digits) {
+LongDouble Leibnica(int digits) {
     int eps = 5;
     digits += eps;
     LongDouble sum (1, digits);

@@ -162,9 +162,6 @@ namespace testing {
 	};
 
 	void test() {
-		auto a = LongDouble(10005, 100);
-		a.sqrt();
-		cout << a << endl;
  		TestInit().test();
 		TestAddition().test();
 		TestSubstracion().test();
