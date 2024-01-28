@@ -32,6 +32,8 @@ namespace arithmetic {
         LongDouble(const long long &value, int precision); 
         LongDouble(const double &value); 
         LongDouble(const double &value, int precision); 
+        bool isInt() const; 
+        bool isZero() const; 
         void removeZeroes(); 
         void removeFirst(int value);
         void mulBase(int power);
@@ -41,6 +43,7 @@ namespace arithmetic {
         void floor(int number);
         void floor();
         void sqrt();
+        void sqrt_int(int digits);
         LongDouble abs() const;
         LongDouble operator+(const LongDouble& x) const;
         void operator+=(const LongDouble& x);
@@ -118,8 +121,15 @@ namespace arithmetic {
     LongDouble::LongDouble(const LongDouble& x, int precision): precision(precision) {
         sign = x.sign; 
         exponent = x.exponent; 
-        precision = x.precision;
         digits = vector<digit>(x.digits);
+    }
+
+    bool LongDouble::isInt() const {
+        return exponent == 0;
+    }
+
+    bool LongDouble::isZero() const {
+        return (int) digits.size() == 0;
     }
 
     template<class T>
@@ -323,15 +333,15 @@ namespace arithmetic {
         floor(0);
     }
 
-    void LongDouble::sqrt() { // bs
-        assert(sign == 1);
+    void LongDouble::sqrt() { // use binary search
+        assert(*this >= 0);
         LongDouble l, r = *this;
         l.precision = precision;
         r.precision = precision;
         LongDouble prev = -1;
         while (1) {
             LongDouble m = (l + r) * 0.5;
-            if ((int) m.digits.size() > m.precision) m.removeFirst((int) m.digits.size() - m.precision);
+            if ((int) m.digits.size() > m.precision) m.removeFirst((int) m.digits.size() - m.precision); // floor m
             if (m * m <= *this) {
                 l = m;
             } else {
@@ -341,6 +351,28 @@ namespace arithmetic {
             prev = m;
         }
         if ((int) l.digits.size() > l.precision) l.removeFirst((int) l.digits.size() - l.precision);
+        *this = l;
+    }
+
+    void LongDouble::sqrt_int(int digits) { // work only for integers >= 1, use binary search
+        assert(isInt() && !isZero());
+        LongDouble x = *this;
+        x.mulBase(digits * 2);
+        LongDouble l(0, (int) 1e9), r(x, (int) 1e9);
+        int remove = ((int)r.digits.size() - 1) / 2;
+        r.removeFirst(remove);
+        r.divBase(remove);
+        while (r - l > 1) {
+            LongDouble m = (l + r) * 0.5;
+            m.floor();
+            if (m * m <= x) {
+                l = m;
+            } else {
+                r = m;
+            }
+            // cout << r - l << " " << l << " " << r << endl;
+        }
+        l.divBase(digits);
         *this = l;
     }
 

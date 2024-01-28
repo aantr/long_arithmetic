@@ -28,16 +28,22 @@ array<LongDouble, 3> binary_split(int l, int r, int digits) {
 }
 
 LongDouble Chudnovsky(int digits) {
-    int eps = 40; // approximate value for 1000 digits
-    LongDouble sq10005(10005, digits + eps);
-    sq10005.sqrt();
+    int debug = 0;
+    if (debug) cout << "start time: " << TIME << endl;
+
+    int eps = 5; // approximate value for 1000 digits
+    LongDouble sq10005(10005);
+    sq10005.sqrt_int(digits + eps);
+    if (debug) cout << "sqrt time: " << TIME << endl;
     int n = digits / 10 + 2;
     auto [P1n, Q1n, R1n] = binary_split(1, n, (long long)1e9);  
+    if (debug) cout << "binary_split time: " << TIME << endl;
 
-    Q1n.precision = digits + eps;
-    LongDouble res = (Q1n * LongDouble(426880, digits + eps) * sq10005);
+    Q1n.precision = digits + 40;
+    LongDouble res = (Q1n * LongDouble(426880) * sq10005);
+    LongDouble res2 = (Q1n * LongDouble(13591409) + R1n);
+    if (debug) cout << "find res1, res2 time: " << TIME << endl;
 
-    LongDouble res2 = (Q1n * LongDouble(13591409, digits + eps) + R1n);
     res /= res2;
     res.floor(digits);
     return res;
@@ -85,6 +91,8 @@ int main(int argc, char* argv[]) {
     double start = (double) clock() / CLOCKS_PER_SEC;
     cout << "PI:\n" << Chudnovsky(digits) << "\n";
     cerr << "TIME: " << TIME - start<< " sec (total " << TIME << " sec)\n";
+    // cout << "PI:\n" << Leibnica(digits) << "\n";
+    // cerr << "TIME: " << TIME - start<< " sec (total " << TIME << " sec)\n";
 
 
     return 0;
