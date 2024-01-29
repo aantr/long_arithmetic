@@ -32,8 +32,8 @@ LongDouble Chudnovsky(int digits) {
     if (debug) cout << "start time: " << TIME << endl;
 
     int eps = 5; // for precision
-    LongDouble sq10005(10005);
-    sq10005.sqrt_int(digits + eps);
+    LongDouble sq10005(10005, digits + 5 + eps);
+    sq10005.sqrt_int();
     if (debug) cout << "sqrt time: " << TIME << endl;
     int n = digits / 10 + eps;
     auto [P1n, Q1n, R1n] = binary_split(1, n, (long long)1e9);  
@@ -93,9 +93,6 @@ int main(int argc, char* argv[]) {
     double start = (double) clock() / CLOCKS_PER_SEC;
     cout << "PI:\n" << Chudnovsky(digits) << "\n";
     cerr << "TIME: " << TIME - start<< " sec (total " << TIME << " sec)\n";
-    cout << "PI:\n" << Leibnica(digits) << "\n";
-    cerr << "TIME: " << TIME - start<< " sec (total " << TIME << " sec)\n";
-
 
     return 0;
 }

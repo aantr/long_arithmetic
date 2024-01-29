@@ -16,6 +16,29 @@ using namespace fft;
 // #define PRECISION_ADD
 // #define PRECISION_SUB
 
+/*
+Short documentaion:
+
+how precision working
+always use floor in math
+add/sub working only if defines
+mul working for double precision 
+for ex:
+precision = 3
+=> 
+123 * 12345 = 151843e+1
+division:
+precision = 3
+123 / 45 = 2.73
+
+assymptotics:
+
+sub / add O(n)
+mul O(n * log n) (fft)
+div O(n * log ^ 2 (n))
+
+*/
+
 namespace arithmetic {    
 
     FFT fft;
@@ -63,7 +86,7 @@ namespace arithmetic {
         void floor(int number);
         void floor();
         void sqrt();
-        void sqrt_int(int digits);
+        void sqrt_int();
         LongDouble abs() const;
         LongDouble operator+(const LongDouble& x) const;
         void operator+=(const LongDouble& x);
@@ -422,25 +445,22 @@ namespace arithmetic {
         *this = l;
     }
 
-    void LongDouble::sqrt_int(int digits) { // work only for integers >= 1, use binary search
-        assert(isInt() && !isZero());
-        LongDouble x = *this;
-        x.mulBase(digits * 2);
-        LongDouble l(0, (int) 1e9), r(x, (int) 1e9);
-        int remove = (r.digits_size - 1) / 2;
-        r.removeFirst(remove);
-        r.divBase(remove);
-        while (r - l > 1) {
-            LongDouble m = (l + r) * 0.5;
-            m.floor();
-            if (m * m <= x) {
-                l = m;
-            } else {
-                r = m;
+    void LongDouble::sqrt_int() { // work only for integers >= 1, use binary search
+
+        LongDouble x(1, precision);
+        x.mulBase(digits_size / 2 + 1);
+        LongDouble prev = -1;
+        while (1) {
+            x = (LongDouble(*this, precision) / x + x) * 0.5;
+            if (x.digits_size > x.precision) {
+                x.removeFirst(x.digits_size - x.precision); // floor x
             }
+            if (x == prev) {
+                break;
+            }
+            prev = x;
         }
-        l.divBase(digits);
-        *this = l;
+        *this = x;
     }
 
     // operators
