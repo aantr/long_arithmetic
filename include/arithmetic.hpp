@@ -415,10 +415,10 @@ namespace arithmetic {
             return ((int) digits.size() + exponent < (int)x.digits.size() + x.exponent) ^ (sign == -1);
         
         for (int i = 0; i < min((int) digits.size(), (int) x.digits.size()); i++) {
-            if (digits[digits.size() - 1 - i] < x.digits[x.digits.size() - 1 - i]) return true;
-            if (digits[digits.size() - 1 - i] > x.digits[x.digits.size() - 1 - i]) return false;
+            if (digits[digits.size() - 1 - i] < x.digits[x.digits.size() - 1 - i]) return sign == 1;
+            if (digits[digits.size() - 1 - i] > x.digits[x.digits.size() - 1 - i]) return sign == -1;
         }
-        return digits.size() < x.digits.size();
+        return (digits.size() < x.digits.size()) ^ (sign == -1);
     }
 
     bool LongDouble::operator==(const LongDouble& x) const {

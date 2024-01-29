@@ -2,11 +2,12 @@
 #include <iomanip>
 #include <math.h>
 #include <testing.hpp>
+#include <arithmetic.hpp>
 #include <arithmetic_pointer.hpp>
 
 #define TIME (double) clock() / CLOCKS_PER_SEC
 
-using namespace arithmetic_pointer;
+using namespace arithmetic;
 using namespace std;
 
 array<LongDouble, 3> binary_split(int l, int r, int digits) {

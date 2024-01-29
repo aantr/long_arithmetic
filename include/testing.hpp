@@ -1,3 +1,4 @@
+#include <arithmetic.hpp>
 #include <arithmetic_pointer.hpp>
 #include <assert.h>
 
@@ -6,7 +7,7 @@
 #endif
 
 using namespace std;
-using namespace arithmetic_pointer;
+using namespace arithmetic;
 
 std::mt19937 rnd(7327158);
 
