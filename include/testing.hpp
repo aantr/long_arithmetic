@@ -218,7 +218,7 @@ public:
 				assert((x - x / y * y).abs() < power);
 				assert((x - x * y / y).abs() < power);
 				assert((x - x / y / y * y * y).abs() < power * 10); // допуск 2 цифры
-				assert((x - x / y * y / y * y).abs() < power);
+				assert((x - x / y * y / y * y).abs() < power * 10);
 			}
 		}
 	};

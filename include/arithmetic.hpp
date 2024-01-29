@@ -13,6 +13,8 @@ using namespace std;
 using namespace fft;
 
 #define FREE_MEMORY
+// #define PRECISION_ADD
+// #define PRECISION_SUB
 
 namespace arithmetic {    
 
@@ -46,6 +48,7 @@ namespace arithmetic {
         LongDouble(const double &value, int precision); 
         bool isInt() const; 
         bool isZero() const; 
+        bool isPower() const; 
         void removeZeroes(); 
         void removeFirst(int value);
         void mulBase(int power);
@@ -144,14 +147,6 @@ namespace arithmetic {
         exponent = other.exponent;
     }
 
-    bool LongDouble::isInt() const {
-        return exponent == 0;
-    }
-
-    bool LongDouble::isZero() const {
-        return digits_size == 0;
-    }
-
     template<class T>
     void init_from_string(LongDouble& res, const T& value) {
         int index;
@@ -242,6 +237,24 @@ namespace arithmetic {
         init_from_double(*this, v);
     }
 
+    LongDouble LongDouble::abs() const {
+        if (digits_size == 0) return 0;
+        if (sign == -1) return -(*this);
+        return *this;
+    }
+
+    bool LongDouble::isInt() const {
+        return exponent == 0;
+    }
+
+    bool LongDouble::isZero() const {
+        return digits_size == 0;
+    }
+
+    bool LongDouble::isPower() const {
+        return digits_size == 1 && digits[0] == 1;
+    }
+
     void LongDouble::removeZeroes() {
         int left = 0, right = 0;
          for (int i = digits_size - 1; i >= 0; i--) {
@@ -295,46 +308,6 @@ namespace arithmetic {
         #endif
         digits = temp;
         exponent += value;
-    }
-
-    istream& operator>>(istream& os, LongDouble& value) {
-        string s;
-        os >> s;
-        value = s;
-        return os;
-    }
-
-    ostream& operator<<(ostream& os, const LongDouble& value) { // выведет все ненулевые цифры
-        if (value.sign == -1)
-            os << '-';
-        if (value.digits_size == 0) {
-            os << '0';
-            return os;
-        }
-        const int max_out_exponent = 16;
-        if (value.digits_size > max_out_exponent || (value.exponent > 0 && value.digits_size + value.exponent > max_out_exponent)|| 
-                    (value.exponent <= -value.digits_size && -value.exponent + 1 > max_out_exponent)) {
-            for (int i = value.digits_size - 1; i >= 0; i--) {
-                os << value.digits[i];
-                if (value.digits_size > 1 && i == value.digits_size - 1) os << '.';
-            }
-            int val = value.exponent + value.digits_size - 1;
-            if (val > 0) os << 'e' << '+' << val;
-            else if (val < 0) os << 'e' << val;
-        } else {
-            for (int i = -value.exponent; i > value.digits_size - 1; i--) {
-                os << '0';
-                if (i == -value.exponent) os << '.';
-            }
-            for (int i = value.digits_size - 1; i >= 0; i--) {
-                os << value.digits[i];
-                if (i > 0 && i == -value.exponent) os << '.';
-            }
-            for (int i = 0; i < value.exponent; i++) {
-                os << '0';
-            }
-        }
-        return os;
     }
 
     void LongDouble::mulBase(int power) {
@@ -426,11 +399,7 @@ namespace arithmetic {
         *this = l;
     }
 
-    LongDouble LongDouble::abs() const {
-        if (digits_size == 0) return 0;
-        if (sign == -1) return -(*this);
-        return *this;
-    }
+    // operators
 
     LongDouble LongDouble::operator*(const LongDouble& x) const {
         LongDouble res = *this;
@@ -451,8 +420,8 @@ namespace arithmetic {
         digits_size = res_size;
 
         removeZeroes();
-        if (digits_size > precision * 2) {
-            removeFirst(digits_size - precision * 2);
+        if (digits_size > precision) {
+            removeFirst(digits_size - precision);
         }
         removeZeroes();
     }
@@ -547,6 +516,12 @@ namespace arithmetic {
             res.digits = resd;
             res.digits_size = res_size;
             res.removeZeroes();
+            #ifdef PRECISION_ADD
+            if (res.digits_size > res.precision) {
+                res.removeFirst(res.digits_size - res.precision);
+            }
+            res.removeZeroes();
+            #endif
             return res;
         }
 
@@ -608,6 +583,12 @@ namespace arithmetic {
             res.digits_size = res_size;
 
             res.removeZeroes();
+            #ifdef PRECISION_SUB
+            if (res.digits_size > res.precision) {
+                res.removeFirst(res.digits_size - res.precision);
+            }
+            res.removeZeroes();
+            #endif
             return res;
         }
 
@@ -662,11 +643,6 @@ namespace arithmetic {
 
         int plus = precision - x.digits_size + y.digits_size + 2;
 
-        // vector<digit> temp(plus + digits_size, 0);
-        // for (int i = 0; i < digits_size; i++) {
-        //     temp[plus + i] = x.digits[i];
-        // }
-        // x.digits = temp;
         int temp_size = plus + x.digits_size;
         digit* temp = (digit*) calloc(temp_size, sizeof(digit));
         if (!temp) memory_error();
@@ -683,13 +659,16 @@ namespace arithmetic {
         res.exponent += res_exponent;
         res.sign = sign * other.sign;
         res.removeZeroes();
-        if (res.digits_size - res.precision > 0) res.removeFirst(res.digits_size - res.precision);
+        if (res.digits_size > res.precision) {
+            res.removeFirst(res.digits_size - res.precision);
+        }
+        res.removeZeroes();
 
         return res;
     }
 
     void LongDouble::operator/=(const LongDouble& other) { 
-        *this = *this / other;
+        *this = *this / LongDouble(other);
     }
 
     template<class T>
@@ -763,6 +742,46 @@ namespace arithmetic {
     template<class T>
     LongDouble& LongDouble::operator=(const T& x) {
         return *this = LongDouble(x);
+    }
+
+        istream& operator>>(istream& os, LongDouble& value) {
+        string s;
+        os >> s;
+        value = s;
+        return os;
+    }
+
+    ostream& operator<<(ostream& os, const LongDouble& value) { // выведет все ненулевые цифры
+        if (value.sign == -1)
+            os << '-';
+        if (value.digits_size == 0) {
+            os << '0';
+            return os;
+        }
+        const int max_out_exponent = 16;
+        if (value.digits_size > max_out_exponent || (value.exponent > 0 && value.digits_size + value.exponent > max_out_exponent)|| 
+                    (value.exponent <= -value.digits_size && -value.exponent + 1 > max_out_exponent)) {
+            for (int i = value.digits_size - 1; i >= 0; i--) {
+                os << value.digits[i];
+                if (value.digits_size > 1 && i == value.digits_size - 1) os << '.';
+            }
+            int val = value.exponent + value.digits_size - 1;
+            if (val > 0) os << 'e' << '+' << val;
+            else if (val < 0) os << 'e' << val;
+        } else {
+            for (int i = -value.exponent; i > value.digits_size - 1; i--) {
+                os << '0';
+                if (i == -value.exponent) os << '.';
+            }
+            for (int i = value.digits_size - 1; i >= 0; i--) {
+                os << value.digits[i];
+                if (i > 0 && i == -value.exponent) os << '.';
+            }
+            for (int i = 0; i < value.exponent; i++) {
+                os << '0';
+            }
+        }
+        return os;
     }
 
 };
