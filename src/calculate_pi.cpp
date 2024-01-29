@@ -2,11 +2,11 @@
 #include <iomanip>
 #include <math.h>
 #include <testing.hpp>
-#include <arithmetic.hpp>
+#include <arithmetic_pointer.hpp>
 
 #define TIME (double) clock() / CLOCKS_PER_SEC
 
-using namespace arithmetic;
+using namespace arithmetic_pointer;
 using namespace std;
 
 array<LongDouble, 3> binary_split(int l, int r, int digits) {
@@ -28,7 +28,7 @@ array<LongDouble, 3> binary_split(int l, int r, int digits) {
 }
 
 LongDouble Chudnovsky(int digits) {
-    int debug = 0;
+    int debug = 1;
     if (debug) cout << "start time: " << TIME << endl;
 
     int eps = 5; // approximate value for 1000 digits

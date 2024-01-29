@@ -7,6 +7,7 @@
 #include <fft.hpp>
 #include <assert.h>
 using namespace std;
+using namespace fft;
 
 namespace arithmetic {
 
@@ -578,7 +579,7 @@ namespace arithmetic {
         x.exponent = 0;
         y.exponent = 0;
 
-        int plus = precision - (int)digits.size() + (int)x.digits.size() + 2;
+        int plus = precision - (int)x.digits.size() + (int)y.digits.size() + 2;
         vector<digit> temp(plus + (int)x.digits.size(), 0);
         for (int i = 0; i < (int) x.digits.size(); i++) {
             temp[plus + i] = x.digits[i];

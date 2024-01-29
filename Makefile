@@ -2,7 +2,7 @@ CC = g++
 
 CFLAGS = \
 	-std=c++17 \
-	-O3 \
+	-O2 \
 	-Wall      \
 	-Wextra    \
 	-Werror
@@ -33,7 +33,10 @@ RESET   = \033[0m
 INCLUDES = \
 	include/testing.hpp \
 	include/arithmetic.hpp \
-	include/fft.hpp
+	include/arithmetic_pointer.hpp \
+	include/fft.hpp \
+	include/fft_pointer.hpp
+
 
 # Add "include" folder to header search path:
 CFLAGS += -I $(abspath include) 

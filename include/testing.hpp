@@ -1,4 +1,4 @@
-#include <arithmetic.hpp>
+#include <arithmetic_pointer.hpp>
 #include <assert.h>
 
 #if __cplusplus >= 201103L
@@ -6,7 +6,7 @@
 #endif
 
 using namespace std;
-using namespace arithmetic;
+using namespace arithmetic_pointer;
 
 std::mt19937 rnd(7327158);
 
@@ -50,6 +50,7 @@ public:
 			assert((e < d) == false);
 			assert((d > c) == false);
 			assert((k < b) == false);
+			assert((d < d + 1) == true);
 
 		}
 	};
@@ -81,6 +82,52 @@ public:
 				long long x = (long long) rnd() - rnd(), y = (long long) rnd() - rnd();
 				assert(LongDouble(x - y) == LongDouble(x) - LongDouble(y));
 			}
+		}
+	};
+
+	class TestRound : public Test {
+	public:
+		TestRound() {
+			name = "TestRound";
+		}
+		void test() {
+			_test();
+			LongDouble a = 1.5, b = 1.4, c = -1.4, d = -1.5, e = -1.6, n = 123.45678;
+			a.round();
+			b.round();
+			c.round();
+			d.round();
+			e.round();
+			assert(a == 2);
+			assert(b == 1);
+			assert(c == -1);
+			assert(d == -2);
+			assert(e == -2);
+			n.round(5);
+			assert(n == 123.45678);
+			n.round(4);
+			assert(n == 123.4568);
+			n.round(3);
+			assert(n == 123.457);
+			n.round(2);
+			assert(n == 123.46);
+			n.round(-1);
+			assert(n == 120);
+			n.round(-2);
+			assert(n == 100);
+
+			n = 3453345.44563636;
+			n.floor(5);
+			assert(n == 3453345.44563);
+			n.floor(-2);
+			assert(n == 3453300);
+
+			n = LongDouble((double)123 / 13);
+			n.round(1);
+			assert(n == 9.5);
+			n = LongDouble((double)123 /  13);
+			n.round(2);
+			assert(n == 9.46);	
 		}
 	};
 
@@ -133,7 +180,8 @@ public:
 				x /= pow(10, rnd() % 5);
 				LongDouble X ((double)x, 16);
 				X.sqrt();
-				x = sqrtl(x);
+
+				x = sqrt(x);
 				LongDouble st = 1;
 				int check = 6;
 				st.divBase(check);
@@ -166,62 +214,17 @@ public:
 		}
 	};
 
-	class TestRound : public Test {
-	public:
-		TestRound() {
-			name = "TestRound";
-		}
-		void test() {
-			_test();
-			LongDouble a = 1.5, b = 1.4, c = -1.4, d = -1.5, e = -1.6, n = 123.45678;
-			a.round();
-			b.round();
-			c.round();
-			d.round();
-			e.round();
-			assert(a == 2);
-			assert(b == 1);
-			assert(c == -1);
-			assert(d == -2);
-			assert(e == -2);
-			n.round(5);
-			assert(n == 123.45678);
-			n.round(4);
-			assert(n == 123.4568);
-			n.round(3);
-			assert(n == 123.457);
-			n.round(2);
-			assert(n == 123.46);
-			n.round(-1);
-			assert(n == 120);
-			n.round(-2);
-			assert(n == 100);
-
-			n = 3453345.44563636;
-			n.floor(5);
-			assert(n == 3453345.44563);
-			n.floor(-2);
-			assert(n == 3453300);
-
-			n = LongDouble(123) / 13;
-			n.round(1);
-			assert(n == 9.5);
-			n = LongDouble(123) / 13;
-			n.round(2);
-			assert(n == 9.46);	
-		}
-	};
-
 	void test() {
+
  		TestInit().test();
  		TestInequlity().test();
 		TestAddition().test();
 		TestSubstracion().test();
+		TestRound().test();
 		TestMult().test();
 		TestDiv().test();
 		TestSqrt().test();
 		TestPrecision().test();
-		TestRound().test();
 		cout << "Finished in " << (double) clock() / CLOCKS_PER_SEC << " sec\n";
 	};
 }
