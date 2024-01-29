@@ -142,6 +142,12 @@ public:
 			for (int i = 0; i < count; i++) {
 				int x = (long long) (rnd() - rnd()) % 10000, y = (long long) (rnd() - rnd()) % 10000;
 				assert(LongDouble(x * y) == LongDouble(x) * LongDouble(y));
+				LongDouble X = x;
+				X *= X;
+				LongDouble Y = y;
+				Y *= x;
+				assert(X == LongDouble(x) * LongDouble(x) && X == x * x);
+				assert(Y == LongDouble(y) * LongDouble(x) && Y == x * y);
 			}
 		}
 	};
@@ -199,17 +205,20 @@ public:
 			_test();
 			int count = 100;
 			for (int i = 0; i < count; i++) {
-				int len = 40; // тестируем числа с len цифрами
-				LongDouble x(0, len * 3 / 2), y(0, 10);
+				int len = 50; // тестируем числа с len цифрами
+				LongDouble x(0, len), y(0, len);
 				for (int j = 0; j < len; j++) {
 					x = x * LongDouble(10) + LongDouble((int) (rnd() % 10));
 					y = y * LongDouble(10) + LongDouble((int) (rnd() % 10));
 				}
-				int expx = rnd() % len;
+				int expx = rnd() % len + 1;
 				x.divBase(expx);
-				y.divBase(rnd() % len);
-				LongDouble power = 1; power.divBase(expx);
-				assert(x - x / y * y < power);
+				y.divBase(rnd() % len + 1);
+				LongDouble power = 1; power.divBase(expx - 1); // допускаем последнюю цифру
+				assert((x - x / y * y).abs() < power);
+				assert((x - x * y / y).abs() < power);
+				assert((x - x / y / y * y * y).abs() < power * 10); // допуск 2 цифры
+				assert((x - x / y * y / y * y).abs() < power);
 			}
 		}
 	};

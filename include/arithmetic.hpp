@@ -12,6 +12,8 @@
 using namespace std;
 using namespace fft;
 
+#define FREE_MEMORY
+
 namespace arithmetic {    
 
     FFT fft;
@@ -111,6 +113,9 @@ namespace arithmetic {
     {
         sign = other.sign;
         digits_size = other.digits_size;
+        #ifdef FREE_MEMORY
+        delete digits;
+        #endif
         digits = (digit*) calloc(other.digits_size, sizeof(digit));
         memcpy(digits, other.digits, other.digits_size * sizeof(digit));
         base = other.base;
@@ -130,6 +135,9 @@ namespace arithmetic {
     LongDouble::LongDouble(const LongDouble& other, int precision): precision(precision) {
         sign = other.sign;
         digits_size = other.digits_size;
+        #ifdef FREE_MEMORY
+        delete digits;
+        #endif
         digits = (digit*) calloc(other.digits_size, sizeof(digit));
         memcpy(digits, other.digits, other.digits_size * sizeof(digit));
         base = other.base;
@@ -156,6 +164,9 @@ namespace arithmetic {
         }
         res.exponent = 0; 
         res.digits_size = (int)value.size() - index;
+        #ifdef FREE_MEMORY
+        delete res.digits;
+        #endif
         res.digits = (digit*) calloc(res.digits_size, sizeof(digit));
         int count = 0;
         while (index < (int)value.length()) {
@@ -178,12 +189,14 @@ namespace arithmetic {
         T x = value;
         if (x < 0) res.sign = -1, x = -x;
         res.digits_size = 0;
+        #ifdef FREE_MEMORY
+        delete res.digits;
+        #endif
         res.digits = (digit*) calloc(res.digits_size, sizeof(digit));
         while (x) {
             res.digits = (digit*) realloc(res.digits, (res.digits_size + 1) * sizeof(digit));
             res.digits[res.digits_size] = x % res.base;
             res.digits_size++;
-
             x /= res.base;
         }
         res.exponent = 0;
@@ -247,6 +260,9 @@ namespace arithmetic {
             }
         }
         if (left == digits_size) {
+            #ifdef FREE_MEMORY
+            delete digits;
+            #endif
             digits = (digit*) calloc(0, sizeof(digit*));
             digits_size = 0;
             sign = 1;
@@ -260,6 +276,9 @@ namespace arithmetic {
                 digits_size = digits_size - left - right;
                 digit* temp = (digit*) calloc(digits_size, sizeof(digit));
                 memcpy(temp, digits + left, digits_size * sizeof(digit));
+                #ifdef FREE_MEMORY
+                delete digits;
+                #endif
                 digits = temp;
             }
         }
@@ -271,6 +290,9 @@ namespace arithmetic {
         digits_size = digits_size - value;
         digit* temp = (digit*) calloc(digits_size, sizeof(digit));
         memcpy(temp, digits + value, digits_size * sizeof(digit));
+        #ifdef FREE_MEMORY
+        delete digits;
+        #endif
         digits = temp;
         exponent += value;
     }
@@ -282,15 +304,16 @@ namespace arithmetic {
         return os;
     }
 
-    ostream& operator<<(ostream& os, const LongDouble& value) {
+    ostream& operator<<(ostream& os, const LongDouble& value) { // выведет все ненулевые цифры
         if (value.sign == -1)
             os << '-';
         if (value.digits_size == 0) {
             os << '0';
             return os;
         }
-        if (value.digits_size > 16 || (value.exponent > 0 && value.digits_size + value.exponent > 16)|| 
-                    (value.exponent <= -value.digits_size && -value.exponent + 1 > 16)) {
+        const int max_out_exponent = 16;
+        if (value.digits_size > max_out_exponent || (value.exponent > 0 && value.digits_size + value.exponent > max_out_exponent)|| 
+                    (value.exponent <= -value.digits_size && -value.exponent + 1 > max_out_exponent)) {
             for (int i = value.digits_size - 1; i >= 0; i--) {
                 os << value.digits[i];
                 if (value.digits_size > 1 && i == value.digits_size - 1) os << '.';
@@ -410,19 +433,19 @@ namespace arithmetic {
     }
 
     LongDouble LongDouble::operator*(const LongDouble& x) const {
-        LongDouble res = (*this); 
-        res *= LongDouble(x);
+        LongDouble res = *this;
+        res *= x;
         return res;
     }
 
-    void LongDouble::operator*=(const LongDouble& x) {
+    void LongDouble::operator*=(const LongDouble& other) {
+        LongDouble x = other;
         sign = sign * x.sign;
         exponent = exponent + x.exponent;
 
         digit* res = (digit*) calloc(0, sizeof(digit));
         int res_size = 0;
         fft.multiply(digits, digits_size, x.digits, x.digits_size, res, res_size, base);
-
         digits = (digit*)calloc(0, sizeof(digit));
         digits = res;
         digits_size = res_size;
