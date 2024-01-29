@@ -159,9 +159,16 @@ public:
 		}
 		void test() {
 			_test();
+
+
+			cout << LongDouble(1414, 5) / LongDouble(2545) << endl;
+			// exit(0);
 			int count = 100;
 			for (int i = 0; i < count; i++) {
 				int x = (long long) rnd() - rnd(), y = ((long long) rnd() - rnd()) / 100;
+				cout << x << " " << y << endl;
+				cout << LongDouble(x) / LongDouble(y) << endl;
+
 				LongDouble res = LongDouble(x) / LongDouble(y);
 				res.floor();
 				assert(LongDouble(x / y) == res);
@@ -224,6 +231,11 @@ public:
 	};
 
 	void test() {
+
+		LongDouble res, rem;
+			
+			div21(0, 13, 2, res);
+			assert(rem.exponent == 0);
 
  		TestInit().test();
  		TestInequlity().test();

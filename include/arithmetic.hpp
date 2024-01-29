@@ -114,8 +114,47 @@ namespace arithmetic {
         bool operator!=(const T& x) const;
         template<class T>
         LongDouble& operator=(const T& x);
-
     };
+
+    istream& operator>>(istream& os, LongDouble& value) {
+        string s;
+        os >> s;
+        value = s;
+        return os;
+    }
+
+    ostream& operator<<(ostream& os, const LongDouble& value) { // выведет все ненулевые цифры
+        if (value.sign == -1)
+            os << '-';
+        if (value.digits_size == 0) {
+            os << '0';
+            return os;
+        }
+        const int max_out_exponent = 16;
+        if (value.digits_size > max_out_exponent || (value.exponent > 0 && value.digits_size + value.exponent > max_out_exponent)|| 
+                    (value.exponent <= -value.digits_size && -value.exponent + 1 > max_out_exponent)) {
+            for (int i = value.digits_size - 1; i >= 0; i--) {
+                os << value.digits[i];
+                if (value.digits_size > 1 && i == value.digits_size - 1) os << '.';
+            }
+            int val = value.exponent + value.digits_size - 1;
+            if (val > 0) os << 'e' << '+' << val;
+            else if (val < 0) os << 'e' << val;
+        } else {
+            for (int i = -value.exponent; i > value.digits_size - 1; i--) {
+                os << '0';
+                if (i == -value.exponent) os << '.';
+            }
+            for (int i = value.digits_size - 1; i >= 0; i--) {
+                os << value.digits[i];
+                if (i > 0 && i == -value.exponent) os << '.';
+            }
+            for (int i = 0; i < value.exponent; i++) {
+                os << '0';
+            }
+        }
+        return os;
+    }
 
     LongDouble& LongDouble::operator=(const LongDouble& other) // C5267
     {
@@ -249,7 +288,7 @@ namespace arithmetic {
     }
 
     bool LongDouble::isInt() const {
-        return exponent == 0;
+        return exponent >= 0;
     }
 
     bool LongDouble::isZero() const {
@@ -637,58 +676,77 @@ namespace arithmetic {
         return result;
     }
 
-    void div32(const LongDouble &a, const LongDouble &b, LongDouble &res, LongDouble& rem);
+    void div32(const LongDouble &a, const LongDouble &b, int n, LongDouble &res, LongDouble& rem);
 
-    void div21(const LongDouble &a, const LongDouble &b, LongDouble &res) { // return not normalized
-        assert(a.isInt() && b.isInt() && a.sign == 1 && b.sign == 1);
-        if (b.isZero()) division_error();
-        LongDouble x = a, y = b;
-        x.removeZeroes();
-        y.removeZeroes();
-        int n = 1;
-        while (x.digits_size > 2 * n || y.digits_size > n || x.digits_size - (y.digits_size - 1) > n) {
-            n <<= 1;
-        }
-        if (n == 1) {
-            if (b.digits[0] == 0) division_error();
-            res = LongDouble(a.digits[0] / b.digits[0]);
-            if (res.digits_size < 1) {
-                res.digits_size = 1;
-                res.digits = (digit*) calloc(1, sizeof(digit));
-                memset(y.digits, 0, 1 * sizeof(digit));
+    void div21(const LongDouble &a, const LongDouble &b, int n, LongDouble &res) { // return not normalized
+        assert(a.exponent == 0 && b.exponent == 0 && a.sign == 1 && b.sign == 1);
+        LongDouble x = a, y = b;  
+
+        cout << "div21: " << x << " "<< y  <<" " <<n<< endl;
+
+        if (n <= 1) {
+            int A = 0, B = 0;
+            for (int i = x.digits_size - 1; i >= 0; i--) {
+                A = A * x.base + x.digits[i]; 
             }
+            for (int i = y.digits_size - 1; i >= 0; i--) {
+                B = B * y.base + y.digits[i];
+            }
+            if (B == 0) {
+                division_error();
+            }
+            res = LongDouble(A / B);
             return;
         }
+
         int m = n >> 1;
-        int prev_size = x.digits_size;
-        x.digits_size = 2 * n;
-        x.digits = (digit*) realloc(x.digits, (x.digits_size) * sizeof(digit));
-        memset(x.digits + prev_size, 0, (x.digits_size - prev_size) * sizeof(digit));
-        prev_size = y.digits_size;
-        y.digits_size = n;
-        y.digits = (digit*) realloc(y.digits, (y.digits_size) * sizeof(digit));
-        memset(y.digits + prev_size, 0, (y.digits_size - prev_size) * sizeof(digit));
+        // int prev_size = x.digits_size;
+        // x.digits_size = 2 * m;
+        // x.digits = (digit*) realloc(x.digits, (x.digits_size) * sizeof(digit));
+        // memset(x.digits + prev_size, 0, (x.digits_size - prev_size) * sizeof(digit));
+        // prev_size = y.digits_size;
+        // y.digits_size = m;
+        // y.digits = (digit*) realloc(y.digits, (y.digits_size) * sizeof(digit));
+        // memset(y.digits + prev_size, 0, (y.digits_size - prev_size) * sizeof(digit));
 
+        // assert (x.digits_size >= m);
         LongDouble first3m;
-        first3m.digits_size = 3 * m;
-        first3m.digits = (digit*) calloc(first3m.digits_size, sizeof(digit));
-        memcpy(first3m.digits, x.digits + m, (first3m.digits_size) * sizeof(digit));
 
+        if (x.digits_size >= m) {
+            first3m.digits_size = x.digits_size - m;
+            first3m.digits = (digit*) calloc(first3m.digits_size, sizeof(digit));
+            memcpy(first3m.digits, x.digits + m, (first3m.digits_size) * sizeof(digit));
+        } else {
+            first3m.digits = (digit*) calloc(0, sizeof(digit));
+        }
+        
         LongDouble res1, rem1;
-        div32(first3m, b, res1, rem1);
+        cout << "res112121-----: " << res1 << " " << rem1.exponent << endl;
 
-        rem1.digits_size = 3 * m;
-        digit* temp = (digit*) calloc(3 * m, sizeof(digit));
-        memcpy(temp + m, rem1.digits + m, 2 * m * sizeof(digit));
+        cout << "first3m: " << first3m.exponent << " " << y.exponent << endl;
+
+        div32(first3m, y, m, res1, rem1);
+        assert(rem1.exponent == 0);
+        cout << "res12122-------: " << res1 << " " << rem1.exponent << endl;
+
+        rem1.digits_size = rem1.digits_size + m;
+        digit* temp = (digit*) calloc(rem1.digits_size, sizeof(digit));
+        memcpy(temp + m, rem1.digits, (rem1.digits_size - m) * sizeof(digit));
         #ifdef FREE_MEMORY
         delete rem1.digits;
         #endif
         rem1.digits = temp;
-
         memcpy(rem1.digits, x.digits, m * sizeof(digit));
+        // now rem1 = rem1 * 10 ^ m + x.digits % 10 ^ m
+    
+        cout << "res1: " << res1 << " " << rem1.digits_size << endl;
+
 
         LongDouble res2, rem2;
-        div32(rem1, b, res2, rem2);
+        cout << "rem1: " << rem1.exponent << endl;
+        div32(rem1, y, m, res2, rem2);
+
+        cout << "res2hghgh: " << res2 << " " << rem2.exponent << endl;
 
         // shift res1 + m
         res1.digits_size = res1.digits_size + m;
@@ -700,68 +758,92 @@ namespace arithmetic {
         #endif
         res1.digits = temp;
 
-        memcpy(res1.digits, res2.digits, res.digits_size * sizeof(digit)); // add m digits
+        memcpy(res1.digits, res2.digits, res2.digits_size * sizeof(digit)); // add m digits
 
         res = res1;
     }
 
-    void div32(const LongDouble &a, const LongDouble &b, LongDouble &res, LongDouble& rem) { // return normalized
-        assert(a.isInt() && b.isInt() && a.sign == 1 && b.sign == 1);
-        if (b.isZero()) division_error();
+    void div32(const LongDouble &a, const LongDouble &b, int n, LongDouble &res, LongDouble& rem) { // return normalized
+        cout << a.exponent << " " << b.exponent << endl;
+        assert(a.exponent == 0 && b.exponent == 0 && a.sign == 1 && b.sign == 1);
         LongDouble x = a, y = b;
-        x.removeZeroes();
-        y.removeZeroes();
-        int n = 1;
-        while (x.digits_size > 3 * n || y.digits_size > 2 * n || x.digits_size - (y.digits_size - 1) > n) {
-            n <<= 1;
-        }
-        if (n == 1) {
+
+        cout << "div32: " << x << " " << y << " " << n << endl;
+
+        if (n <= 1) {
             int A = 0, B = 0;
-            for (int i = x.digits_size - 1; i >= 0; i++) {
+            for (int i = x.digits_size - 1; i >= 0; i--) {
                 A = A * x.base + x.digits[i]; 
             }
             for (int i = y.digits_size - 1; i >= 0; i--) {
                 B = B * y.base + y.digits[i];
             }
-            if (B == 0) division_error();
+            if (B == 0) {
+                division_error();
+            }
             res = LongDouble(A / B);
             rem = LongDouble(A % B);
+
+            // assert(exponent >= 0);
+            rem.digits_size += rem.exponent;
+            digit* temp = (digit*) calloc(rem.digits_size, sizeof(digit));
+            memcpy(temp + rem.exponent, rem.digits, (rem.digits_size - rem.exponent) * sizeof(digit));
+            #ifdef FREE_MEMORY
+            delete rem.digits;
+            #endif
+            rem.digits = temp;
+            rem.exponent = 0;
+            
+            assert(rem.exponent == 0 && res.exponent == 0);
             return;
         }
 
         if (y.digits_size <= n) {
-            x.digits_size = 2 * n;
-            x.digits = (digit*) realloc(x.digits, (x.digits_size) * sizeof(digit));
-            y.digits_size = n;
-            y.digits = (digit*) realloc(y.digits, (y.digits_size) * sizeof(digit));
-            div21(x, y, res);
-            res.removeZeroes();
-            rem = res - res * b;
+            div21(x, y, n, res);
+            rem = x - res * y;
+
+            // assert(exponent >= 0);
+            rem.digits_size += rem.exponent;
+            digit* temp = (digit*) calloc(rem.digits_size, sizeof(digit));
+            memcpy(temp + rem.exponent, rem.digits, (rem.digits_size - rem.exponent) * sizeof(digit));
+            #ifdef FREE_MEMORY
+            delete rem.digits;
+            #endif
+            rem.digits = temp;
+            rem.exponent = 0;
+
+            assert(rem.exponent == 0);
+
             return;
         }
 
         // cut on blocks
-        int prev_size = x.digits_size;
-        x.digits_size = 3 * n;
-        x.digits = (digit*) realloc(x.digits, (x.digits_size) * sizeof(digit));
-        memset(x.digits + prev_size, 0, (x.digits_size - prev_size) * sizeof(digit));
+        // int prev_size = x.digits_size;
+        // x.digits_size = 3 * n;
+        // x.digits = (digit*) realloc(x.digits, (x.digits_size) * sizeof(digit));
+        // memset(x.digits + prev_size, 0, (x.digits_size - prev_size) * sizeof(digit));
 
-        prev_size = y.digits_size;
-        y.digits_size = 2 * n;
-        y.digits = (digit*) realloc(y.digits, (y.digits_size) * sizeof(digit));
-        memset(y.digits + prev_size, 0, (y.digits_size - prev_size) * sizeof(digit));
+        // prev_size = y.digits_size;
+        // y.digits_size = 2 * n;
+        // y.digits = (digit*) realloc(y.digits, (y.digits_size) * sizeof(digit));
+        // memset(y.digits + prev_size, 0, (y.digits_size - prev_size) * sizeof(digit));
 
         LongDouble y1; // first n
         y1.digits_size = n;
         y1.digits = (digit*) calloc(y1.digits_size, sizeof(digit));
-        memcpy(y1.digits, y.digits + 2 * n, (y1.digits_size) * sizeof(digit));
+        memcpy(y1.digits, y.digits + (y.digits_size - n), (y1.digits_size) * sizeof(digit));
 
         LongDouble x1; // first |x| - (|y| - n)
-        x1.digits_size = 2 * n;
+        x1.digits_size = max(0, x.digits_size - (y.digits_size - n));
         x1.digits = (digit*) calloc(x1.digits_size, sizeof(digit));
-        memcpy(x1.digits, x.digits + n, (x1.digits_size) * sizeof(digit));
 
-        // some statementsr
+        memcpy(x1.digits, x.digits + (y.digits_size - n), (x1.digits_size) * sizeof(digit));
+
+        cout << "y1, x1:" << y1 << " " << x1 << endl;
+
+        // if x1 >= y1 * 10 ^ n dont call div21
+
+        // some statements
         // x1/y1 >= x/y
         // x1 / (y1 + 1) <= x/y
         // x1/y1 - 10 <= x1 / (y1 + 1)
@@ -769,18 +851,72 @@ namespace arithmetic {
         // x1/y1-10 <= x/y <= x1/y1
 
         LongDouble res1;
-        div21(x1, y1, res1);
-        res1.removeZeroes();
-        LongDouble current_rem = a - res1 * b;
+        div21(x1, y1, n, res1);
+        LongDouble current_rem = x - res1 * y;
         while (current_rem < 0) {
-            current_rem += b;
+            current_rem += b;            
             res1 -= 1;
         }
 
+        digit* temp = (digit*) calloc(current_rem.digits_size + current_rem.exponent, sizeof(digit));
+        memcpy(temp + current_rem.exponent, current_rem.digits, (current_rem.digits_size) * sizeof(digit));
+        memset(temp, 0, (current_rem.exponent) * sizeof(digit));
+        #ifdef FREE_MEMORY
+        delete current_rem.digits;
+        #endif
+        current_rem.digits = temp;
+        current_rem.digits_size += current_rem.exponent;
+        current_rem.exponent = 0;
+
+
+        temp = (digit*) calloc(res1.digits_size + res1.exponent, sizeof(digit));
+        memcpy(temp + res1.exponent, res1.digits, (res1.digits_size) * sizeof(digit));
+        memset(temp, 0, (res1.exponent) * sizeof(digit));
+        #ifdef FREE_MEMORY
+        delete res1.digits;
+        #endif
+        res1.digits = temp;
+        res1.digits_size += res1.exponent;
+        res1.exponent = 0;
+ 
         res = res1;
         rem = current_rem;
-
     }
+
+    // LongDouble LongDouble::operator/(const LongDouble& other) const {
+    //     LongDouble x (*this);
+    //     x.sign = 1;
+    //     LongDouble y (other);
+    //     y.sign = 1;
+    //     int res_exponent = exponent - other.exponent;
+    //     x.exponent = 0;
+    //     y.exponent = 0;
+
+    //     int plus = precision - x.digits_size + y.digits_size + 2;
+
+    //     int temp_size = plus + x.digits_size;
+    //     digit* temp = (digit*) calloc(temp_size, sizeof(digit));
+    //     if (!temp) memory_error();
+    //     memset(temp, 0, plus * sizeof(digit));
+    //     memcpy(temp + plus, x.digits, digits_size * sizeof(digit));
+
+    //     x.digits = temp;
+    //     x.digits_size = temp_size;
+
+    //     res_exponent -= plus;
+
+    //     LongDouble res = IntegerDivision(x, y);         
+    //     res.precision = precision;
+    //     res.exponent += res_exponent;
+    //     res.sign = sign * other.sign;
+    //     res.removeZeroes();
+    //     if (res.digits_size > res.precision) {
+    //         res.removeFirst(res.digits_size - res.precision);
+    //     }
+    //     res.removeZeroes();
+
+    //     return res;
+    // }
 
     LongDouble LongDouble::operator/(const LongDouble& other) const {
         LongDouble x (*this);
@@ -804,7 +940,11 @@ namespace arithmetic {
 
         res_exponent -= plus;
 
-        LongDouble res = IntegerDivision(x, y);         
+        // LongDouble res = IntegerDivision(x, y);      
+        LongDouble res;
+        int n = 1;
+        while (x.digits_size > 2 * n || y.digits_size > n || x.digits_size - y.digits_size + 1 > n) n <<= 1;
+        div21(x, y, n, res);   
         res.precision = precision;
         res.exponent += res_exponent;
         res.sign = sign * other.sign;
@@ -892,46 +1032,6 @@ namespace arithmetic {
     template<class T>
     LongDouble& LongDouble::operator=(const T& x) {
         return *this = LongDouble(x);
-    }
-
-        istream& operator>>(istream& os, LongDouble& value) {
-        string s;
-        os >> s;
-        value = s;
-        return os;
-    }
-
-    ostream& operator<<(ostream& os, const LongDouble& value) { // выведет все ненулевые цифры
-        if (value.sign == -1)
-            os << '-';
-        if (value.digits_size == 0) {
-            os << '0';
-            return os;
-        }
-        const int max_out_exponent = 16;
-        if (value.digits_size > max_out_exponent || (value.exponent > 0 && value.digits_size + value.exponent > max_out_exponent)|| 
-                    (value.exponent <= -value.digits_size && -value.exponent + 1 > max_out_exponent)) {
-            for (int i = value.digits_size - 1; i >= 0; i--) {
-                os << value.digits[i];
-                if (value.digits_size > 1 && i == value.digits_size - 1) os << '.';
-            }
-            int val = value.exponent + value.digits_size - 1;
-            if (val > 0) os << 'e' << '+' << val;
-            else if (val < 0) os << 'e' << val;
-        } else {
-            for (int i = -value.exponent; i > value.digits_size - 1; i--) {
-                os << '0';
-                if (i == -value.exponent) os << '.';
-            }
-            for (int i = value.digits_size - 1; i >= 0; i--) {
-                os << value.digits[i];
-                if (i > 0 && i == -value.exponent) os << '.';
-            }
-            for (int i = 0; i < value.exponent; i++) {
-                os << '0';
-            }
-        }
-        return os;
     }
 
 };
