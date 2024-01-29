@@ -158,16 +158,9 @@ public:
 			name = "TestDiv";
 		}
 		void test() {
-			_test();
-
-
-			cout << LongDouble(1414, 5) / LongDouble(2545) << endl;
-			// exit(0);
 			int count = 100;
 			for (int i = 0; i < count; i++) {
 				int x = (long long) rnd() - rnd(), y = ((long long) rnd() - rnd()) / 100;
-				cout << x << " " << y << endl;
-				cout << LongDouble(x) / LongDouble(y) << endl;
 
 				LongDouble res = LongDouble(x) / LongDouble(y);
 				res.floor();
@@ -213,15 +206,18 @@ public:
 			int count = 100;
 			for (int i = 0; i < count; i++) {
 				int len = 50; // тестируем числа с len цифрами
-				LongDouble x(0, len), y(0, len);
+				LongDouble x(0, len * 2), y(0, len * 2);
+
 				for (int j = 0; j < len; j++) {
 					x = x * LongDouble(10) + LongDouble((int) (rnd() % 10));
 					y = y * LongDouble(10) + LongDouble((int) (rnd() % 10));
 				}
+
 				int expx = rnd() % len + 1;
 				x.divBase(expx);
 				y.divBase(rnd() % len + 1);
 				LongDouble power = 1; power.divBase(expx - 1); // допускаем последнюю цифру
+
 				assert((x - x / y * y).abs() < power);
 				assert((x - x * y / y).abs() < power);
 				assert((x - x / y / y * y * y).abs() < power * 10); // допуск 2 цифры
@@ -231,12 +227,6 @@ public:
 	};
 
 	void test() {
-
-		LongDouble res, rem;
-			
-			div21(0, 13, 2, res);
-			assert(rem.exponent == 0);
-
  		TestInit().test();
  		TestInequlity().test();
 		TestAddition().test();

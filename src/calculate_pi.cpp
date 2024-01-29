@@ -57,7 +57,7 @@ LongDouble Leibnica(int digits) {
     LongDouble st(1);
     st.divBase(digits);
     for (int i = 1; ; i++) {
-        sm *= (LongDouble(i, digits) / (LongDouble(2 * i + 1, digits)));
+        sm *= LongDouble(i, digits) / (LongDouble(2 * i + 1, digits));
         sum += sm;
         if (sm < st) {
             break;
@@ -72,6 +72,8 @@ LongDouble Leibnica(int digits) {
 int main(int argc, char* argv[]) {
     int digits;
     const int right_bound = 1000;
+
+    cout << LongDouble(1, 100) / 3 << endl;
 
     if (argc > 1) {
         if (string(argv[1]) == "--test") {
