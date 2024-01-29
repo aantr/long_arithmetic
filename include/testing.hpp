@@ -1,5 +1,4 @@
 #include <arithmetic.hpp>
-#include <arithmetic_pointer.hpp>
 #include <assert.h>
 
 #if __cplusplus >= 201103L
@@ -7,7 +6,7 @@
 #endif
 
 using namespace std;
-using namespace arithmetic_pointer;
+using namespace arithmetic;
 
 std::mt19937 rnd(7327158);
 

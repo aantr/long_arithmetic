@@ -1,7 +1,6 @@
 #ifndef FFT_HPP
 #define FFT_HPP
 
-#include<iostream>
 #include <math.h>
 #include <vector>
 #include <complex.h>
@@ -33,7 +32,6 @@ namespace fft {
 
         template<typename T>
         void fft(T *in, ftype *out, int n, int k = 1) {
-            
             if(n == 1) {
                 *out = *in;
                 return;
@@ -47,69 +45,111 @@ namespace fft {
                 out[i + n] = out[i] - t;
                 out[i] += t;
             }
+
         }
 
-        vector<ftype> evaluate(vector<digit> &p) {
-            while(__builtin_popcount(p.size()) != 1) {
-                p.push_back(0);
+        void evaluate(digit*& p, int &size, ftype*& res, int &res_size) {
+            int prev_size = size;
+            int s = 1;
+            while (s < size) {
+                s <<= 1;
             }
-            vector<ftype> res(p.size());
-            fft(p.data(), res.data(), p.size());
-            return res;
+            p = (digit*) realloc(p, s * sizeof(digit));
+            for (int i = prev_size; i < s; i++) {
+                p[i] = 0;
+            }
+            size = s;
+            res = (ftype*) calloc(size, sizeof(ftype));
+            res_size = size;
+            for (int i = 0; i < size; i++) {
+                res[i] = ftype();
+            }
+            fft(p, res, size);
         }
 
-        vector<digit> interpolate(vector<ftype> &p) {
-            int n = p.size();
-            vector<ftype> inv(n);
-            fft(p.data(), inv.data(), n);
-            vector<digit> res(n);
-            for(int i = 0; i < n; i++) {
-                res[i] = round(real(inv[i]) / n);
+        void interpolate(ftype* p, int &size, digit*& res, int &res_size) {
+            ftype* inv = (ftype*) calloc(size, sizeof(ftype));
+            fft(p, inv, size);
+            res = (digit*)calloc(size, sizeof(digit));
+            res_size = size;
+            for (int i = 0; i < size; i++) {
+                res[i] = round(real(inv[i]) / size);
             }
-            reverse(begin(res) + 1, end(res));
-            return res;
+            reverse(res + 1, res + size);
         }
 
-        void align(vector<digit> &a, vector<digit> &b) {
-            int n = a.size() + b.size() - 1;
-            while((int)a.size() < n) {
-                a.push_back(0);
+        void align(digit*& a, int &size_a, digit*& b, int &size_b) {
+            int n = size_a + size_b - 1;
+            a = (digit*) realloc(a, n * sizeof(digit));
+            if (a == nullptr) {
+                exit(1);
             }
-            while((int)b.size() < n) {
-                b.push_back(0);
+            for (int i = size_a; i < n; i++) {
+                a[i] = 0;
             }
+            size_a = n;
+
+            b = (digit*) realloc(b, n * sizeof(digit));
+
+            for (int i = size_b; i < n; i++) {
+                b[i] = 0;
+            }
+            size_b = n;
+
         }
 
-        vector<digit> poly_multiply(vector<digit> a, vector<digit> b) {
-            align(a, b);        
-            auto A = evaluate(a);
-            auto B = evaluate(b);
-            for(int i = 0; i < (int) A.size(); i++) {
+        void poly_multiply(digit* a, int &size_a, digit* b, int &size_b, digit*& res, int &res_size) {
+
+            align(a, size_a, b, size_b);
+
+            ftype* A, *B;
+
+            int size_A, size_B;
+            evaluate(a, size_a, A, size_A);        
+            evaluate(b, size_b, B, size_B);
+
+            for (int i = 0; i < size_A; i++) {
                 A[i] *= B[i];
             }
 
-            return interpolate(A);
+            interpolate(A, size_A, res, res_size);
         }
 
-        vector<digit> normalize(vector<digit> c, int base=10) {
+        void normalize(digit*& c, int &size, int base=10) {
             int carry = 0;
-            for (auto &it: c) {
-                it += carry;
-                carry = it / base;
-                it %= base;
+            for (int i = 0; i < size; i++) {
+                c[i] += carry;
+                carry = c[i] / base;
+                c[i] %= base;
             }
+            int temp = carry;
+            int count = 0;
             while (carry) {
-                c.push_back(carry % base);
+                count++;
                 carry /= base;
             }
-            return c;
+            carry = temp;
+            c = (digit*) realloc(c, (size + count) * sizeof(digit));
+            int i = size;
+            size += count;
+            while (carry) {
+                c[i++] = (carry % base);
+                carry /= base;
+            }
         }
 
-        vector<digit> multiply(vector<digit> a, vector<digit> b, int base=10) {
-            return normalize(poly_multiply(a, b), base);
+        void multiply(digit* a, int size_a, digit* b, int size_b, digit*& res, int &res_size, int base=10) {
+            if (size_a == 0 && size_b == 0) {
+                res_size = 0;
+                res = (digit*) calloc(0, sizeof(digit));
+                return;
+            }
+            poly_multiply(a, size_a, b, size_b, res, res_size);
+            normalize(res, res_size, base);
         }
 
     };
+
 }
 
 #endif
