@@ -25,6 +25,11 @@ namespace arithmetic {
         exit(1);
     }
 
+    void division_error() {
+        cerr << "Division by zero" << endl;
+        exit(1);
+    }
+
     class LongDouble {
     public:
 
@@ -603,7 +608,7 @@ namespace arithmetic {
     }
 
     LongDouble IntegerDivision(const LongDouble &x, const LongDouble &y) { // n * n * log^2(n)
-        assert(x.exponent == 0 && y.exponent == 0);
+        assert(x.isInt() && y.isInt());
         if (y == 0) throw exception();
         LongDouble b = y;
         LongDouble result = 0, current = 0;
@@ -630,6 +635,151 @@ namespace arithmetic {
         result.removeZeroes();
 
         return result;
+    }
+
+    void div32(const LongDouble &a, const LongDouble &b, LongDouble &res, LongDouble& rem);
+
+    void div21(const LongDouble &a, const LongDouble &b, LongDouble &res) { // return not normalized
+        assert(a.isInt() && b.isInt() && a.sign == 1 && b.sign == 1);
+        if (b.isZero()) division_error();
+        LongDouble x = a, y = b;
+        x.removeZeroes();
+        y.removeZeroes();
+        int n = 1;
+        while (x.digits_size > 2 * n || y.digits_size > n || x.digits_size - (y.digits_size - 1) > n) {
+            n <<= 1;
+        }
+        if (n == 1) {
+            if (b.digits[0] == 0) division_error();
+            res = LongDouble(a.digits[0] / b.digits[0]);
+            if (res.digits_size < 1) {
+                res.digits_size = 1;
+                res.digits = (digit*) calloc(1, sizeof(digit));
+                memset(y.digits, 0, 1 * sizeof(digit));
+            }
+            return;
+        }
+        int m = n >> 1;
+        int prev_size = x.digits_size;
+        x.digits_size = 2 * n;
+        x.digits = (digit*) realloc(x.digits, (x.digits_size) * sizeof(digit));
+        memset(x.digits + prev_size, 0, (x.digits_size - prev_size) * sizeof(digit));
+        prev_size = y.digits_size;
+        y.digits_size = n;
+        y.digits = (digit*) realloc(y.digits, (y.digits_size) * sizeof(digit));
+        memset(y.digits + prev_size, 0, (y.digits_size - prev_size) * sizeof(digit));
+
+        LongDouble first3m;
+        first3m.digits_size = 3 * m;
+        first3m.digits = (digit*) calloc(first3m.digits_size, sizeof(digit));
+        memcpy(first3m.digits, x.digits + m, (first3m.digits_size) * sizeof(digit));
+
+        LongDouble res1, rem1;
+        div32(first3m, b, res1, rem1);
+
+        rem1.digits_size = 3 * m;
+        digit* temp = (digit*) calloc(3 * m, sizeof(digit));
+        memcpy(temp + m, rem1.digits + m, 2 * m * sizeof(digit));
+        #ifdef FREE_MEMORY
+        delete rem1.digits;
+        #endif
+        rem1.digits = temp;
+
+        memcpy(rem1.digits, x.digits, m * sizeof(digit));
+
+        LongDouble res2, rem2;
+        div32(rem1, b, res2, rem2);
+
+        // shift res1 + m
+        res1.digits_size = res1.digits_size + m;
+        temp = (digit*) calloc(res1.digits_size, sizeof(digit));
+        memcpy(temp + m, res1.digits, (res1.digits_size - m) * sizeof(digit));
+
+        #ifdef FREE_MEMORY
+        delete res1.digits;
+        #endif
+        res1.digits = temp;
+
+        memcpy(res1.digits, res2.digits, res.digits_size * sizeof(digit)); // add m digits
+
+        res = res1;
+    }
+
+    void div32(const LongDouble &a, const LongDouble &b, LongDouble &res, LongDouble& rem) { // return normalized
+        assert(a.isInt() && b.isInt() && a.sign == 1 && b.sign == 1);
+        if (b.isZero()) division_error();
+        LongDouble x = a, y = b;
+        x.removeZeroes();
+        y.removeZeroes();
+        int n = 1;
+        while (x.digits_size > 3 * n || y.digits_size > 2 * n || x.digits_size - (y.digits_size - 1) > n) {
+            n <<= 1;
+        }
+        if (n == 1) {
+            int A = 0, B = 0;
+            for (int i = x.digits_size - 1; i >= 0; i++) {
+                A = A * x.base + x.digits[i]; 
+            }
+            for (int i = y.digits_size - 1; i >= 0; i--) {
+                B = B * y.base + y.digits[i];
+            }
+            if (B == 0) division_error();
+            res = LongDouble(A / B);
+            rem = LongDouble(A % B);
+            return;
+        }
+
+        if (y.digits_size <= n) {
+            x.digits_size = 2 * n;
+            x.digits = (digit*) realloc(x.digits, (x.digits_size) * sizeof(digit));
+            y.digits_size = n;
+            y.digits = (digit*) realloc(y.digits, (y.digits_size) * sizeof(digit));
+            div21(x, y, res);
+            res.removeZeroes();
+            rem = res - res * b;
+            return;
+        }
+
+        // cut on blocks
+        int prev_size = x.digits_size;
+        x.digits_size = 3 * n;
+        x.digits = (digit*) realloc(x.digits, (x.digits_size) * sizeof(digit));
+        memset(x.digits + prev_size, 0, (x.digits_size - prev_size) * sizeof(digit));
+
+        prev_size = y.digits_size;
+        y.digits_size = 2 * n;
+        y.digits = (digit*) realloc(y.digits, (y.digits_size) * sizeof(digit));
+        memset(y.digits + prev_size, 0, (y.digits_size - prev_size) * sizeof(digit));
+
+        LongDouble y1; // first n
+        y1.digits_size = n;
+        y1.digits = (digit*) calloc(y1.digits_size, sizeof(digit));
+        memcpy(y1.digits, y.digits + 2 * n, (y1.digits_size) * sizeof(digit));
+
+        LongDouble x1; // first |x| - (|y| - n)
+        x1.digits_size = 2 * n;
+        x1.digits = (digit*) calloc(x1.digits_size, sizeof(digit));
+        memcpy(x1.digits, x.digits + n, (x1.digits_size) * sizeof(digit));
+
+        // some statementsr
+        // x1/y1 >= x/y
+        // x1 / (y1 + 1) <= x/y
+        // x1/y1 - 10 <= x1 / (y1 + 1)
+        // x1 / (y1 + 1) <= x/y <= x1/y1
+        // x1/y1-10 <= x/y <= x1/y1
+
+        LongDouble res1;
+        div21(x1, y1, res1);
+        res1.removeZeroes();
+        LongDouble current_rem = a - res1 * b;
+        while (current_rem < 0) {
+            current_rem += b;
+            res1 -= 1;
+        }
+
+        res = res1;
+        rem = current_rem;
+
     }
 
     LongDouble LongDouble::operator/(const LongDouble& other) const {
