@@ -7,7 +7,7 @@
 #endif
 
 using namespace std;
-using namespace arithmetic;
+using namespace arithmetic_pointer;
 
 std::mt19937 rnd(7327158);
 
