@@ -678,12 +678,14 @@ namespace arithmetic {
 
     void div32(const LongDouble &a, const LongDouble &b, int n, LongDouble &res, LongDouble& rem);
 
-    void div21(const LongDouble &a, const LongDouble &b, int n, LongDouble &res) { // return not normalized
+    void div21(const LongDouble &a, const LongDouble &b, int n, LongDouble &res) { 
         assert(a.exponent == 0 && b.exponent == 0 && a.sign == 1 && b.sign == 1);
         LongDouble x = a, y = b;
         x.precision = (int) 1e9;
         y.precision = (int) 1e9;
 
+        LongDouble qwqw = x;
+        int m = n >> 1;
         if (n <= 1) {
             int A = 0, B = 0;
             for (int i = x.digits_size - 1; i >= 0; i--) {
@@ -699,7 +701,6 @@ namespace arithmetic {
             return;
         }
 
-        int m = n >> 1;
         LongDouble first3m(0, (int) 1e9);
 
         if (x.digits_size >= m) {
@@ -721,12 +722,9 @@ namespace arithmetic {
         delete rem1.digits;
         #endif
         rem1.digits = temp;
-        memcpy(rem1.digits, x.digits, m * sizeof(digit));
-        // now rem1 = rem1 * 10 ^ m + x.digits % 10 ^ m;
-
+        memcpy(rem1.digits, x.digits, min(m, x.digits_size) * sizeof(digit));
         LongDouble res2(0, (int) 1e9), rem2(0, (int) 1e9);
         div32(rem1, y, m, res2, rem2);
-
         res1.digits_size = res1.digits_size + m;
         temp = (digit*) calloc(res1.digits_size, sizeof(digit));
         memcpy(temp + m, res1.digits, (res1.digits_size - m) * sizeof(digit));
@@ -737,12 +735,10 @@ namespace arithmetic {
         res1.digits = temp;
 
         memcpy(res1.digits, res2.digits, res2.digits_size * sizeof(digit)); // add m digits
-
         res = res1;
-        assert(res.precision == (int) 1e9);
     }
 
-    void div32(const LongDouble &a, const LongDouble &b, int n, LongDouble &res, LongDouble& rem) { // return normalized
+    void div32(const LongDouble &a, const LongDouble &b, int n, LongDouble &res, LongDouble& rem) {
         assert(a.exponent == 0 && b.exponent == 0 && a.sign == 1 && b.sign == 1);
         LongDouble x = a, y = b;
         x.precision = (int) 1e9;
@@ -776,6 +772,7 @@ namespace arithmetic {
         if (y.digits_size <= n) {
             div21(x, y, n, res);
             rem = x - y * res;
+            assert(rem >= 0);
             rem.digits_size += rem.exponent;
             digit* temp = (digit*) calloc(rem.digits_size, sizeof(digit));
             memcpy(temp + rem.exponent, rem.digits, (rem.digits_size - rem.exponent) * sizeof(digit));
@@ -830,9 +827,9 @@ namespace arithmetic {
         LongDouble res1(0, (int) 1e9);
         if (maxres) {
             res1 = 1;
+            res1.precision = (int) 1e9;
             res1.mulBase(n);
             res1 -= 1;
-            res1.precision = (int) 1e9;
         } else {
             div21(x1, y1, n, res1);
         }
@@ -842,7 +839,6 @@ namespace arithmetic {
             current_rem += y;            
             res1 -= 1;
         }
-        assert(res1.precision == (int) 1e9);
 
         temp = (digit*) calloc(current_rem.digits_size + current_rem.exponent, sizeof(digit));
         memcpy(temp + current_rem.exponent, current_rem.digits, (current_rem.digits_size) * sizeof(digit));
@@ -904,7 +900,6 @@ namespace arithmetic {
     // }
 
     LongDouble LongDouble::operator/(const LongDouble& other) const {
-        cout << "Division: " << *this <<" " << other<<endl;
         LongDouble x (*this);
         x.sign = 1;
         LongDouble y (other);

@@ -73,7 +73,7 @@ int main(int argc, char* argv[]) {
     int digits;
     const int right_bound = 1000;
 
-    cout << LongDouble(1, 100) / 3 << endl;
+    // cout << LongDouble(1, 100) / 3 << endl;
 
     if (argc > 1) {
         if (string(argv[1]) == "--test") {
