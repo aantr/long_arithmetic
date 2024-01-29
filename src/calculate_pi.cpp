@@ -51,7 +51,7 @@ LongDouble Chudnovsky(int digits) {
 }
 
 LongDouble Leibnica(int digits) {
-    int eps = 5;
+    int eps = 30;
     digits += eps;
     LongDouble sum (1, digits);
     LongDouble sm (1, digits);
@@ -92,8 +92,8 @@ int main(int argc, char* argv[]) {
     double start = (double) clock() / CLOCKS_PER_SEC;
     cout << "PI:\n" << Chudnovsky(digits) << "\n";
     cerr << "TIME: " << TIME - start<< " sec (total " << TIME << " sec)\n";
-    // cout << "PI:\n" << Leibnica(digits) << "\n";
-    // cerr << "TIME: " << TIME - start<< " sec (total " << TIME << " sec)\n";
+    cout << "PI:\n" << Leibnica(digits) << "\n";
+    cerr << "TIME: " << TIME - start<< " sec (total " << TIME << " sec)\n";
 
 
     return 0;
