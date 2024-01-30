@@ -766,8 +766,6 @@ namespace arithmetic {
     }  
 
     LongDouble LongDouble::operator-(const LongDouble& x) const {
-            // cout << *this << " " << x << endl;
-
         if (sign == 1 && x.sign == 1) {
 
             if (*this < x) {
