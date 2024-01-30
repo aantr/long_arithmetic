@@ -36,9 +36,8 @@ LongDouble Chudnovsky(int digits) {
     int p_eps = 5; // for precision
     LongDouble sq10005(10005, digits + 5 + p_eps);
     sq10005.sqrt_int();
-    int n = digits / 10 + n_eps;
+    int n = digits / 100 + n_eps;
     auto [P1n, Q1n, R1n] = binary_split(1, n, (int) 1e9);  
-
     Q1n.precision = digits + p_eps;
     LongDouble res = (Q1n * LongDouble(426880) * sq10005);
     LongDouble res2 = (Q1n * LongDouble(13591409) + R1n);
@@ -71,7 +70,7 @@ LongDouble Leibnica(int digits) {
 
 int main(int argc, char* argv[]) {
     int digits;
-    const int right_bound = 1500;
+    const int right_bound = 9999;
 
     if (argc > 1) {
         if (string(argv[1]) == "--test") {
