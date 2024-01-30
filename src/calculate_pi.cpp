@@ -36,7 +36,7 @@ LongDouble Chudnovsky(int digits) {
     int p_eps = 5; // for precision
     LongDouble sq10005(10005, digits + 5 + p_eps);
     sq10005.sqrt_int();
-    int n = digits / 100 + n_eps;
+    int n = digits / 10 + n_eps;
     auto [P1n, Q1n, R1n] = binary_split(1, n, (int) 1e9);  
     Q1n.precision = digits + p_eps;
     LongDouble res = (Q1n * LongDouble(426880) * sq10005);
@@ -49,7 +49,7 @@ LongDouble Chudnovsky(int digits) {
 }
 
 LongDouble Leibnica(int digits) {
-    int eps = 30;
+    int eps = 5;
     digits += eps;
     LongDouble sum (1, digits);
     LongDouble sm (1, digits);
@@ -64,7 +64,9 @@ LongDouble Leibnica(int digits) {
     }
     digits -= eps;
     sum *= 2;
-    sum.floor(digits);
+    if (sum.digits_size - 1 - digits > 0) {
+        sum.removeFirst(sum.digits_size - 1 - digits);
+    }
     return sum;
 }
 
