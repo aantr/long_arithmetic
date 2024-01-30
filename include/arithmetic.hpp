@@ -627,9 +627,9 @@ namespace arithmetic {
     }
 
     bool LongDouble::operator<(const LongDouble& x) const {
-        if (digits_size == 0) return x.sign == 1 && x.digits_size > 0;
-        if (x.digits_size == 0) return sign == -1 && digits_size > 0;
-        if (sign != x.sign) return sign < x.sign && (digits_size > 0 || x.digits_size > 0); 
+        if (isZero()) return x.sign == 1 && !x.isZero();
+        if (x.isZero()) return sign == -1 && !isZero();
+        if (sign != x.sign) return sign < x.sign && (!isZero() || !x.isZero()); 
 
         if (digits_size + exponent != x.digits_size + x.exponent)
             return (digits_size + exponent < x.digits_size + x.exponent) ^ (sign == -1);
@@ -638,17 +638,43 @@ namespace arithmetic {
             if (digits[digits_size - 1 - i] < x.digits[x.digits_size - 1 - i]) return sign == 1;
             if (digits[digits_size - 1 - i] > x.digits[x.digits_size - 1 - i]) return sign == -1;
         }
-        return (digits_size < x.digits_size) ^ (sign == -1);
+        bool all_zeroes = true;
+        for (int i = min(digits_size, x.digits_size); i < digits_size; i++) {
+            if (all_zeroes == false || digits[digits_size - 1 - i] != 0) {
+                all_zeroes = false;
+                break;
+            }
+        }
+        for (int i = min(digits_size, x.digits_size); i < x.digits_size; i++) {
+            if (all_zeroes == false || x.digits[x.digits_size - 1 - i] != 0) {
+                all_zeroes = false;
+                break;
+            }
+        }
+        return (digits_size < x.digits_size && !all_zeroes) ^ (sign == -1);
     }
 
     bool LongDouble::operator==(const LongDouble& x) const {
         if (sign != x.sign)
-            return (digits_size == 0 && digits_size == 0); 
-        if (digits_size != x.digits_size) return false;
-        for (int i = 0; i < digits_size; i++) {
-            if (digits[i] != x.digits[i]) return false;
+            return (isZero() && x.isZero()); 
+        if (digits_size + exponent != x.digits_size + x.exponent) return false;
+        for (int i = 0; i < min(digits_size, x.digits_size); i++) {
+            if (digits[digits_size - 1 - i] != x.digits[x.digits_size - 1 - i]) return false;
         }
-        return exponent == x.exponent;
+        bool all_zeroes = true;
+        for (int i = min(digits_size, x.digits_size); i < digits_size; i++) {
+            if (all_zeroes == false || digits[digits_size - 1 - i] != 0) {
+                all_zeroes = false;
+                break;
+            }
+        }
+        for (int i = min(digits_size, x.digits_size); i < x.digits_size; i++) {
+            if (all_zeroes == false || x.digits[x.digits_size - 1 - i] != 0) {
+                all_zeroes = false;
+                break;
+            }
+        }
+        return all_zeroes;
     }
 
     bool LongDouble::operator!=(const LongDouble& x) const {

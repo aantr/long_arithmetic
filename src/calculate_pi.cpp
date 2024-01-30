@@ -1,5 +1,9 @@
 #include <iostream>
+#include <fstream>
 #include <iomanip>
+#include <unistd.h>
+#include <stdio.h>
+#include <limits.h>
 #include <math.h>
 #include <testing.hpp>
 #include <arithmetic.hpp>
@@ -32,10 +36,10 @@ LongDouble Chudnovsky(int digits) {
     int p_eps = 5; // for precision
     LongDouble sq10005(10005, digits + 5 + p_eps);
     sq10005.sqrt_int();
-    int n = digits / 10 + n_eps;
+    int n = digits + n_eps;
     auto [P1n, Q1n, R1n] = binary_split(1, n, (int) 1e9);  
 
-    Q1n.precision = digits + p_eps;
+    Q1n.precision = 2 * digits + p_eps;
     LongDouble res = (Q1n * LongDouble(426880) * sq10005);
     LongDouble res2 = (Q1n * LongDouble(13591409) + R1n);
 
@@ -68,7 +72,7 @@ LongDouble Leibnica(int digits) {
 
 int main(int argc, char* argv[]) {
     int digits;
-    const int right_bound = 1000;
+    const int right_bound = 1500;
 
     if (argc > 1) {
         if (string(argv[1]) == "--test") {
@@ -86,7 +90,22 @@ int main(int argc, char* argv[]) {
     }
 
     double start = (double) clock() / CLOCKS_PER_SEC;
-    cout << "PI:\n" << Chudnovsky(digits) << "\n";
+    LongDouble result = Chudnovsky(digits);
+    cout << "PI:\n" << result << "\n";
+
+    const string pifilename = "src/pi-9999.txt";
+    ifstream pifile (pifilename);
+    if (pifile.is_open()) {
+        string correct;
+        pifile >> correct;
+        if (result != LongDouble(correct.substr(0, digits + 2))) {
+            cout << "Incorrect output, correct: " << correct.substr(0, digits + 2) << "\n";
+        } else {
+            cout << "PI is checked out\n";
+        }
+        pifile.close();
+    }
+
     cerr << "TIME: " << TIME - start<< " sec (total " << TIME << " sec)\n";
 
     return 0;
