@@ -608,42 +608,52 @@ namespace arithmetic {
         int m = (n - 1) / (2 * k);
         if (m == 0) {
             sqrt_int();
-            floor();
             return;
         }
-
 
         LongDouble a = x;
         a.divBase(k * m);
         a.floor();
+        LongDouble a2 = a;
         a.sqrt_fast();
+        a.floor();
 
         LongDouble m2(1);
         m2.mulBase(k * m);
         LongDouble m1(1);
         m1.mulBase((k - 1) * m);
 
+
         LongDouble d1(x - a * a * m2, n);
         LongDouble b = d1 / (a * m1);
         b.floor();
 
         LongDouble res = a * m1 + b;
-
         if (res * res > x) {
             b -= 1;
             res = a * m1 + b;
         }
+        if (res.digits_size > precision) {
+            res.removeFirst(res.digits_size - precision);
+        }
 
+        cout << x << " " << b << "\n";
         assert(res * res <= x);
         *this = res;
     }
-    /*
 
-    a * 10^m > 2 * b^2 > b ^ 2
-    110 * 100 > 2 * (b ^ 2)
-    11000 > 18432
+    /*
+    
+    a * 10 ^ m > 2 * b ^ 2
+
+     > b ^ 2
+    2 * b ^ 2 < 2 * 10 ^ (2m)
+
+    123123
 
     */
+
+
 
     // operators
 
