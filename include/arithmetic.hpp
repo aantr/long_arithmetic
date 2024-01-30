@@ -81,6 +81,13 @@ namespace arithmetic {
        }
     };
 
+    class InitStringError {
+    public:
+        const char* what () {
+            return "Cannot init from string (wrong format)";
+       }
+    };
+
     void division_error() {
         throw DivisionByZeroException();
     }   
@@ -95,6 +102,10 @@ namespace arithmetic {
 
     void init_precison_error() {
         throw InitPrecisonError();
+    }
+
+    void init_string_error() {
+        throw InitStringError();
     }
 
     void _error() {
@@ -274,10 +285,17 @@ namespace arithmetic {
     template<class T>
     void init_from_string(LongDouble& res, const T& value) {
         int size = strlen(value);
+        if (size == 0) {
+            res = 0;
+            return;
+        }
         int index;
         if (value[0] == '-') {
             res.sign = -1; 
             index = 1; 
+        } else if (value[0] == '+') {
+            res.sign = 1;
+            index = 1;
         } else {
             res.sign = 1;
             index = 0;
@@ -290,12 +308,19 @@ namespace arithmetic {
         res.digits = (digit*) calloc(res.digits_size, sizeof(digit));
         if (!res.digits) memory_error();
         int count = 0;
+        bool was_dot = false;
         while (index < size) {
-            if (value[index] == '.') 
+            if (value[index] == '.') {
+                if (was_dot) {
+                    init_string_error();
+                }
+                was_dot = true;
                 res.exponent = -(size - 1 - index); 
-            else {
+            } else if (value[index] <= '9' && value[index] >= '0') {
                 res.digits[count] = value[index] - '0';
                 count++;
+            } else {
+                init_string_error();
             }
             index++;
         }
