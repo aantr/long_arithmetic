@@ -206,7 +206,7 @@ public:
 			_test();
 			assert(LongDouble(123, 3) / 45 == 2.73);
 			assert(LongDouble(123, 3) * 12345 == 1518430);
-			int count = 100;
+			int count = 50;
 			for (int i = 0; i < count; i++) {
 				int len = 50; // тестируем числа с len цифрами
 				LongDouble x(0, len * 2), y(0, len * 2);

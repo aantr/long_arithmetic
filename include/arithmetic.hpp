@@ -46,6 +46,7 @@ assymptotics:
 sub / add O(n)
 mul O(n * log n) (fft)
 div O(n * log ^ 2 (n))
+sqrt O(n * log ^ 3 (n))
 
 */
 
