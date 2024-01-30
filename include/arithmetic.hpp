@@ -156,6 +156,7 @@ namespace arithmetic {
         void floor();
         void sqrt();
         void sqrt_int();
+        void sqrt_fast();
         LongDouble abs() const;
         LongDouble operator+(const LongDouble& x) const;
         void operator+=(const LongDouble& x);
@@ -580,8 +581,8 @@ namespace arithmetic {
         *this = l;
     }
 
-    void LongDouble::sqrt_int() { // work only for integers >= 1, use binary search
-
+    void LongDouble::sqrt_int() { // work only for integers >= 1
+        assert(isInt() && *this >= 1);
         LongDouble x(1, precision);
         x.mulBase(digits_size / 2 + 1);
         LongDouble prev = -1;
@@ -596,6 +597,46 @@ namespace arithmetic {
             prev = x;
         }
         *this = x;
+    }
+
+    void LongDouble::sqrt_fast() { // work only for integers >= 1
+        assert(isInt() && *this >= 1);
+
+        LongDouble x = *this;
+        int n = digits_size;
+        int m = (n - 1) / 4;
+        if (m == 0) {
+            int X = 0;
+            for (int i = n - 1; i >= 0; i--) {
+                X = X * base + digits[i];
+            }
+            sqrt_int();
+            return;
+        }
+
+        LongDouble a = x;
+        a.divBase(2 * m);
+        a.floor();
+        a.sqrt_fast();
+
+        cout << x << " " << a << endl;
+
+        LongDouble m2(1);
+        m2.mulBase(2 * m);
+        LongDouble m1(1);
+        m2.mulBase(m);
+        LongDouble d1(x - a * a * m2, 1);
+        cout << d1 / (a * m1) << endl;
+        LongDouble b = d1 / (a * m1);
+        b.floor();
+        cout << b << endl;
+        LongDouble res = a * m1 + b;
+        if (res * res > x) {
+            b -= 1;
+            res = a * m1 + b;
+        }
+        // assert(res * res <= x);
+        *this = res;
     }
 
     // operators
@@ -830,37 +871,6 @@ namespace arithmetic {
         *this = *this - x;
     }
 
-    LongDouble IntegerDivision(const LongDouble &x, const LongDouble &y) { // n * n * log^2(n)
-        assert(x.isInt() && y.isInt());
-        if (y == 0) throw exception();
-        LongDouble b = y;
-        LongDouble result = 0, current = 0;
-        result.precision = x.precision;
-
-        result.digits_size = x.digits_size;
-        result.digits = (digit*) calloc(result.digits_size, sizeof(digit));
-        if (!result.digits) memory_error();
-        memset(result.digits, 0, result.digits_size * sizeof(digit));
-
-        for (int i = x.digits_size - 1; i >= 0; i--) {
-            current.mulBase(1);
-            current += x.digits[i];
-            int l = 0, r = LongDouble().base;
-            while (r - l > 1) {
-                int m = (l + r) / 2;
-                LongDouble t = b * m;
-                if (t <= current) l = m;
-                else r = m;
-            }
-            result.digits[i] = l;
-            current -= b * l;
-        }
-        result.sign = x.sign * y.sign;
-        result.removeZeroes();
-
-        return result;
-    }
-
     void div32(const LongDouble &a, const LongDouble &b, int n, LongDouble &res, LongDouble& rem);
 
     void div21(const LongDouble &a, const LongDouble &b, int n, LongDouble &res) { 
@@ -1074,11 +1084,12 @@ namespace arithmetic {
         x.sign = 1;
         LongDouble y (other);
         y.sign = 1;
-        int res_exponent = exponent - other.exponent;
+        int res_exponent = x.exponent - y.exponent;
         x.exponent = 0;
         y.exponent = 0;
 
-        int plus = precision - x.digits_size + y.digits_size + 2;
+
+        int plus = max(0, precision - x.digits_size + y.digits_size + 2);
 
         int temp_size = plus + x.digits_size;
         digit* temp = (digit*) calloc(temp_size, sizeof(digit));
@@ -1093,6 +1104,7 @@ namespace arithmetic {
         LongDouble res;
         int n = 1;
         while (x.digits_size > 2 * n || y.digits_size > n || x.digits_size - y.digits_size + 1 > n) n <<= 1;
+
         div21(x, y, n, res);   
         res.precision = precision;
         res.exponent += res_exponent;
