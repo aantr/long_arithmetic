@@ -53,7 +53,7 @@ namespace arithmetic {
 
     FFT fft;
 
-    class DivisionByZeroException : exception {
+    class DivisionByZeroException {
     public:
         const char* what () {
             return "Division by zero";
@@ -112,6 +112,8 @@ namespace arithmetic {
         cerr << "Division by zero" << endl;
         exit(1);
     }
+
+
 
     class LongDouble {
     public:
@@ -256,6 +258,12 @@ namespace arithmetic {
         precision = other.precision;
         exponent = other.exponent;
         return *this;
+    }
+
+    LongDouble operator""_ld (const char* x, unsigned long size) {
+        LongDouble res(x);
+        res.precision = max((unsigned long) res.precision, size);
+        return res;
     }
 
     LongDouble::LongDouble() {
