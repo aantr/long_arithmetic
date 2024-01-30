@@ -53,7 +53,7 @@ namespace arithmetic {
 
     FFT fft;
 
-    class DivisionByZeroException {
+    class DivisionByZeroException : exception {
     public:
         const char* what () {
             return "Division by zero";
