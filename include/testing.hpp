@@ -26,7 +26,7 @@ public:
 		}
 		void test() {
 			_test();
-			LongDouble a(123), b, c, d = -123, e("0123"), k = string("0");
+			LongDouble a(123), b, c, d = -123, e("0123"), k = "0";
 			assert(a == e);
 			assert(b == k);
 			assert(a != d);

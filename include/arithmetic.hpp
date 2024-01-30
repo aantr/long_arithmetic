@@ -8,6 +8,7 @@
 #include <fft.hpp>
 #include <assert.h>
 #include <iomanip>
+#include <exception>
 
 using namespace std;
 using namespace fft;
@@ -19,7 +20,16 @@ using namespace fft;
 /*
 Short documentaion:
 
-how precision working
+input string format:
+[-+][0-9][.][0-9]
+
+output format:
+outputing all digits
+big output -> print exponent if needed
+small output -> print without exponent
+
+how precision works
+precison >= 2
 always use floor in math
 add/sub working only if defines
 mul working for double precision 
@@ -43,12 +53,51 @@ namespace arithmetic {
 
     FFT fft;
 
-    void memory_error() {
-        cerr << "Cannot allocate enough memory" << endl;
-        exit(1);
-    }
+    class DivisionByZeroException {
+    public:
+        const char* what () {
+            return "Division by zero";
+       }
+    };
+
+    class MemoryLimitException {
+    public:
+        const char* what () {
+            return "Cannot allocate enough memory";
+       }
+    };
+
+    class InitError {
+    public:
+        const char* what () {
+            return "Inititalization error";
+       }
+    };
+
+    class InitPrecisonError {
+    public:
+        const char* what () {
+            return "Precision shoud be >= 2";
+       }
+    };
 
     void division_error() {
+        throw DivisionByZeroException();
+    }   
+
+    void memory_error() {
+        throw MemoryLimitException();
+    }
+
+    void init_error() {
+        throw InitError();
+    }
+
+    void init_precison_error() {
+        throw InitPrecisonError();
+    }
+
+    void _error() {
         cerr << "Division by zero" << endl;
         exit(1);
     }
@@ -60,12 +109,14 @@ namespace arithmetic {
         digit* digits = nullptr; 
         int digits_size = 0;
         int base = 10;
-        int precision = 16; // >= 2
+        int precision = 64; // >= 2
         int exponent = 0;
 
         LongDouble(); 
         LongDouble(const LongDouble& x); 
         LongDouble(const LongDouble& x, int precision); 
+        LongDouble(const char *value); 
+        LongDouble(const char *value, int precision);
         LongDouble(const string &value); 
         LongDouble(const string &value, int precision);
         LongDouble(const int &value);
@@ -74,6 +125,7 @@ namespace arithmetic {
         LongDouble(const long long &value, int precision); 
         LongDouble(const double &value); 
         LongDouble(const double &value, int precision); 
+
         bool isInt() const; 
         bool isZero() const; 
         bool isPower() const; 
@@ -154,7 +206,7 @@ namespace arithmetic {
             return os;
         }
         const int max_out_exponent = 16;
-        if (value.digits_size > max_out_exponent || (value.exponent > 0 && value.digits_size + value.exponent > max_out_exponent)|| 
+        if (value.digits_size > max_out_exponent || (value.exponent > 0 && value.digits_size + value.exponent > max_out_exponent) || 
                     (value.exponent <= -value.digits_size && -value.exponent + 1 > max_out_exponent)) {
             for (int i = value.digits_size - 1; i >= 0; i--) {
                 os << value.digits[i];
@@ -187,6 +239,7 @@ namespace arithmetic {
         delete digits;
         #endif
         digits = (digit*) calloc(other.digits_size, sizeof(digit));
+        if (!digits) memory_error();
         memcpy(digits, other.digits, other.digits_size * sizeof(digit));
         base = other.base;
         precision = other.precision;
@@ -203,12 +256,16 @@ namespace arithmetic {
     }
 
     LongDouble::LongDouble(const LongDouble& other, int precision): precision(precision) {
+        if (precision < 2) {
+            init_precison_error();
+        }
         sign = other.sign;
         digits_size = other.digits_size;
         #ifdef FREE_MEMORY
         delete digits;
         #endif
         digits = (digit*) calloc(other.digits_size, sizeof(digit));
+        if (!digits) memory_error();
         memcpy(digits, other.digits, other.digits_size * sizeof(digit));
         base = other.base;
         exponent = other.exponent;
@@ -216,6 +273,7 @@ namespace arithmetic {
 
     template<class T>
     void init_from_string(LongDouble& res, const T& value) {
+        int size = strlen(value);
         int index;
         if (value[0] == '-') {
             res.sign = -1; 
@@ -225,15 +283,16 @@ namespace arithmetic {
             index = 0;
         }
         res.exponent = 0; 
-        res.digits_size = (int)value.size() - index;
+        res.digits_size = size - index;
         #ifdef FREE_MEMORY
         delete res.digits;
         #endif
         res.digits = (digit*) calloc(res.digits_size, sizeof(digit));
+        if (!res.digits) memory_error();
         int count = 0;
-        while (index < (int)value.length()) {
+        while (index < size) {
             if (value[index] == '.') 
-                res.exponent = -((int)value.length() - 1 - index); 
+                res.exponent = -(size - 1 - index); 
             else {
                 res.digits[count] = value[index] - '0';
                 count++;
@@ -241,6 +300,8 @@ namespace arithmetic {
             index++;
         }
         res.digits = (digit*) realloc(res.digits, count * sizeof(digit));
+        if (!res.digits) memory_error();
+
         res.digits_size = count;
         reverse(res.digits, res.digits + res.digits_size);
         res.removeZeroes();
@@ -255,8 +316,11 @@ namespace arithmetic {
         delete res.digits;
         #endif
         res.digits = (digit*) calloc(res.digits_size, sizeof(digit));
+        if (!res.digits) memory_error();
         while (x) {
             res.digits = (digit*) realloc(res.digits, (res.digits_size + 1) * sizeof(digit));
+            if (!res.digits) memory_error();
+
             res.digits[res.digits_size] = x % res.base;
             res.digits_size++;
             x /= res.base;
@@ -269,15 +333,29 @@ namespace arithmetic {
     void init_from_double(LongDouble& res, T& v) {
         stringstream ss;
         ss << std::setprecision(14) << v;
-        init_from_string(res, ss.str());
+        init_from_string(res, ss.str().c_str());
+    }
+
+    LongDouble::LongDouble(const char* value) {
+        init_from_string(*this, value);
+    }
+
+    LongDouble::LongDouble(const char* value, int precision): precision(precision) {
+        if (precision < 2) {
+            init_precison_error();
+        }
+        init_from_string(*this, value);
     }
 
     LongDouble::LongDouble(const string& value) {
-        init_from_string(*this, value);
+        init_from_string(*this, value.c_str());
     }
 
     LongDouble::LongDouble(const string& value, int precision): precision(precision) {
-        init_from_string(*this, value);
+        if (precision < 2) {
+            init_precison_error();
+        }
+        init_from_string(*this, value.c_str());
     }
 
     LongDouble::LongDouble(const int &v) {
@@ -285,6 +363,9 @@ namespace arithmetic {
     }
 
     LongDouble::LongDouble(const int &v, int precision): precision(precision) {
+        if (precision < 2) {
+            init_precison_error();
+        }
         init_from_int(*this, v);
     }
 
@@ -293,6 +374,9 @@ namespace arithmetic {
     }
 
     LongDouble::LongDouble(const long long &v, int precision): precision(precision) {
+        if (precision < 2) {
+            init_precison_error();
+        }
         init_from_int(*this, v);
     }
 
@@ -301,6 +385,9 @@ namespace arithmetic {
     }
 
     LongDouble::LongDouble(const double &v, int precision): precision(precision) {
+        if (precision < 2) {
+            init_precison_error();
+        }
         init_from_double(*this, v);
     }
 
@@ -344,6 +431,7 @@ namespace arithmetic {
             delete digits;
             #endif
             digits = (digit*) calloc(0, sizeof(digit*));
+            if (!digits) memory_error();
             digits_size = 0;
             sign = 1;
             exponent = 0;
@@ -352,9 +440,12 @@ namespace arithmetic {
             if (left == 0) {
                 digits_size = digits_size - right;
                 digits = (digit*) realloc(digits, (digits_size) * sizeof(digit));
+                if (!digits) memory_error();
+
             } else {
                 digits_size = digits_size - left - right;
                 digit* temp = (digit*) calloc(digits_size, sizeof(digit));
+                if (!temp) memory_error();
                 memcpy(temp, digits + left, digits_size * sizeof(digit));
                 #ifdef FREE_MEMORY
                 delete digits;
@@ -369,6 +460,7 @@ namespace arithmetic {
         assert(digits_size >= value && value >= 0);
         digits_size = digits_size - value;
         digit* temp = (digit*) calloc(digits_size, sizeof(digit));
+        if (!temp) memory_error();
         memcpy(temp, digits + value, digits_size * sizeof(digit));
         #ifdef FREE_MEMORY
         delete digits;
@@ -477,9 +569,11 @@ namespace arithmetic {
         exponent = exponent + x.exponent;
 
         digit* res = (digit*) calloc(0, sizeof(digit));
+        if (!res) memory_error();
         int res_size = 0;
         fft.multiply(digits, digits_size, x.digits, x.digits_size, res, res_size, base);
         digits = (digit*)calloc(0, sizeof(digit));
+        if (!digits) memory_error();
         digits = res;
         digits_size = res_size;
 
@@ -573,6 +667,8 @@ namespace arithmetic {
             }
             if (carry) {
                 resd = (digit*) realloc(resd, (res_size + 1) * sizeof(digit));
+                if (!resd) memory_error();
+
                 resd[res_size] = 1;
                 res_size++;
             }
@@ -675,6 +771,7 @@ namespace arithmetic {
 
         result.digits_size = x.digits_size;
         result.digits = (digit*) calloc(result.digits_size, sizeof(digit));
+        if (!result.digits) memory_error();
         memset(result.digits, 0, result.digits_size * sizeof(digit));
 
         for (int i = x.digits_size - 1; i >= 0; i--) {
@@ -726,9 +823,11 @@ namespace arithmetic {
         if (x.digits_size >= m) {
             first3m.digits_size = x.digits_size - m;
             first3m.digits = (digit*) calloc(first3m.digits_size, sizeof(digit));
+            if (!first3m.digits) memory_error();
             memcpy(first3m.digits, x.digits + m, (first3m.digits_size) * sizeof(digit));
         } else {
             first3m.digits = (digit*) calloc(0, sizeof(digit));
+            if (!first3m.digits) memory_error();
         }
         
         LongDouble res1(0, (int) 1e9), rem1(0, (int) 1e9);
@@ -737,6 +836,7 @@ namespace arithmetic {
 
         rem1.digits_size = rem1.digits_size + m;
         digit* temp = (digit*) calloc(rem1.digits_size, sizeof(digit));
+        if (!temp) memory_error();
         memcpy(temp + m, rem1.digits, (rem1.digits_size - m) * sizeof(digit));
         #ifdef FREE_MEMORY
         delete rem1.digits;
@@ -747,6 +847,7 @@ namespace arithmetic {
         div32(rem1, y, m, res2, rem2);
         res1.digits_size = res1.digits_size + m;
         temp = (digit*) calloc(res1.digits_size, sizeof(digit));
+        if (!temp) memory_error();
         memcpy(temp + m, res1.digits, (res1.digits_size - m) * sizeof(digit));
 
         #ifdef FREE_MEMORY
@@ -780,6 +881,8 @@ namespace arithmetic {
 
             rem.digits_size += rem.exponent;
             digit* temp = (digit*) calloc(rem.digits_size, sizeof(digit));
+            if (!temp) memory_error();
+
             memcpy(temp + rem.exponent, rem.digits, (rem.digits_size - rem.exponent) * sizeof(digit));
             #ifdef FREE_MEMORY
             delete rem.digits;
@@ -795,6 +898,8 @@ namespace arithmetic {
             assert(rem >= 0);
             rem.digits_size += rem.exponent;
             digit* temp = (digit*) calloc(rem.digits_size, sizeof(digit));
+            if (!temp) memory_error();
+
             memcpy(temp + rem.exponent, rem.digits, (rem.digits_size - rem.exponent) * sizeof(digit));
             #ifdef FREE_MEMORY
             delete rem.digits;
@@ -808,16 +913,22 @@ namespace arithmetic {
         LongDouble x1(0, (int) 1e9); // first |x| - (|y| - n)
         x1.digits_size = max(0, x.digits_size - (y.digits_size - n));
         x1.digits = (digit*) calloc(x1.digits_size, sizeof(digit));
+        if (!x1.digits) memory_error();
+
         memcpy(x1.digits, x.digits + (y.digits_size - n), (x1.digits_size) * sizeof(digit));
 
         LongDouble y1(0, (int) 1e9); // first n
         y1.digits_size = n;
         y1.digits = (digit*) calloc(y1.digits_size, sizeof(digit));
+        if (!y1.digits) memory_error();
+
         memcpy(y1.digits, y.digits + (y.digits_size - n), (y1.digits_size) * sizeof(digit));
 
         // y *= 10 ^ n
         y1.digits_size += n;
         digit* temp = (digit*) calloc(y1.digits_size, sizeof(digit));
+        if (!temp) memory_error();
+
         memcpy(temp + n, y1.digits, (y1.digits_size - n) * sizeof(digit));
         #ifdef FREE_MEMORY
         delete y1.digits;
@@ -829,6 +940,8 @@ namespace arithmetic {
         // y /= 10 ^ n
         y1.digits_size -= n;
         temp = (digit*) calloc(y1.digits_size, sizeof(digit));
+        if (!temp) memory_error();
+
         memcpy(temp, y1.digits + n, y1.digits_size * sizeof(digit));
         #ifdef FREE_MEMORY
         delete y1.digits;
@@ -861,6 +974,8 @@ namespace arithmetic {
         }
 
         temp = (digit*) calloc(current_rem.digits_size + current_rem.exponent, sizeof(digit));
+        if (!temp) memory_error();
+
         memcpy(temp + current_rem.exponent, current_rem.digits, (current_rem.digits_size) * sizeof(digit));
         memset(temp, 0, (current_rem.exponent) * sizeof(digit));
         #ifdef FREE_MEMORY
@@ -871,6 +986,8 @@ namespace arithmetic {
         current_rem.exponent = 0;
 
         temp = (digit*) calloc(res1.digits_size + res1.exponent, sizeof(digit));
+        if (!temp) memory_error();
+
         memcpy(temp + res1.exponent, res1.digits, (res1.digits_size) * sizeof(digit));
         memset(temp, 0, (res1.exponent) * sizeof(digit));
         #ifdef FREE_MEMORY
