@@ -16,6 +16,9 @@ using namespace fft;
 #define FREE_MEMORY
 // #define PRECISION_ADD
 // #define PRECISION_SUB
+#define USE_SCIENTIFIC_OUTPUT 0
+#define MAX_DIGIT_SCIENTIFIC_OUTPUT 16
+#define MIN_PRECISION 1
 
 /*
 Short documentaion:
@@ -78,7 +81,7 @@ namespace arithmetic {
     class InitPrecisonError {
     public:
         const char* what () {
-            return "Precision shoud be >= 2";
+            return "Precision shoud be >= MIN_PRECISION";
        }
     };
 
@@ -219,9 +222,8 @@ namespace arithmetic {
             os << '0';
             return os;
         }
-        const int max_out_exponent = 16;
-        if (value.digits_size > max_out_exponent || (value.exponent > 0 && value.digits_size + value.exponent > max_out_exponent) || 
-                    (value.exponent <= -value.digits_size && -value.exponent + 1 > max_out_exponent)) {
+        if (USE_SCIENTIFIC_OUTPUT && (value.digits_size > MAX_DIGIT_SCIENTIFIC_OUTPUT || (value.exponent > 0 && value.digits_size + value.exponent > MAX_DIGIT_SCIENTIFIC_OUTPUT) || 
+                    (value.exponent <= -value.digits_size && -value.exponent + 1 > MAX_DIGIT_SCIENTIFIC_OUTPUT))) {
             for (int i = value.digits_size - 1; i >= 0; i--) {
                 os << value.digits[i];
                 if (value.digits_size > 1 && i == value.digits_size - 1) os << '.';
@@ -276,7 +278,7 @@ namespace arithmetic {
     }
 
     LongDouble::LongDouble(const LongDouble& other, int precision): precision(precision) {
-        if (precision < 2) {
+        if (precision < MIN_PRECISION) {
             init_precison_error();
         }
         sign = other.sign;
@@ -375,7 +377,7 @@ namespace arithmetic {
     }
 
     LongDouble::LongDouble(const char* value, int precision): precision(precision) {
-        if (precision < 2) {
+        if (precision < MIN_PRECISION) {
             init_precison_error();
         }
         init_from_string(*this, value);
@@ -386,7 +388,7 @@ namespace arithmetic {
     }
 
     LongDouble::LongDouble(const string& value, int precision): precision(precision) {
-        if (precision < 2) {
+        if (precision < MIN_PRECISION) {
             init_precison_error();
         }
         init_from_string(*this, value.c_str());
@@ -397,7 +399,7 @@ namespace arithmetic {
     }
 
     LongDouble::LongDouble(const int &v, int precision): precision(precision) {
-        if (precision < 2) {
+        if (precision < MIN_PRECISION) {
             init_precison_error();
         }
         init_from_int(*this, v);
@@ -408,7 +410,7 @@ namespace arithmetic {
     }
 
     LongDouble::LongDouble(const long long &v, int precision): precision(precision) {
-        if (precision < 2) {
+        if (precision < MIN_PRECISION) {
             init_precison_error();
         }
         init_from_int(*this, v);
@@ -419,7 +421,7 @@ namespace arithmetic {
     }
 
     LongDouble::LongDouble(const double &v, int precision): precision(precision) {
-        if (precision < 2) {
+        if (precision < MIN_PRECISION) {
             init_precison_error();
         }
         init_from_double(*this, v);

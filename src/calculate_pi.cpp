@@ -28,22 +28,16 @@ array<LongDouble, 3> binary_split(int l, int r, int digits) {
 }
 
 LongDouble Chudnovsky(int digits) {
-    int debug = 0;
-    if (debug) cout << "start time: " << TIME << endl;
-
     int n_eps = 5; // for precision
     int p_eps = 5; // for precision
     LongDouble sq10005(10005, digits + 5 + p_eps);
     sq10005.sqrt_int();
-    if (debug) cout << "sqrt time: " << TIME << endl;
     int n = digits / 10 + n_eps;
     auto [P1n, Q1n, R1n] = binary_split(1, n, (int) 1e9);  
-    if (debug) cout << "binary_split time: " << TIME << endl;
 
     Q1n.precision = digits + p_eps;
     LongDouble res = (Q1n * LongDouble(426880) * sq10005);
     LongDouble res2 = (Q1n * LongDouble(13591409) + R1n);
-    if (debug) cout << "find res1, res2 time: " << TIME << endl;
 
     res /= res2;
     if (res.digits_size - 1 - digits > 0) {
