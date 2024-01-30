@@ -895,7 +895,6 @@ namespace arithmetic {
         x.precision = (int) 1e9;
         y.precision = (int) 1e9;
 
-        LongDouble qwqw = x;
         int m = n >> 1;
         if (n <= 1) {
             int A = 0, B = 0;
@@ -1103,8 +1102,6 @@ namespace arithmetic {
         int res_exponent = x.exponent - y.exponent;
         x.exponent = 0;
         y.exponent = 0;
-
-
         int plus = max(0, precision - x.digits_size + y.digits_size + 2);
 
         int temp_size = plus + x.digits_size;
@@ -1121,7 +1118,7 @@ namespace arithmetic {
         int n = 1;
         while (x.digits_size > 2 * n || y.digits_size > n || x.digits_size - y.digits_size + 1 > n) n <<= 1;
 
-        div21(x, y, n, res);   
+        div21(x, y, n, res);  
         res.precision = precision;
         res.exponent += res_exponent;
         res.sign = sign * other.sign;

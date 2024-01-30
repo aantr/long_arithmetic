@@ -14,6 +14,8 @@
 using namespace arithmetic;
 using namespace std;
 
+#define DEBUG 1
+
 array<LongDouble, 3> binary_split(int l, int r, int digits) {
     LongDouble Pab, Qab, Rab;
     if (r == l + 1) {
@@ -25,6 +27,7 @@ array<LongDouble, 3> binary_split(int l, int r, int digits) {
         int m = (l + r) / 2;
         auto [Pam, Qam, Ram] = binary_split(l, m, digits);
         auto [Pmb, Qmb, Rmb] = binary_split(m, r, digits);
+        // cout << Pam.digits_size << " " << Pam.digits_size << endl;
         Pab = Pam * Pmb;
         Qab = Qam * Qmb;
         Rab = Qmb * Ram + Pam * Rmb;
@@ -33,47 +36,37 @@ array<LongDouble, 3> binary_split(int l, int r, int digits) {
 }
 
 LongDouble Chudnovsky(int digits) {
+
     int n_eps = 5; // for precision
     int p_eps = 5; // for precision
-    LongDouble sq10005(10005, digits + 5 + p_eps);
-    sq10005.sqrt_int();
     int n = digits / 10 + n_eps;
+
+    LongDouble sq10005(10005, digits + 5 + p_eps);
+    if (DEBUG) cout << "[Calculating sqrt: "; cout.flush();
+    auto start = TIME;
+    sq10005.sqrt_int();
+    if (DEBUG) cout << TIME - start << "]" << endl;
+    if (DEBUG) cout << "[Calculating binary_split: "; cout.flush(); start = TIME;
     auto [P1n, Q1n, R1n] = binary_split(1, n, (int) 1e9);  
+    if (DEBUG) cout << TIME - start << "]" << endl;
+    if (DEBUG) cout << "[Multiplying binary_split and sqrt: "; cout.flush(); start = TIME;
     Q1n.precision = digits + p_eps;
     LongDouble res = (Q1n * LongDouble(426880) * sq10005);
     LongDouble res2 = (Q1n * LongDouble(13591409) + R1n);
+    if (DEBUG) cout << TIME - start << "]" << endl;
+    
+    if (DEBUG) cout << "[Multiplying binary_split and sqrt: "; cout.flush(); start = TIME;
     res /= res2;
+    if (DEBUG) cout << TIME - start << "]" << endl;
     if (res.digits_size - 1 - digits > 0) {
         res.removeFirst(res.digits_size - 1 - digits);
     }
     return res;
 }
 
-LongDouble Leibnica(int digits) {
-    int eps = 5;
-    digits += eps;
-    LongDouble sum (1, digits);
-    LongDouble sm (1, digits);
-    LongDouble st(1);
-    st.divBase(digits);
-    for (int i = 1; ; i++) {
-        sm *= LongDouble(i, digits) / (LongDouble(2 * i + 1, digits));
-        sum += sm;
-        if (sm < st) {
-            break;
-        }
-    }
-    digits -= eps;
-    sum *= 2;
-    if (sum.digits_size - 1 - digits > 0) {
-        sum.removeFirst(sum.digits_size - 1 - digits);
-    }
-    return sum;
-}
-
 int main(int argc, char* argv[]) {
     int digits;
-    const int right_bound = 25000;
+    const int right_bound = 100000;
 
     if (argc > 1) {
         if (string(argv[1]) == "--test") {
