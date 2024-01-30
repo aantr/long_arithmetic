@@ -5,10 +5,11 @@
 #include <vector>
 #include <complex.h>
 #include <algorithm>
+#include <assert.h>
 
 using namespace std;
 
-using digit = int16_t;
+using digit = int32_t;
 
 namespace fft {
 

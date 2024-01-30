@@ -492,6 +492,13 @@ namespace arithmetic {
             
     }
 
+    bool check_non_negative(LongDouble v) {
+        for (int i = 0; i < v.digits_size; i++) {
+            if (v.digits[i] < 0) return false;
+        }
+        return true;
+    }
+
     void LongDouble::removeFirst(int value) {
         assert(digits_size >= value && value >= 0);
         digits_size = digits_size - value;
@@ -608,8 +615,9 @@ namespace arithmetic {
         if (!res) memory_error();
         int res_size = 0;
         fft.multiply(digits, digits_size, x.digits, x.digits_size, res, res_size, base);
-        digits = (digit*)calloc(0, sizeof(digit));
-        if (!digits) memory_error();
+        // #ifdef FREE_MEMORY
+        // delete digits;
+        // #endif
         digits = res;
         digits_size = res_size;
 

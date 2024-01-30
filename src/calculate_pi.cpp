@@ -39,10 +39,9 @@ LongDouble Chudnovsky(int digits) {
     int n = digits + n_eps;
     auto [P1n, Q1n, R1n] = binary_split(1, n, (int) 1e9);  
 
-    Q1n.precision = 2 * digits + p_eps;
+    Q1n.precision = digits / 10 + p_eps;
     LongDouble res = (Q1n * LongDouble(426880) * sq10005);
     LongDouble res2 = (Q1n * LongDouble(13591409) + R1n);
-
     res /= res2;
     if (res.digits_size - 1 - digits > 0) {
         res.removeFirst(res.digits_size - 1 - digits);
