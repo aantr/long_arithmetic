@@ -72,7 +72,7 @@ LongDouble Leibnica(int digits) {
 
 int main(int argc, char* argv[]) {
     int digits;
-    const int right_bound = 9999;
+    const int right_bound = 25000;
 
     if (argc > 1) {
         if (string(argv[1]) == "--test") {
@@ -92,21 +92,21 @@ int main(int argc, char* argv[]) {
     double start = (double) clock() / CLOCKS_PER_SEC;
     LongDouble result = Chudnovsky(digits);
     cout << "PI:\n" << result << "\n";
+    cerr << "TIME: " << TIME - start<< " sec (total " << TIME << " sec)\n";
 
-    const string pifilename = "src/pi-9999.txt";
+    const string pifilename = "src/pi-1000000.txt";
     ifstream pifile (pifilename);
     if (pifile.is_open()) {
         string correct;
         pifile >> correct;
         if (result != LongDouble(correct.substr(0, digits + 2))) {
-            cout << "Incorrect output, correct: " << correct.substr(0, digits + 2) << "\n";
+            cout << "Incorrect output, correct:\n" << correct.substr(0, digits + 2) << "\n";
         } else {
-            cout << "PI is checked out\n";
+            cout << "PI is correct\n";
         }
         pifile.close();
     }
 
-    cerr << "TIME: " << TIME - start<< " sec (total " << TIME << " sec)\n";
 
     return 0;
 }

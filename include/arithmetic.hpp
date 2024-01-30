@@ -1069,41 +1069,6 @@ namespace arithmetic {
         rem = current_rem;
     }
 
-    // LongDouble LongDouble::operator/(const LongDouble& other) const {
-    //     LongDouble x (*this);
-    //     x.sign = 1;
-    //     LongDouble y (other);
-    //     y.sign = 1;
-    //     int res_exponent = exponent - other.exponent;
-    //     x.exponent = 0;
-    //     y.exponent = 0;
-
-    //     int plus = precision - x.digits_size + y.digits_size + 2;
-
-    //     int temp_size = plus + x.digits_size;
-    //     digit* temp = (digit*) calloc(temp_size, sizeof(digit));
-    //     if (!temp) memory_error();
-    //     memset(temp, 0, plus * sizeof(digit));
-    //     memcpy(temp + plus, x.digits, digits_size * sizeof(digit));
-
-    //     x.digits = temp;
-    //     x.digits_size = temp_size;
-
-    //     res_exponent -= plus;
-
-    //     LongDouble res = IntegerDivision(x, y);         
-    //     res.precision = precision;
-    //     res.exponent += res_exponent;
-    //     res.sign = sign * other.sign;
-    //     res.removeZeroes();
-    //     if (res.digits_size > res.precision) {
-    //         res.removeFirst(res.digits_size - res.precision);
-    //     }
-    //     res.removeZeroes();
-
-    //     return res;
-    // }
-
     LongDouble LongDouble::operator/(const LongDouble& other) const {
         LongDouble x (*this);
         x.sign = 1;
@@ -1125,8 +1090,6 @@ namespace arithmetic {
         x.digits_size = temp_size;
 
         res_exponent -= plus;
-
-        // LongDouble res = IntegerDivision(x, y);      
         LongDouble res;
         int n = 1;
         while (x.digits_size > 2 * n || y.digits_size > n || x.digits_size - y.digits_size + 1 > n) n <<= 1;
