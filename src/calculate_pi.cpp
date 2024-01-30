@@ -9,6 +9,7 @@
 #include <arithmetic.hpp>
 
 #define TIME (double) clock() / CLOCKS_PER_SEC
+#define CHECK_FROM_FILE
 
 using namespace arithmetic;
 using namespace std;
@@ -94,6 +95,7 @@ int main(int argc, char* argv[]) {
     cout << "PI:\n" << result << "\n";
     cerr << "TIME: " << TIME - start<< " sec (total " << TIME << " sec)\n";
 
+    #ifdef CHECK_FROM_FILE
     const string pifilename = "src/pi-1000000.txt";
     ifstream pifile (pifilename);
     if (pifile.is_open()) {
@@ -106,6 +108,7 @@ int main(int argc, char* argv[]) {
         }
         pifile.close();
     }
+    #endif
 
 
     return 0;
