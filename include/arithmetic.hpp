@@ -601,43 +601,49 @@ namespace arithmetic {
 
     void LongDouble::sqrt_fast() { // work only for integers >= 1
         assert(isInt() && *this >= 1);
+        int k = 2;
 
         LongDouble x = *this;
         int n = digits_size;
-        int m = (n - 1) / 4;
+        int m = (n - 1) / (2 * k);
         if (m == 0) {
-            int X = 0;
-            for (int i = n - 1; i >= 0; i--) {
-                X = X * base + digits[i];
-            }
             sqrt_int();
+            floor();
             return;
         }
 
+
         LongDouble a = x;
-        a.divBase(2 * m);
+        a.divBase(k * m);
         a.floor();
         a.sqrt_fast();
 
-        cout << x << " " << a << endl;
-
         LongDouble m2(1);
-        m2.mulBase(2 * m);
+        m2.mulBase(k * m);
         LongDouble m1(1);
-        m2.mulBase(m);
-        LongDouble d1(x - a * a * m2, 1);
-        cout << d1 / (a * m1) << endl;
+        m1.mulBase((k - 1) * m);
+
+        LongDouble d1(x - a * a * m2, n);
         LongDouble b = d1 / (a * m1);
         b.floor();
-        cout << b << endl;
+
         LongDouble res = a * m1 + b;
+
         if (res * res > x) {
             b -= 1;
             res = a * m1 + b;
         }
-        // assert(res * res <= x);
+
+        assert(res * res <= x);
         *this = res;
     }
+    /*
+
+    a * 10^m > 2 * b^2 > b ^ 2
+    110 * 100 > 2 * (b ^ 2)
+    11000 > 18432
+
+    */
 
     // operators
 

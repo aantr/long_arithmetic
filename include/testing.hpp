@@ -182,10 +182,6 @@ public:
 		void test() {
 			_test();
 
-			LongDouble x (10005);
-			x.sqrt_fast();
-			cout << x << endl;
-
 			int count = 100;
 			for (int i = 0; i < count; i++) {
 				double x = rnd() % 1000000000;
