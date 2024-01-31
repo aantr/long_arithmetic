@@ -599,48 +599,31 @@ namespace arithmetic {
         *this = x;
     }
 
-    void LongDouble::sqrt_fast() { // work only for integers >= 1
-        assert(isInt() && *this >= 1);
-        int k = 2;
+    /*
+    def sqrtrem(n):
+    if n < 10 ** 6:
+        sqrt = floor(n ** 0.5)
+        return sqrt, n - sqrt * sqrt
+    a3, a2, a1, a0 = n // 1000, n // 100 % 10, n // 10 % 10, n % 10
+    s1, r1 = sqrtrem(a3 * 10 + a2)
+    q, u = divmod(r1 * 10, 2 * s1)
+    s = s1 * 10 + q
+    r = u * 10 + a0 - q * q
+    if r < 0:
+        r = r + 2 * s - 1
+        s = s - 1
+    return s, r
+    */
 
-        LongDouble x = *this;
-        int n = digits_size;
-        int m = (n - 1) / (2 * k);
-        if (m == 0) {
-            sqrt_int();
-            return;
-        }
+    // void sqrt_rem(LongDouble& n) {
+    //     assert(n.isInt() && n >= 1 && n.exponent == 0);
+    //     if (n.digits_size <= )
+    // }
 
-        LongDouble a = x;
-        a.divBase(k * m);
-        a.floor();
-        LongDouble a2 = a;
-        a.sqrt_fast();
-        a.floor();
-
-        LongDouble m2(1);
-        m2.mulBase(k * m);
-        LongDouble m1(1);
-        m1.mulBase((k - 1) * m);
-
-
-        LongDouble d1(x - a * a * m2, n);
-        LongDouble b = d1 / (a * m1);
-        b.floor();
-
-        LongDouble res = a * m1 + b;
-        if (res * res > x) {
-            b -= 1;
-            res = a * m1 + b;
-        }
-        if (res.digits_size > precision) {
-            res.removeFirst(res.digits_size - precision);
-        }
-
-        cout << x << " " << b << "\n";
-        assert(res * res <= x);
-        *this = res;
-    }
+    // void LongDouble::sqrt_fast() { // work only for integers >= 1
+    //     assert(isInt() && *this >= 1);
+        
+    // }
 
     /*
     

@@ -55,7 +55,7 @@ LongDouble Chudnovsky(int digits) {
     LongDouble res2 = (Q1n * LongDouble(13591409) + R1n);
     if (DEBUG) cout << TIME - start << "]" << endl;
     
-    if (DEBUG) cout << "[Multiplying binary_split and sqrt: "; cout.flush(); start = TIME;
+    if (DEBUG) cout << "[Calculating result: "; cout.flush(); start = TIME;
     res /= res2;
     if (DEBUG) cout << TIME - start << "]" << endl;
     if (res.digits_size - 1 - digits > 0) {
