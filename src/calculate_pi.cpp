@@ -39,7 +39,7 @@ LongDouble Chudnovsky(int digits) {
 
     int n_eps = 5; // for precision
     int p_eps = 5; // for precision
-    int n = digits / 10 + n_eps;
+    int n = digits * 8 / 100 + n_eps;
 
     LongDouble sq10005(10005, digits + 5 + p_eps);
     if (DEBUG) cout << "[Calculating sqrt: "; cout.flush();

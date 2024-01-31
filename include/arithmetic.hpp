@@ -684,7 +684,7 @@ namespace arithmetic {
         A.precision = max(MIN_PRECISION, A.digits_size + A.exponent + 1 - (B.digits_size + B.exponent) + 2);
 
         q = A / B;
-        q.floor();
+        q.floor(); 
         u = A - q * B;
 
         s = s1 * b + q;
