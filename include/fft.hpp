@@ -16,7 +16,7 @@ namespace fft {
     class FFT {
     private:
         const double pi = acos(-1);
-        static const int maxn = 1 << 21;
+        static const int maxn = 1 << 23;
         typedef complex<double> ftype;
         ftype w[maxn];
 

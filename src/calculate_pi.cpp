@@ -50,13 +50,20 @@ LongDouble Chudnovsky(int digits) {
     auto [P1n, Q1n, R1n] = binary_split(1, n, (int) 1e9);  
     if (DEBUG) cout << TIME - start << "]" << endl;
     if (DEBUG) cout << "[Multiplying binary_split and sqrt: "; cout.flush(); start = TIME;
+    free(P1n.digits);
     Q1n.precision = digits + p_eps;
     LongDouble res = (Q1n * LongDouble(426880) * sq10005);
+    free(sq10005.digits);
     LongDouble res2 = (Q1n * LongDouble(13591409) + R1n);
+    free(Q1n.digits);
+    free(R1n.digits);
+
     if (DEBUG) cout << TIME - start << "]" << endl;
     
     if (DEBUG) cout << "[Calculating result: "; cout.flush(); start = TIME;
     res /= res2;
+    delete(res2.digits);
+
     if (DEBUG) cout << TIME - start << "]" << endl;
     if (res.digits_size - 1 - digits > 0) {
         res.removeFirst(res.digits_size - 1 - digits);
@@ -66,7 +73,7 @@ LongDouble Chudnovsky(int digits) {
 
 int main(int argc, char* argv[]) {
     int digits;
-    const int right_bound = 200000;
+    const int right_bound = 1000000;
 
     if (argc > 1) {
         if (string(argv[1]) == "--test") {
@@ -97,7 +104,7 @@ int main(int argc, char* argv[]) {
         if (result != LongDouble(correct.substr(0, digits + 2))) {
             cout << "Incorrect output, correct:\n" << correct.substr(0, digits + 2) << "\n";
         } else {
-            cout << "PI is correct\n";
+            cout << "Check from file: " << digits << " digits is correct\n";
         }
         pifile.close();
     }
