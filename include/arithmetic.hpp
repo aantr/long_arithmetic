@@ -676,11 +676,14 @@ namespace arithmetic {
         LongDouble s1, r1, q, u;
 
         sqrt_rem(a3 * b + a2, s1, r1);
+
+        s1.precision = current_precison;
+        r1.precision = current_precison;
+
         LongDouble A(r1 * b + a1, current_precison), B(s1 * 2, current_precison);
-        A.precision = A.digits_size + A.exponent + 1 - (B.digits_size + B.exponent) + 1;
+        A.precision = max(MIN_PRECISION, A.digits_size + A.exponent + 1 - (B.digits_size + B.exponent) + 2);
 
         q = A / B;
-
         q.floor();
         u = A - q * B;
 

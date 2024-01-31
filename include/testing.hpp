@@ -182,9 +182,9 @@ public:
 		void test() {
 			_test();
 
-			int count = 100;
+			int count = 10;
 			for (int i = 0; i < count; i++) {
-				int len = 50;
+				int len = 200;
 				string str;
 				for (int i = 0; i < len; i++) {
 					str += '0' + (rnd() % 9 + 1);
@@ -198,6 +198,11 @@ public:
 		        assert((s + 1) * (s + 1) > x);
 		        xx.sqrt_int();	
 		        x.sqrt_fast();
+		        if (x != xx) {
+		        	cout << x << endl;
+		        	cout << xx << endl;
+
+		        }
 		        assert(x == xx);
 			}
 
