@@ -49,7 +49,7 @@ assymptotics:
 sub / add O(n)
 mul O(n * log n) (fft)
 div O(n * log ^ 2 (n))
-sqrt O(n * log ^ 3 (n))
+sqrt O(n * log ^ 2(n)) Karatsuba square root algorithm
 
 */
 
@@ -676,11 +676,9 @@ namespace arithmetic {
         LongDouble s1, r1, q, u;
 
         sqrt_rem(a3 * b + a2, s1, r1);
-
-        s1.precision = current_precison;
-        r1.precision = current_precison;
-
         LongDouble A(r1 * b + a1, current_precison), B(s1 * 2, current_precison);
+        A.precision = A.digits_size + A.exponent + 1 - (B.digits_size + B.exponent) + 1;
+
         q = A / B;
 
         q.floor();
@@ -699,6 +697,8 @@ namespace arithmetic {
             s.floor();
             r = n - s * s; 
         }
+
+
     }
 
     void LongDouble::sqrt_fast() { // works only for integers >= 1
