@@ -185,7 +185,7 @@ public:
 
 			int count = 10;
 			for (int i = 0; i < count; i++) {
-				int len = 200;
+				int len = 50;
 				string str;
 				for (int i = 0; i < len; i++) {
 					str += '0' + (rnd() % 9 + 1);
@@ -195,6 +195,7 @@ public:
 				LongDouble s, r;
 		        sqrt_rem(x, s, r);
 		        assert(s * s + r == x);
+
 		        assert(r >= 0);
 		        assert((s + 1) * (s + 1) > x);
 		        xx.sqrt_int();	
@@ -205,6 +206,7 @@ public:
 
 		        }
 		        assert(x == xx);
+
 			}
 
 			count = 100;

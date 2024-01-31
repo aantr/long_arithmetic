@@ -60,7 +60,7 @@ namespace fft {
                 p[i] = 0;
             }
             size = s;
-            res = (ftype*) calloc(size, sizeof(ftype));
+            res = (ftype*) malloc(size * sizeof(ftype));
             res_size = size;
             for (int i = 0; i < size; i++) {
                 res[i] = ftype();
@@ -69,9 +69,9 @@ namespace fft {
         }
 
         void interpolate(ftype* p, int &size, digit*& res, int &res_size) {
-            ftype* inv = (ftype*) calloc(size, sizeof(ftype));
+            ftype* inv = (ftype*) malloc(size * sizeof(ftype));
             fft(p, inv, size);
-            res = (digit*)calloc(size, sizeof(digit));
+            res = (digit*)malloc(size * sizeof(digit));
             res_size = size;
             for (int i = 0; i < size; i++) {
                 res[i] = round(real(inv[i]) / size);
@@ -139,7 +139,7 @@ namespace fft {
         void multiply(digit*& a, int size_a, digit*& b, int size_b, digit*& res, int &res_size, int base=10) {
             if (size_a == 0 && size_b == 0) {
                 res_size = 0;
-                res = (digit*) calloc(0, sizeof(digit));
+                res = (digit*) malloc(0 * sizeof(digit));
                 return;
             }
             poly_multiply(a, size_a, b, size_b, res, res_size);
