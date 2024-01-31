@@ -16,7 +16,7 @@ namespace fft {
     class FFT {
     private:
         const double pi = acos(-1);
-        static const int maxn = 1 << 23;
+        static const int maxn = 1 << 20;
         typedef complex<double> ftype;
         ftype w[maxn];
 
@@ -95,7 +95,7 @@ namespace fft {
 
         }
 
-        void poly_multiply(digit* a, int &size_a, digit* b, int &size_b, digit*& res, int &res_size) {
+        void poly_multiply(digit*& a, int &size_a, digit*& b, int &size_b, digit*& res, int &res_size) {
 
             align(a, size_a, b, size_b);
 
@@ -136,7 +136,7 @@ namespace fft {
             }
         }
 
-        void multiply(digit* a, int size_a, digit* b, int size_b, digit*& res, int &res_size, int base=10) {
+        void multiply(digit*& a, int size_a, digit*& b, int size_b, digit*& res, int &res_size, int base=10) {
             if (size_a == 0 && size_b == 0) {
                 res_size = 0;
                 res = (digit*) calloc(0, sizeof(digit));

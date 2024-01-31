@@ -60,13 +60,9 @@ LongDouble Chudnovsky(int digits) {
     if (DEBUG) {
         cout << "[Multiplying binary_split and sqrt: "; cout.flush(); start = TIME;
     }
-    free(P1n.digits);
     Q1n.precision = digits + p_eps;
     LongDouble res = (Q1n * LongDouble(426880) * sq10005);
-    free(sq10005.digits);
     LongDouble res2 = (Q1n * LongDouble(13591409) + R1n);
-    free(Q1n.digits);
-    free(R1n.digits);
 
     if (DEBUG) {
         cout << TIME - start << "]" << endl;
@@ -75,7 +71,6 @@ LongDouble Chudnovsky(int digits) {
         cout << "[Calculating result: "; cout.flush(); start = TIME;
     }
     res /= res2;
-    delete(res2.digits);
 
     if (DEBUG) {
         cout << TIME - start << "]" << endl;
@@ -89,6 +84,15 @@ LongDouble Chudnovsky(int digits) {
 int main(int argc, char* argv[]) {
     int digits;
     const int right_bound = 1000000;
+
+    // LongDouble x(1, 200000);
+    // for (int i = 0; i < 200000; i++) {
+    //     cout << i << endl;
+    //     x = x * "123321121323232323";   
+    //     cout << x.digits_size << endl;     
+    //     assert(x.digits_size <= x.precision);
+    // }
+    // exit(0);
 
     if (argc > 1) {
         if (string(argv[1]) == "--test") {
@@ -124,7 +128,6 @@ int main(int argc, char* argv[]) {
         pifile.close();
     }
     #endif
-
 
     return 0;
 }

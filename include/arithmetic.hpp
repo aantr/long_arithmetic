@@ -276,9 +276,11 @@ namespace arithmetic {
     }
 
     LongDouble::~LongDouble() {
-
+        if (digits_size > 0) {
+            // cout << "free " << *this << endl;
+            free(digits);
+        }
     }
-
 
     LongDouble::LongDouble() {
         *this = 0; // default precision
@@ -745,43 +747,33 @@ namespace arithmetic {
     LongDouble LongDouble::operator*(const LongDouble& x) const {
         LongDouble res = *this;
         res *= x;
-        // cout << "4" << endl;
         return res;
     }
 
     void LongDouble::operator*=(const LongDouble& other) {
-        // cout << "mul " << *this << " " << other << endl;
+
         LongDouble x = other;
 
         sign = sign * x.sign;
         exponent = exponent + x.exponent;
 
         digit* res = (digit*) calloc(0, sizeof(digit));
-
         if (!res) memory_error();
+
         int res_size = 0;
-        // cout << "before " << *this << " " << other << endl;
-
         fft.multiply(digits, digits_size, x.digits, x.digits_size, res, res_size, base);
-
+        
         #ifdef FREE_MEMORY
-        // free(digits);
-        // free(x.digits);
+        free(digits);
         #endif
+
         digits = res;
         digits_size = res_size;
-        // cout << digits << " " << x.digits << " " << res << " " << other.digits << endl;
-
-
-
-
         removeZeroes();
         if (digits_size > precision * 2) {
             removeFirst(digits_size - precision * 2);
         }
         removeZeroes();
-
-        // cout << "after " << *this << " " << other << endl;
 
     }
 
