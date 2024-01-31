@@ -44,7 +44,7 @@ LongDouble Chudnovsky(int digits) {
     LongDouble sq10005(10005, digits + 5 + p_eps);
     if (DEBUG) cout << "[Calculating sqrt: "; cout.flush();
     auto start = TIME;
-    sq10005.sqrt_int();
+    sq10005.sqrt_fast();
     if (DEBUG) cout << TIME - start << "]" << endl;
     if (DEBUG) cout << "[Calculating binary_split: "; cout.flush(); start = TIME;
     auto [P1n, Q1n, R1n] = binary_split(1, n, (int) 1e9);  

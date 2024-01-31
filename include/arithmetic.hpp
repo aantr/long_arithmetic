@@ -117,8 +117,6 @@ namespace arithmetic {
         exit(1);
     }
 
-
-
     class LongDouble {
     public:
 
@@ -157,6 +155,7 @@ namespace arithmetic {
         void sqrt();
         void sqrt_int();
         void sqrt_fast();
+        void pow(int power);
         LongDouble abs() const;
         LongDouble operator+(const LongDouble& x) const;
         void operator+=(const LongDouble& x);
@@ -208,6 +207,10 @@ namespace arithmetic {
         template<class T>
         LongDouble& operator=(const T& x);
     };
+
+    void div32(const LongDouble &a, const LongDouble &b, int n, LongDouble &res, LongDouble& rem);
+
+    void div21(const LongDouble &a, const LongDouble &b, int n, LongDouble &res);
 
     istream& operator>>(istream& os, LongDouble& value) {
         string s;
@@ -271,7 +274,7 @@ namespace arithmetic {
     }
 
     LongDouble::LongDouble() {
-        *this = 0;
+        *this = 0; // default precision
     }
 
     LongDouble::LongDouble(const LongDouble& x) {
@@ -524,7 +527,7 @@ namespace arithmetic {
     void LongDouble::round(int number) {
         if (-exponent <= number) return;
         if (-exponent - number - 1 >= digits_size) {
-            *this = 0;
+            *this = LongDouble(0, precision);
             return;
         }
         removeFirst(-exponent - number - 1);
@@ -547,7 +550,7 @@ namespace arithmetic {
     void LongDouble::floor(int number) {
         if (-exponent <= number) return;
         if (-exponent - number >= digits_size) {
-            *this = 0;
+            *this = LongDouble(0, precision);
             return;
         }
         removeFirst(-exponent - number);
@@ -581,7 +584,7 @@ namespace arithmetic {
         *this = l;
     }
 
-    void LongDouble::sqrt_int() { // work only for integers >= 1
+    void LongDouble::sqrt_int() { // works only for integers >= 1
         assert(isInt() && *this >= 1);
         LongDouble x(1, precision);
         x.mulBase(digits_size / 2 + 1);
@@ -599,44 +602,133 @@ namespace arithmetic {
         *this = x;
     }
 
-    /*
-    def sqrtrem(n):
-    if n < 10 ** 6:
-        sqrt = floor(n ** 0.5)
-        return sqrt, n - sqrt * sqrt
-    a3, a2, a1, a0 = n // 1000, n // 100 % 10, n // 10 % 10, n % 10
-    s1, r1 = sqrtrem(a3 * 10 + a2)
-    q, u = divmod(r1 * 10, 2 * s1)
-    s = s1 * 10 + q
-    r = u * 10 + a0 - q * q
-    if r < 0:
-        r = r + 2 * s - 1
-        s = s - 1
-    return s, r
-    */
+    void sqrt_rem(const LongDouble n, LongDouble &s, LongDouble &r) {
+        assert(n.isInt() && n >= 1);
+        if (n < n.base * n.base) {
+            LongDouble x = n;
+            x.sqrt_int();
+            x.floor();
+            s = x;
+            r = n - s * s;
+            return;
+        }
+        int current_precison = n.digits_size + n.exponent + 1;
+        LongDouble x(n, current_precison);
 
-    // void sqrt_rem(LongDouble& n) {
-    //     assert(n.isInt() && n >= 1 && n.exponent == 0);
-    //     if (n.digits_size <= )
-    // }
+        // 10 ^ (d - 1) <= n < 10 ^ d
+        // d - 1 <= log10 n < d
 
-    // void LongDouble::sqrt_fast() { // work only for integers >= 1
-    //     assert(isInt() && *this >= 1);
-        
-    // }
+        // 2 ^ (d2 - 1) <= n < 2 ^ d2
+        // d2 - 1 <= log2 n < d2
 
-    /*
-    
-    a * 10 ^ m > 2 * b ^ 2
+        // (d - 1) / d2 < log10(2)
+        // d / (d2 - 1) > log10(2)
 
-     > b ^ 2
-    2 * b ^ 2 < 2 * 10 ^ (2m)
+        // d2 > (d - 1) * log2(10)
+        // d2 < d * log2(10) + 1
 
-    123123
+        // d * log2(10) - log(2, 10) < d2 < d * log2(10) + 1
 
-    */
+        int power = floor((double) (n.digits_size + n.exponent - 1) * log2(10)) + 1;
+        // int power_max = floor((double) (n.digits_size + n.exponent) * log2(10));        
+        LongDouble two(2, current_precison);
+        two.pow(power);
+        while (two <= x) { // max four times
+            power++;
+            two *= 2;
+        }
+        assert(two > x);
+        assert(two <= x * 2);
 
+        int was = 0;
+        LongDouble st(2, current_precison);
+        st.pow(power);
+        int rem = power % 4;
+        if (rem == 1 || rem == 2) {
+            x *= 4;
+            was = 1;
+        }
+        int power_b = (power - 1) / 4 + 1;
+        LongDouble b(2, current_precison);
+        b.pow(power_b);
 
+        LongDouble temp_, a0, a1, a2, a3;
+        temp_ = x;
+        x.precision = x.digits_size + x.exponent + 1 - (b.digits_size + b.exponent) + 1;
+        x /= b;
+        x.floor();
+        a0 = temp_ - x * b;
+
+        temp_ = x;
+        x.precision = x.digits_size + x.exponent + 1 - (b.digits_size + b.exponent) + 1;
+        x /= b;
+        x.floor();
+        a1 = temp_ - x * b;
+
+        temp_ = x;
+        x.precision = x.digits_size + x.exponent + 1 - (b.digits_size + b.exponent) + 1;
+        x /= b;
+        x.floor();
+        a2 = temp_ - x * b;
+
+        a3 = x;
+
+        LongDouble s1, r1, q, u;
+
+        sqrt_rem(a3 * b + a2, s1, r1);
+
+        s1.precision = current_precison;
+        r1.precision = current_precison;
+
+        LongDouble A(r1 * b + a1, current_precison), B(s1 * 2, current_precison);
+        q = A / B;
+
+        q.floor();
+        u = A - q * B;
+
+        s = s1 * b + q;
+        r = u * b + a0 - q * q;
+
+        if (r < 0) {
+            r = r + s * 2 - 1;
+            s -= 1;
+        }
+
+        if (was) { // if n was multipled by 4            
+            s *= 0.5;
+            s.floor();
+            r = n - s * s; 
+        }
+    }
+
+    void LongDouble::sqrt_fast() { // works only for integers >= 1
+        assert(isInt() && *this >= 1);
+        int plus = max(0, precision - (digits_size + exponent) / 2 + 1);
+        mulBase(plus * 2);
+        LongDouble s, r;
+        sqrt_rem(*this, s, r);
+        *this = LongDouble(s, precision);
+        divBase(plus);
+
+        if (digits_size > precision) {
+            removeFirst(digits_size - precision);
+        }
+    }
+
+    void LongDouble::pow(int power) {
+        assert(power >= 0);
+        if (power == 0) {
+            *this = LongDouble(1, precision);
+            return;
+        }
+        LongDouble res = *this;
+        res.pow(power / 2);
+        if (power & 1) {
+            *this = res * res * (*this);
+        } else {
+            *this = res * res;
+        }
+    }
 
     // operators
 
@@ -870,8 +962,6 @@ namespace arithmetic {
         *this = *this - x;
     }
 
-    void div32(const LongDouble &a, const LongDouble &b, int n, LongDouble &res, LongDouble& rem);
-
     void div21(const LongDouble &a, const LongDouble &b, int n, LongDouble &res) { 
         assert(a.exponent == 0 && b.exponent == 0 && a.sign == 1 && b.sign == 1);
         LongDouble x = a, y = b;
@@ -1100,7 +1190,6 @@ namespace arithmetic {
         LongDouble res;
         int n = 1;
         while (x.digits_size > 2 * n || y.digits_size > n || x.digits_size - y.digits_size + 1 > n) n <<= 1;
-
         div21(x, y, n, res);  
         res.precision = precision;
         res.exponent += res_exponent;

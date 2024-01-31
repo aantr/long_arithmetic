@@ -184,6 +184,25 @@ public:
 
 			int count = 100;
 			for (int i = 0; i < count; i++) {
+				int len = 50;
+				string str;
+				for (int i = 0; i < len; i++) {
+					str += '0' + (rnd() % 9 + 1);
+				}
+				LongDouble x(str);
+				LongDouble xx(str);
+				LongDouble s, r;
+		        sqrt_rem(x, s, r);
+		        assert(s * s + r == x);
+		        assert(r >= 0);
+		        assert((s + 1) * (s + 1) > x);
+		        xx.sqrt_int();	
+		        x.sqrt_fast();
+		        assert(x == xx);
+			}
+
+			count = 100;
+			for (int i = 0; i < count; i++) {
 				double x = rnd() % 1000000000;
 				x /= pow(10, rnd() % 5);
 				LongDouble X ((double)x, 16);
