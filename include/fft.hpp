@@ -16,7 +16,7 @@ namespace fft {
     class FFT {
     private:
         const double pi = acos(-1);
-        static const int maxn = 1 << 20;
+        static const int maxn = 1 << 21;
         typedef complex<double> ftype;
         ftype w[maxn];
 
@@ -82,16 +82,12 @@ namespace fft {
         void align(digit*& a, int &size_a, digit*& b, int &size_b) {
             int n = size_a + size_b - 1;
             a = (digit*) realloc(a, n * sizeof(digit));
-            if (a == nullptr) {
-                exit(1);
-            }
             for (int i = size_a; i < n; i++) {
                 a[i] = 0;
             }
             size_a = n;
 
             b = (digit*) realloc(b, n * sizeof(digit));
-
             for (int i = size_b; i < n; i++) {
                 b[i] = 0;
             }
@@ -112,8 +108,9 @@ namespace fft {
             for (int i = 0; i < size_A; i++) {
                 A[i] *= B[i];
             }
-
             interpolate(A, size_A, res, res_size);
+            free(A);
+            free(B);
         }
 
         void normalize(digit*& c, int &size, int base=10) {

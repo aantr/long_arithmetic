@@ -206,6 +206,7 @@ namespace arithmetic {
         bool operator!=(const T& x) const;
         template<class T>
         LongDouble& operator=(const T& x);
+        ~LongDouble();
     };
 
     void div32(const LongDouble &a, const LongDouble &b, int n, LongDouble &res, LongDouble& rem);
@@ -256,11 +257,12 @@ namespace arithmetic {
         sign = other.sign;
         digits_size = other.digits_size;
         #ifdef FREE_MEMORY
-        delete digits;
+        free(digits);
         #endif
         digits = (digit*) calloc(other.digits_size, sizeof(digit));
         if (!digits) memory_error();
         memcpy(digits, other.digits, other.digits_size * sizeof(digit));
+        assert(digits != other.digits);
         base = other.base;
         precision = other.precision;
         exponent = other.exponent;
@@ -272,6 +274,11 @@ namespace arithmetic {
         res.precision = max((unsigned long) res.precision, size);
         return res;
     }
+
+    LongDouble::~LongDouble() {
+
+    }
+
 
     LongDouble::LongDouble() {
         *this = 0; // default precision
@@ -288,7 +295,7 @@ namespace arithmetic {
         sign = other.sign;
         digits_size = other.digits_size;
         #ifdef FREE_MEMORY
-        delete digits;
+        free(digits);
         #endif
         digits = (digit*) calloc(other.digits_size, sizeof(digit));
         if (!digits) memory_error();
@@ -318,7 +325,7 @@ namespace arithmetic {
         res.exponent = 0; 
         res.digits_size = size - index;
         #ifdef FREE_MEMORY
-        delete res.digits;
+        free(res.digits);
         #endif
         res.digits = (digit*) calloc(res.digits_size, sizeof(digit));
         if (!res.digits) memory_error();
@@ -353,7 +360,7 @@ namespace arithmetic {
         if (x < 0) res.sign = -1, x = -x;
         res.digits_size = 0;
         #ifdef FREE_MEMORY
-        delete res.digits;
+        free(res.digits);
         #endif
         res.digits = (digit*) calloc(res.digits_size, sizeof(digit));
         if (!res.digits) memory_error();
@@ -468,7 +475,7 @@ namespace arithmetic {
         }
         if (left == digits_size) {
             #ifdef FREE_MEMORY
-            delete digits;
+            free(digits);
             #endif
             digits = (digit*) calloc(0, sizeof(digit*));
             if (!digits) memory_error();
@@ -488,7 +495,7 @@ namespace arithmetic {
                 if (!temp) memory_error();
                 memcpy(temp, digits + left, digits_size * sizeof(digit));
                 #ifdef FREE_MEMORY
-                delete digits;
+                free(digits);
                 #endif
                 digits = temp;
             }
@@ -510,7 +517,7 @@ namespace arithmetic {
         if (!temp) memory_error();
         memcpy(temp, digits + value, digits_size * sizeof(digit));
         #ifdef FREE_MEMORY
-        delete digits;
+        free(digits);
         #endif
         digits = temp;
         exponent += value;
@@ -738,29 +745,44 @@ namespace arithmetic {
     LongDouble LongDouble::operator*(const LongDouble& x) const {
         LongDouble res = *this;
         res *= x;
+        // cout << "4" << endl;
         return res;
     }
 
     void LongDouble::operator*=(const LongDouble& other) {
+        // cout << "mul " << *this << " " << other << endl;
         LongDouble x = other;
+
         sign = sign * x.sign;
         exponent = exponent + x.exponent;
 
         digit* res = (digit*) calloc(0, sizeof(digit));
+
         if (!res) memory_error();
         int res_size = 0;
+        // cout << "before " << *this << " " << other << endl;
+
         fft.multiply(digits, digits_size, x.digits, x.digits_size, res, res_size, base);
-        // #ifdef FREE_MEMORY
-        // delete digits;
-        // #endif
+
+        #ifdef FREE_MEMORY
+        // free(digits);
+        // free(x.digits);
+        #endif
         digits = res;
         digits_size = res_size;
+        // cout << digits << " " << x.digits << " " << res << " " << other.digits << endl;
+
+
+
 
         removeZeroes();
         if (digits_size > precision * 2) {
             removeFirst(digits_size - precision * 2);
         }
         removeZeroes();
+
+        // cout << "after " << *this << " " << other << endl;
+
     }
 
     LongDouble LongDouble::operator-() const {
@@ -877,7 +899,9 @@ namespace arithmetic {
                 resd[res_size] = 1;
                 res_size++;
             }
-
+            #ifdef FREE_MEMORY
+            free(res.digits);
+            #endif
             res.digits = resd;
             res.digits_size = res_size;
             res.removeZeroes();
@@ -941,6 +965,10 @@ namespace arithmetic {
                 if (resd[i] < 0) resd[i] += base, carry = 1;
             }
             assert(carry == 0);
+
+            #ifdef FREE_MEMORY
+            free(res.digits);
+            #endif
 
             res.digits = resd;
             res.digits_size = res_size;
@@ -1008,7 +1036,7 @@ namespace arithmetic {
         if (!temp) memory_error();
         memcpy(temp + m, rem1.digits, (rem1.digits_size - m) * sizeof(digit));
         #ifdef FREE_MEMORY
-        delete rem1.digits;
+        free(rem1.digits);
         #endif
         rem1.digits = temp;
         memcpy(rem1.digits, x.digits, min(m, x.digits_size) * sizeof(digit));
@@ -1020,7 +1048,7 @@ namespace arithmetic {
         memcpy(temp + m, res1.digits, (res1.digits_size - m) * sizeof(digit));
 
         #ifdef FREE_MEMORY
-        delete res1.digits;
+        free(res1.digits);
         #endif
         res1.digits = temp;
 
@@ -1054,7 +1082,7 @@ namespace arithmetic {
 
             memcpy(temp + rem.exponent, rem.digits, (rem.digits_size - rem.exponent) * sizeof(digit));
             #ifdef FREE_MEMORY
-            delete rem.digits;
+            free(rem.digits);
             #endif
             rem.digits = temp;
             rem.exponent = 0;
@@ -1071,7 +1099,7 @@ namespace arithmetic {
 
             memcpy(temp + rem.exponent, rem.digits, (rem.digits_size - rem.exponent) * sizeof(digit));
             #ifdef FREE_MEMORY
-            delete rem.digits;
+            free(rem.digits);
             #endif
             rem.digits = temp;
             rem.exponent = 0;
@@ -1100,7 +1128,7 @@ namespace arithmetic {
 
         memcpy(temp + n, y1.digits, (y1.digits_size - n) * sizeof(digit));
         #ifdef FREE_MEMORY
-        delete y1.digits;
+        free(y1.digits);
         #endif
         y1.digits = temp;
 
@@ -1113,7 +1141,7 @@ namespace arithmetic {
 
         memcpy(temp, y1.digits + n, y1.digits_size * sizeof(digit));
         #ifdef FREE_MEMORY
-        delete y1.digits;
+        free(y1.digits);
         #endif
         y1.digits = temp;
 
@@ -1148,7 +1176,7 @@ namespace arithmetic {
         memcpy(temp + current_rem.exponent, current_rem.digits, (current_rem.digits_size) * sizeof(digit));
         memset(temp, 0, (current_rem.exponent) * sizeof(digit));
         #ifdef FREE_MEMORY
-        delete current_rem.digits;
+        free(current_rem.digits);
         #endif
         current_rem.digits = temp;
         current_rem.digits_size += current_rem.exponent;
@@ -1160,7 +1188,7 @@ namespace arithmetic {
         memcpy(temp + res1.exponent, res1.digits, (res1.digits_size) * sizeof(digit));
         memset(temp, 0, (res1.exponent) * sizeof(digit));
         #ifdef FREE_MEMORY
-        delete res1.digits;
+        free(res1.digits);
         #endif
         res1.digits = temp;
         res1.digits_size += res1.exponent;
@@ -1185,7 +1213,9 @@ namespace arithmetic {
         if (!temp) memory_error();
         memset(temp, 0, plus * sizeof(digit));
         memcpy(temp + plus, x.digits, digits_size * sizeof(digit));
-
+        #ifdef FREE_MEMORY
+        free(x.digits);
+        #endif
         x.digits = temp;
         x.digits_size = temp_size;
 

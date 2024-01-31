@@ -66,7 +66,7 @@ LongDouble Chudnovsky(int digits) {
 
 int main(int argc, char* argv[]) {
     int digits;
-    const int right_bound = 100000;
+    const int right_bound = 200000;
 
     if (argc > 1) {
         if (string(argv[1]) == "--test") {

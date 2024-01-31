@@ -143,6 +143,7 @@ public:
 			for (int i = 0; i < count; i++) {
 				int x = (long long) (rnd() - rnd()) % 10000, y = (long long) (rnd() - rnd()) % 10000;
 				assert(LongDouble(x * y) == LongDouble(x) * LongDouble(y));
+
 				LongDouble X = x;
 				X *= X;
 				LongDouble Y = y;
