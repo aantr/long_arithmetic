@@ -42,14 +42,24 @@ LongDouble Chudnovsky(int digits) {
     int n = digits * 8 / 100 + n_eps;
 
     LongDouble sq10005(10005, digits + 5 + p_eps);
-    if (DEBUG) cout << "[Calculating sqrt: "; cout.flush();
+    if (DEBUG) {
+        cout << "[Calculating sqrt: "; cout.flush();
+    }
     auto start = TIME;
     sq10005.sqrt_fast();
-    if (DEBUG) cout << TIME - start << "]" << endl;
-    if (DEBUG) cout << "[Calculating binary_split: "; cout.flush(); start = TIME;
+    if (DEBUG) {
+        cout << TIME - start << "]" << endl;
+    }
+    if (DEBUG) {
+        cout << "[Calculating binary_split: "; cout.flush(); start = TIME;
+    }
     auto [P1n, Q1n, R1n] = binary_split(1, n, (int) 1e9);  
-    if (DEBUG) cout << TIME - start << "]" << endl;
-    if (DEBUG) cout << "[Multiplying binary_split and sqrt: "; cout.flush(); start = TIME;
+    if (DEBUG) {
+        cout << TIME - start << "]" << endl;
+    }
+    if (DEBUG) {
+        cout << "[Multiplying binary_split and sqrt: "; cout.flush(); start = TIME;
+    }
     free(P1n.digits);
     Q1n.precision = digits + p_eps;
     LongDouble res = (Q1n * LongDouble(426880) * sq10005);
@@ -58,13 +68,18 @@ LongDouble Chudnovsky(int digits) {
     free(Q1n.digits);
     free(R1n.digits);
 
-    if (DEBUG) cout << TIME - start << "]" << endl;
-    
-    if (DEBUG) cout << "[Calculating result: "; cout.flush(); start = TIME;
+    if (DEBUG) {
+        cout << TIME - start << "]" << endl;
+    }
+    if (DEBUG) {
+        cout << "[Calculating result: "; cout.flush(); start = TIME;
+    }
     res /= res2;
     delete(res2.digits);
 
-    if (DEBUG) cout << TIME - start << "]" << endl;
+    if (DEBUG) {
+        cout << TIME - start << "]" << endl;
+    }
     if (res.digits_size - 1 - digits > 0) {
         res.removeFirst(res.digits_size - 1 - digits);
     }
