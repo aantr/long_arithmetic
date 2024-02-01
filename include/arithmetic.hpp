@@ -92,6 +92,27 @@ namespace arithmetic {
        }
     };
 
+    class SqrtLimitError {
+    public:
+        const char* what () {
+            return "Sqrt limit error (value must be >= 0)";
+       }
+    };
+
+    class SqrtIntLimitError {
+    public:
+        const char* what () {
+            return "Sqrt integer limit error (value must be >= 0 and value must be an integer)";
+       }
+    };
+
+    class NegativePowerError {
+    public:
+        const char* what () {
+            return "Power must be not negative integer";
+       }
+    };
+
     void division_error() {
         throw DivisionByZeroException();
     }   
@@ -110,6 +131,18 @@ namespace arithmetic {
 
     void init_string_error() {
         throw InitStringError();
+    }
+
+    void sqrt_limir_error() {
+        throw SqrtLimitError();
+    }
+
+    void sqrt_int_limir_error() {
+        throw SqrtIntLimitError();
+    }
+
+    void negative_power_error() {
+        throw NegativePowerError();
     }
 
     void _error() {
@@ -531,7 +564,7 @@ namespace arithmetic {
     }
 
     void LongDouble::round(int number) {
-        if (-exponent <= number) return;
+        if (-exponent <= number || digits_size == 0) return;
         if (-exponent - number - 1 >= digits_size) {
             *this = LongDouble(0, precision);
             return;
@@ -568,7 +601,9 @@ namespace arithmetic {
     }
 
     void LongDouble::sqrt() { // use binary search
-        assert(*this >= 0);
+        if (*this < 0) {
+            sqrt_limir_error();
+        }
         LongDouble l, r = *this;
         l.precision = precision;
         r.precision = precision;
@@ -591,7 +626,9 @@ namespace arithmetic {
     }
 
     void LongDouble::sqrt_int() { // works only for integers >= 1
-        assert(isInt() && *this >= 1);
+        if (!(isInt() && *this >= 1)) {
+            sqrt_int_limir_error();
+        }
         LongDouble x(1, precision);
         x.mulBase((digits_size - 1) / 2);
         LongDouble prev = -1;
@@ -610,7 +647,9 @@ namespace arithmetic {
     }
 
     void sqrt_rem(const LongDouble n, LongDouble &s, LongDouble &r) {
-        assert(n.isInt() && n >= 1);
+        if (!(n.isInt() && n >= 1)) {
+            sqrt_int_limir_error();
+        }
         if (n < n.base * n.base) {
             LongDouble x(n, n.digits_size + n.exponent + 2);
             x.sqrt_int();
@@ -712,7 +751,9 @@ namespace arithmetic {
     }
 
     void LongDouble::sqrt_fast() { // works only for integers >= 1
-        assert(isInt() && *this >= 1);
+        if (!(isInt() && *this >= 1)) {
+            sqrt_int_limir_error();
+        }
         int plus = max(0, precision - (digits_size + exponent) / 2 + 1);
         mulBase(plus * 2);
         LongDouble s, r;
@@ -726,7 +767,9 @@ namespace arithmetic {
     }
 
     void LongDouble::pow(int power) {
-        assert(power >= 0);
+        if (power < 0) {
+            negative_power_error();
+        }
         if (power == 0) {
             *this = LongDouble(1, precision);
             return;
