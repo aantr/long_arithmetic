@@ -153,7 +153,7 @@ namespace arithmetic {
         bool operator==(const LongDouble& x) const;
         bool operator!=(const LongDouble& x) const;
         LongDouble& operator=(const LongDouble& x); // assignment operator
-
+        
         ~LongDouble();
     };
 

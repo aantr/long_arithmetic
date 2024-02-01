@@ -1,12 +1,8 @@
 #include <arithmetic.hpp>
 #include <assert.h>
-
-#if __cplusplus >= 201103L
 #include <random>
-#endif
 
-
-namespace testing {
+namespace test {
 
 	using namespace std;
 	using namespace arithmetic;
@@ -15,7 +11,7 @@ namespace testing {
 	class Test {
 	public:
 		string name = "Empty test";
-		void test() {};
+		void test();
 		void _test() {cout << "Testing " + name + "..." << endl;};
 	};
 
@@ -26,6 +22,9 @@ namespace testing {
 		}
 		void test() {
 			_test();
+			assert(LongDouble((long long)1e18) == 1e18);
+			assert(LongDouble((int)1e9 - 1) == 1e9 - 1);
+			assert(LongDouble((double)1e18) == LongDouble((long double)1e18));
 			LongDouble a(123), b = -0.00_ld, c = 0_ld, d = -123_ld, e("+0123.00"), k = "-0.0000";
 			assert("+22.0"_ld == "22.");
 			assert(a == e);
@@ -160,6 +159,7 @@ namespace testing {
 			name = "TestDiv";
 		}
 		void test() {
+			_test();
 			int count = 100;
 			for (int i = 0; i < count; i++) {
 				int x = (long long) rnd() - rnd(), y = ((long long) rnd() - rnd()) / 100;
@@ -249,16 +249,21 @@ namespace testing {
 		}
 	};
 
-	void test() {
-		TestInit().test();
-		TestInequlity().test();
-		TestAddition().test();
-		TestSubstracion().test();
-		TestRound().test();
-		TestMult().test();
-		TestDiv().test();
-		TestSqrt().test();
-		TestPrecision().test();
-		cout << "Finished in " << (double) clock() / CLOCKS_PER_SEC << " sec\n";
-	};
+
 }
+
+using namespace test;
+
+int main() {
+	TestInit().test();
+	TestInequlity().test();
+	TestAddition().test();
+	TestSubstracion().test();
+	TestRound().test();
+	TestMult().test();
+	TestDiv().test();
+	TestSqrt().test();
+	TestPrecision().test();
+	std::cout << "Finished in " << (double) clock() / CLOCKS_PER_SEC << " sec\n";
+	return 0;
+};

@@ -214,7 +214,7 @@ namespace arithmetic {
     template<class T>
     void init_from_double(LongDouble& res, T& v) {
         stringstream ss;
-        ss << std::setprecision(14) << v;
+        ss << fixed << v;
         init_from_string(res, ss.str().c_str());
     }
 

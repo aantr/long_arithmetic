@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include <limits.h>
 #include <math.h>
-#include <testing.hpp>
 #include <arithmetic.hpp>
 
 #define TIME (double) clock() / CLOCKS_PER_SEC
@@ -47,7 +46,7 @@ LongDouble Chudnovsky(int digits) {
     // len(Rab) >= 20 + (n / 2 - C) * 4 + (n / 2 - C) * 10
     // len(Rab) >= 20 + (n / 2 * 2 - C * 2) * 20
     // n <= (digits / 4) will be correct    
-    
+
     int n = digits / 4 + n_eps;
 
     LongDouble sq10005(10005, digits + p_eps);
@@ -90,20 +89,13 @@ LongDouble Chudnovsky(int digits) {
     return res;
 }
 
-int main(int argc, char* argv[]) {
+int main() {
     int digits;
     const int right_bound = 1000000;
 
-    if (argc > 1) {
-        if (string(argv[1]) == "--test") {
-            testing::test();
-            return 0;
-        }
-        digits = atoi(argv[1]);
-    } else {
-        cout << "Количество знаков после запятой (0 - " << right_bound << "): ";
-        cin >> digits;
-    }
+    cout << "Количество знаков после запятой (0 - " << right_bound << "): ";
+    cin >> digits;
+    
     if (cin.fail() || digits < 0 || digits > right_bound) {
         cerr << "Ошибка ввода\n";
         return 1;

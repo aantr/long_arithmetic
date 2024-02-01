@@ -9,7 +9,7 @@ CFLAGS = \
 
 # Linker flags:
 # NOTE: it is sometimes required to link to math library.
-# LDFLAGS =
+LDFLAGS =
 
 # Select build mode:
 # NOTE: invoke with "DEBUG=1 make" or "make DEBUG=1".
@@ -31,61 +31,54 @@ BCYAN   = \033[1;36m
 RESET   = \033[0m
 
 INCLUDES = \
-	include/testing.hpp \
 	include/arithmetic.hpp \
 	include/fft.hpp
 
 # Add "include" folder to header search path:
 CFLAGS += -I $(abspath include) 
 
-# List of sources:
 SOURCES = \
-	calculate_pi.cpp \
-	arithmetic.cpp
+	arithmetic.cpp \
+	fft.cpp
+
+SOURCE_EXECUTABLE = calculate_pi.cpp
+SOURCE_TEST = test.cpp
 
 OBJECTS = $(SOURCES:%.cpp=build/%.o)
+OBJECT_EXECUTABLE = $(SOURCE_EXECUTABLE:%.cpp=build/%.o)
+OBJECT_TEST = $(SOURCE_TEST:%.cpp=build/%.o)
 
-EXECUTABLE = build/arithmetic
+EXECUTABLE_SOURCE = build/arithmetic
+EXECUTABLE_TEST = build/test
 
-#---------------
-# Build process
-#---------------
+default: $(EXECUTABLE_SOURCE) $(EXECUTABLE_TEST)
 
-# By default, build executable:
-# NOTE: first target in the file is the default.
-default: $(EXECUTABLE)
-
-# Link all object files together to obtain a binary:
-# NOTE: all object files will be built first.
-$(EXECUTABLE): $(OBJECTS)
+$(EXECUTABLE_TEST): $(OBJECTS) $(OBJECT_TEST)
 	@printf "$(BYELLOW)Linking executable $(BCYAN)$@$(RESET)\n"
-	$(CC) $(LDFLAGS) $(OBJECTS) -o $@
+	$(CC) $(LDFLAGS) $(OBJECTS) $(OBJECT_TEST) -o $@
 
-# Compile an object file:
-# NOTE: all include files are passed as dependencies (this may be redundant)
 build/%.o: src/%.cpp $(INCLUDES)
 	@printf "$(BYELLOW)Building object file $(BCYAN)$@$(RESET)\n"
 	@mkdir -p build
 	$(CC) -c $< $(CFLAGS) -o $@
 
-#--------------
-# Test scripts
-#--------------
+$(EXECUTABLE_SOURCE): $(OBJECTS) $(OBJECT_EXECUTABLE)
+	@printf "$(BYELLOW)Linking executable $(BCYAN)$@$(RESET)\n"
+	$(CC) $(LDFLAGS) $(OBJECTS) $(OBJECT_EXECUTABLE) -o $@
 
-# Run program:
-run: $(EXECUTABLE)
-	./$(EXECUTABLE)
+build/%.o: src/%.cpp $(INCLUDES)
+	@printf "$(BYELLOW)Building object file $(BCYAN)$@$(RESET)\n"
+	@mkdir -p build
+	$(CC) -c $< $(CFLAGS) -o $@
 
-test: $(EXECUTABLE)
-	./$(EXECUTABLE) --test
+run: $(EXECUTABLE_SOURCE)
+	./$(EXECUTABLE_SOURCE)
 
-#---------------
-# Miscellaneous
-#---------------
+test: $(EXECUTABLE_TEST)
+	./$(EXECUTABLE_TEST)
 
 clean:
 	@printf "$(BYELLOW)Cleaning build directory $(RESET)\n"
 	rm -rf build
 
-# List of non-file targets:
 .PHONY: run test clean default
