@@ -5,12 +5,12 @@
 #include <random>
 #endif
 
-using namespace std;
-using namespace arithmetic;
-
-std::mt19937 rnd(7327158);
 
 namespace testing {
+
+	using namespace std;
+	using namespace arithmetic;
+	std::mt19937 rnd(7327158);
 
 	class Test {
 	public:

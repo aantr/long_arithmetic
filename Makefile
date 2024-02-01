@@ -42,7 +42,7 @@ CFLAGS += -I $(abspath include)
 SOURCES = \
 	calculate_pi.cpp \
 	arithmetic.cpp
-	
+
 OBJECTS = $(SOURCES:%.cpp=build/%.o)
 
 EXECUTABLE = build/arithmetic

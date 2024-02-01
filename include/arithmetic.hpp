@@ -47,92 +47,52 @@ namespace arithmetic {
     using digit = int32_t;
 
     class DivisionByZeroException {
-    public:
-        const char* what () {
-            return "Division by zero";
-        }
+
     };
 
     class MemoryLimitException {
-    public:
-        const char* what () {
-            return "Cannot allocate enough memory";
-        }
+
     };
 
     class InitError {
-    public:
-        const char* what () {
-            return "Inititalization error";
-        }
+
     };
 
     class InitPrecisonError {
-    public:
-        const char* what () {
-            return "Precision shoud be >= MIN_PRECISION";
-        }
+
     };
 
     class InitStringError {
-    public:
-        const char* what () {
-            return "Cannot init from string (wrong format)";
-        }
+
     };
 
     class SqrtLimitError {
-    public:
-        const char* what () {
-            return "Sqrt limit error (value must be >= 0)";
-        }
+
     };
 
     class SqrtIntLimitError {
-    public:
-        const char* what () {
-            return "Sqrt integer limit error (value must be >= 0 and value must be an integer)";
-        }
+
     };
 
     class NegativePowerError {
-    public:
-        const char* what () {
-            return "Power must be not negative integer";
-        }
+
     };
 
-    void division_error() {
-        throw DivisionByZeroException();
-    }   
+    void division_error();
 
-    void memory_error() {
-        throw MemoryLimitException();
-    }
+    void memory_error();
 
-    void init_error() {
-        throw InitError();
-    }
+    void init_error();
 
-    void init_precison_error() {
-        throw InitPrecisonError();
-    }
+    void init_precison_error();
 
-    void init_string_error() {
-        throw InitStringError();
-    }
+    void init_string_error();
 
-    void sqrt_limir_error() {
-        throw SqrtLimitError();
-    }
+    void sqrt_limir_error();
 
-    void sqrt_int_limir_error() {
-        throw SqrtIntLimitError();
-    }
+    void sqrt_int_limir_error();
 
-    void negative_power_error() {
-        throw NegativePowerError();
-    }
+    void negative_power_error();
 
     class LongDouble {
     public:
@@ -185,23 +145,6 @@ namespace arithmetic {
         LongDouble operator/(const LongDouble& x) const;
         void operator/=(const LongDouble& x);
 
-        template<class T>
-        LongDouble operator+(const T& x) const;
-        template<class T>
-        void operator+=(const T& x);
-        template<class T>
-        LongDouble operator-(const T& x) const;
-        template<class T>
-        void operator-=(const T& x);
-        template<class T>
-        LongDouble operator*(const T& x) const;
-        template<class T>
-        void operator*=(const T& x);
-        template<class T>
-        LongDouble operator/(const T& x) const;
-        template<class T>
-        void operator/=(const T& x);
-
         LongDouble operator-() const;
         bool operator<(const LongDouble& x) const;
         bool operator<=(const LongDouble& x) const;
@@ -211,20 +154,6 @@ namespace arithmetic {
         bool operator!=(const LongDouble& x) const;
         LongDouble& operator=(const LongDouble& x); // assignment operator
 
-        template<class T>
-        bool operator<(const T& x) const;
-        template<class T>
-        bool operator<=(const T& x) const;
-        template<class T>
-        bool operator>(const T& x) const;
-        template<class T>
-        bool operator>=(const T& x) const;
-        template<class T>
-        bool operator==(const T& x) const;
-        template<class T>
-        bool operator!=(const T& x) const;
-        template<class T>
-        LongDouble& operator=(const T& x);
         ~LongDouble();
     };
 
