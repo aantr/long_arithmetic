@@ -82,6 +82,7 @@ namespace fft {
                 res[i] = round(real(inv[i]) / size);
             }
             reverse(res + 1, res + size);
+            free(inv);
         }
 
         void align(digit*& a, int &size_a, digit*& b, int &size_b) {
