@@ -7,11 +7,12 @@
 #include <algorithm>
 #include <assert.h>
 
-using namespace std;
 
-using digit = int32_t;
 
 namespace fft {
+
+    using namespace std;
+    using digit = int32_t;
 
     class FFT {
     private:

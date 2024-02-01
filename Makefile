@@ -35,14 +35,14 @@ INCLUDES = \
 	include/arithmetic.hpp \
 	include/fft.hpp
 
-
 # Add "include" folder to header search path:
 CFLAGS += -I $(abspath include) 
 
 # List of sources:
 SOURCES = \
-	calculate_pi.cpp
-
+	calculate_pi.cpp \
+	arithmetic.cpp
+	
 OBJECTS = $(SOURCES:%.cpp=build/%.o)
 
 EXECUTABLE = build/arithmetic
