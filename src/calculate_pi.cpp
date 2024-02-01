@@ -84,6 +84,25 @@ LongDouble Chudnovsky(int digits) {
     return res;
 }
 
+LongDouble Leibnica(int digits) {
+    int eps = 1;
+    digits += eps;
+    LongDouble sum (1, digits);
+    LongDouble sm (1, digits);
+    LongDouble st(1);
+    st.divBase(digits);
+    for (int i = 1; ; i++) {
+        sm *= (LongDouble(i, digits) / (LongDouble(2 * i + 1, digits)));
+        sum += sm;
+        if (sm < st) {
+            break;
+        }
+    }
+    digits -= eps;
+    sum *= 2;
+    sum.floor(digits);
+    return sum;
+}
 int main() {
     int digits;
     const int right_bound = 1000;
@@ -97,7 +116,7 @@ int main() {
     }
 
     double start = (double) clock() / CLOCKS_PER_SEC;
-    LongDouble result = Chudnovsky(digits);
+    LongDouble result = Leibnica(digits);
     cout << "PI:\n" << result << "\n";
     cerr << "TIME: " << TIME - start<< " sec (total " << TIME << " sec)\n";
 
