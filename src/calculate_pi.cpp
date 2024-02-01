@@ -27,7 +27,6 @@ array<LongDouble, 3> binary_split(int l, int r, int digits) {
         int m = (l + r) / 2;
         auto [Pam, Qam, Ram] = binary_split(l, m, digits);
         auto [Pmb, Qmb, Rmb] = binary_split(m, r, digits);
-        // cout << Pam.digits_size << " " << Pam.digits_size << endl;
         Pab = Pam * Pmb;
         Qab = Qam * Qmb;
         Rab = Qmb * Ram + Pam * Rmb;
@@ -84,33 +83,6 @@ LongDouble Chudnovsky(int digits) {
 int main(int argc, char* argv[]) {
     int digits;
     const int right_bound = 1000000;
-
-    LongDouble x(1, 200000);
-    // int **res1 = (int**) calloc(200000, sizeof(int*));
-    // for (int i = 0; i < 200000; i++) {
-    //     int * res = (int*) calloc(1000, sizeof(int));
-    //     for (int j = 0; j < 1000; j++) {
-    //         res[j] = j;
-    //     }
-    //     res1[i] = res;
-    //     if (i > 10) {
-    //         // free(res); // !!!
-    //         res1[i] = nullptr;
-    //     }
-    // }
-    // for (int i = 0; i < 10; i++) {
-    //     cout << res1[i][i]<<endl;
-    // }
-
-    // for (int i = 0; i < 10; i++) {
-    //     x *= "12312312312312121212121212121221212";
-    // }
-
-    // cout << x.digits_size << endl;
-
-    // int q;
-    // cin>>q;
-    // exit(0);
 
     if (argc > 1) {
         if (string(argv[1]) == "--test") {
