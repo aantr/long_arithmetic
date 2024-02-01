@@ -33,11 +33,11 @@ namespace arithmetic {
         throw InitStringError();
     }
 
-    void sqrt_limir_error() {
+    void sqrt_limit_error() {
         throw SqrtLimitError();
     }
 
-    void sqrt_int_limir_error() {
+    void sqrt_int_limit_error() {
         throw SqrtIntLimitError();
     }
 
@@ -410,7 +410,7 @@ namespace arithmetic {
 
     void LongDouble::sqrt() { // use binary search
         if (*this < 0) {
-            sqrt_limir_error();
+            sqrt_limit_error();
         }
         LongDouble l, r = *this;
         l.precision = precision;
@@ -435,7 +435,7 @@ namespace arithmetic {
 
     void LongDouble::sqrt_int() { // works only for integers >= 1
         if (!(isInt() && *this >= 1)) {
-            sqrt_int_limir_error();
+            sqrt_int_limit_error();
         }
         LongDouble x(1, precision);
         x.mulBase((digits_size - 1) / 2);
@@ -456,7 +456,7 @@ namespace arithmetic {
 
     void LongDouble::sqrt_fast() { // works only for integers >= 1
         if (!(isInt() && *this >= 1)) {
-            sqrt_int_limir_error();
+            sqrt_int_limit_error();
         }
         int plus = max(0, precision - (digits_size + exponent) / 2 + 1);
         mulBase(plus * 2);
@@ -962,7 +962,7 @@ namespace arithmetic {
 
     void sqrt_rem(const LongDouble n, LongDouble &s, LongDouble &r) {
         if (!(n.isInt() && n >= 1)) {
-            sqrt_int_limir_error();
+            sqrt_int_limit_error();
         }
         if (n < n.base * n.base) {
             LongDouble x(n, n.digits_size + n.exponent + 2);
