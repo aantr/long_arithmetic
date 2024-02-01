@@ -183,28 +183,20 @@ public:
 		void test() {
 			_test();
 
-			int count = 10;
-			for (int i = 0; i < count; i++) {
-				int len = 50;
-				string str;
-				for (int i = 0; i < len; i++) {
-					str += '0' + (rnd() % 9 + 1);
-				}
-				LongDouble x(str);
-				LongDouble xx(str);
+			int count = 200;
+			for (int i = 1; i < count; i++) {
+				string str = to_string(i);
+
+				LongDouble x(str, 16);
+				LongDouble xx(str, 16);
+
 				LongDouble s, r;
 		        sqrt_rem(x, s, r);
 		        assert(s * s + r == x);
-
 		        assert(r >= 0);
 		        assert((s + 1) * (s + 1) > x);
-		        xx.sqrt_int();	
 		        x.sqrt_fast();
-		        if (x != xx) {
-		        	cout << x << endl;
-		        	cout << xx << endl;
-
-		        }
+				xx.sqrt_int();
 		        assert(x == xx);
 
 			}

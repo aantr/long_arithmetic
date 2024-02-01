@@ -593,14 +593,14 @@ namespace arithmetic {
     void LongDouble::sqrt_int() { // works only for integers >= 1
         assert(isInt() && *this >= 1);
         LongDouble x(1, precision);
-        x.mulBase(digits_size / 2 + 1);
+        x.mulBase((digits_size - 1) / 2);
         LongDouble prev = -1;
         while (1) {
-            x = (LongDouble(*this, precision + 1) / x + x) * 0.5;
-            x.precision = precision;
+            x = (LongDouble(*this, precision) / x + x) * 0.5;
             if (x.digits_size > x.precision) {
                 x.removeFirst(x.digits_size - x.precision); // floor x
             }
+
             if (x == prev) {
                 break;
             }
@@ -612,7 +612,7 @@ namespace arithmetic {
     void sqrt_rem(const LongDouble n, LongDouble &s, LongDouble &r) {
         assert(n.isInt() && n >= 1);
         if (n < n.base * n.base) {
-            LongDouble x(n, n.digits_size + n.exponent + 1);
+            LongDouble x(n, n.digits_size + n.exponent + 2);
             x.sqrt_int();
             x.floor();
             s = x;
