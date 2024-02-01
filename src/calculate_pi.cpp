@@ -14,14 +14,13 @@
 using namespace arithmetic;
 using namespace std;
 
-#define DEBUG 1
+#define DEBUG 0
 
 array<LongDouble, 3> binary_split(int l, int r, int digits) {
     LongDouble Pab, Qab, Rab;
     if (r == l + 1) {
-        Pab = LongDouble(-(6 * l - 5), digits) * 
-        LongDouble((2 * l - 1), digits) * LongDouble((6 * l - 1), digits);
-        Qab = LongDouble(l, digits) * LongDouble(l, digits) * LongDouble(l, digits) * LongDouble(10939058860032000ll, digits);
+        Pab = -LongDouble((6 * l - 5), digits) * LongDouble((2 * l - 1)) * LongDouble((6 * l - 1));
+        Qab = LongDouble(l, digits) * l * l * 10939058860032000ll;
         Rab = Pab * LongDouble(545140134ll * l + 13591409, digits);
     } else {
         int m = (l + r) / 2;
@@ -38,9 +37,20 @@ LongDouble Chudnovsky(int digits) {
 
     int n_eps = 5; // for precision
     int p_eps = 5; // for precision
-    int n = digits * 8 / 100 + n_eps;
 
-    LongDouble sq10005(10005, digits + 5 + p_eps);
+    // let for n = 10 there's atleast C digits of P1n, Q1n, R1n
+    // how many digits will be correct with n++?
+    // for every n > 10 we 
+    // multiply P1n by not less than 61 * 19 * 65 - 4 digits; len(P1n) >= 11 + (n - C) * 4 
+    // multiply Q1n by not less than 10939058860032000 >= 10 digits; len(Q1) >= 11 + (n - C) * 10
+    // so len(Rab) for n >= 20 will be >= len(Qmb * Ram) >= 10 + (n / 2 - 5) * 4 + 10 + (n / 2 - C) * 10
+    // len(Rab) >= 20 + (n / 2 - C) * 4 + (n / 2 - C) * 10
+    // len(Rab) >= 20 + (n / 2 * 2 - C * 2) * 20
+    // n <= (digits / 4) will be correct    
+    
+    int n = digits / 4 + n_eps;
+
+    LongDouble sq10005(10005, digits + p_eps);
     if (DEBUG) {
         cout << "[Calculating sqrt: "; cout.flush();
     }
@@ -52,7 +62,7 @@ LongDouble Chudnovsky(int digits) {
     if (DEBUG) {
         cout << "[Calculating binary_split: "; cout.flush(); start = TIME;
     }
-    auto [P1n, Q1n, R1n] = binary_split(1, n, (int) 1e9);  
+    auto [P1n, Q1n, R1n] = binary_split(1, 1 + n, (int) 1e9);  
     if (DEBUG) {
         cout << TIME - start << "]" << endl;
     }

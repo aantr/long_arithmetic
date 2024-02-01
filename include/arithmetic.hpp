@@ -842,7 +842,7 @@ namespace arithmetic {
     }
 
     LongDouble LongDouble::operator-() const {
-        LongDouble res(*this);
+        LongDouble res(*this, precision);
         res.sign = -res.sign;
         return res;
     }
