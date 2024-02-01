@@ -84,6 +84,12 @@ int main(int argc, char* argv[]) {
     int digits;
     const int right_bound = 1000000;
 
+    LongDouble x;
+    for (int i = 0; i < 200000; i++) {
+        x += i;
+    }
+    exit(0);
+
     if (argc > 1) {
         if (string(argv[1]) == "--test") {
             testing::test();
