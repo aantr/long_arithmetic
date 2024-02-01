@@ -32,6 +32,7 @@ RESET   = \033[0m
 
 INCLUDES = \
 	include/arithmetic.hpp \
+	include/test_system.hpp \
 	include/fft.hpp
 
 # Add "include" folder to header search path:
