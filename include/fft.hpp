@@ -16,16 +16,21 @@ namespace fft {
     class FFT {
     private:
         const double pi = acos(-1);
-        static const int maxn = 1 << 20;
+        const int maxn = 1 << 23;
         typedef complex<double> ftype;
-        ftype w[maxn];
+        ftype *w;
 
     public:
         FFT () {
             init();
         }
 
+        ~FFT() {
+            free(w);
+        }
+
         void init() {
+            w = (ftype*)malloc(maxn * sizeof(ftype));
             for(int i = 0; i < (*this).maxn; i++) {
                 w[i] = polar(1., 2 * pi / (*this).maxn * i);
             }
