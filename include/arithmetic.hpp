@@ -157,7 +157,7 @@ namespace arithmetic {
         digit* digits = nullptr; 
         int digits_size = 0;
         int base = 10;
-        int precision = 64; // >= 2
+        int precision = 64; // >= MIN_PRECISION
         int exponent = 0;
 
         LongDouble(); 
@@ -173,6 +173,8 @@ namespace arithmetic {
         LongDouble(const long long &value, int precision); 
         LongDouble(const double &value); 
         LongDouble(const double &value, int precision); 
+        LongDouble(const long double &value); 
+        LongDouble(const long double &value, int precision); 
 
         bool isInt() const; 
         bool isZero() const; 
@@ -305,6 +307,16 @@ namespace arithmetic {
     LongDouble operator""_ld (const char* x, unsigned long size) {
         LongDouble res(x);
         res.precision = max((unsigned long) res.precision, size);
+        return res;
+    }
+
+    LongDouble operator""_ld (long double x) {
+        LongDouble res = x;
+        return res;
+    }
+
+    LongDouble operator""_ld (unsigned long long x) {
+        LongDouble res = (long long) x;
         return res;
     }
 
@@ -464,6 +476,17 @@ namespace arithmetic {
     }
 
     LongDouble::LongDouble(const double &v, int precision): precision(precision) {
+        if (precision < MIN_PRECISION) {
+            init_precison_error();
+        }
+        init_from_double(*this, v);
+    }
+
+    LongDouble::LongDouble(const long double &v) {
+        init_from_double(*this, v);
+    }
+
+    LongDouble::LongDouble(const long double &v, int precision): precision(precision) {
         if (precision < MIN_PRECISION) {
             init_precison_error();
         }
