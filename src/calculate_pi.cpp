@@ -20,7 +20,7 @@ array<LongDouble, 3> binary_split(int l, int r, int digits) {
     LongDouble Pab, Qab, Rab;
     if (r == l + 1) {
         Pab = LongDouble(-(6 * l - 5), digits) * 
-                LongDouble((2 * l - 1), digits) * LongDouble((6 * l - 1), digits);
+        LongDouble((2 * l - 1), digits) * LongDouble((6 * l - 1), digits);
         Qab = LongDouble(l, digits) * LongDouble(l, digits) * LongDouble(l, digits) * LongDouble(10939058860032000ll, digits);
         Rab = Pab * LongDouble(545140134ll * l + 13591409, digits);
     } else {

@@ -61,56 +61,56 @@ namespace arithmetic {
     public:
         const char* what () {
             return "Division by zero";
-       }
+        }
     };
 
     class MemoryLimitException {
     public:
         const char* what () {
             return "Cannot allocate enough memory";
-       }
+        }
     };
 
     class InitError {
     public:
         const char* what () {
             return "Inititalization error";
-       }
+        }
     };
 
     class InitPrecisonError {
     public:
         const char* what () {
             return "Precision shoud be >= MIN_PRECISION";
-       }
+        }
     };
 
     class InitStringError {
     public:
         const char* what () {
             return "Cannot init from string (wrong format)";
-       }
+        }
     };
 
     class SqrtLimitError {
     public:
         const char* what () {
             return "Sqrt limit error (value must be >= 0)";
-       }
+        }
     };
 
     class SqrtIntLimitError {
     public:
         const char* what () {
             return "Sqrt integer limit error (value must be >= 0 and value must be an integer)";
-       }
+        }
     };
 
     class NegativePowerError {
     public:
         const char* what () {
             return "Power must be not negative integer";
-       }
+        }
     };
 
     void division_error() {
@@ -263,7 +263,7 @@ namespace arithmetic {
             return os;
         }
         if (USE_SCIENTIFIC_OUTPUT && (value.digits_size > MAX_DIGIT_SCIENTIFIC_OUTPUT || (value.exponent > 0 && value.digits_size + value.exponent > MAX_DIGIT_SCIENTIFIC_OUTPUT) || 
-                    (value.exponent <= -value.digits_size && -value.exponent + 1 > MAX_DIGIT_SCIENTIFIC_OUTPUT))) {
+            (value.exponent <= -value.digits_size && -value.exponent + 1 > MAX_DIGIT_SCIENTIFIC_OUTPUT))) {
             for (int i = value.digits_size - 1; i >= 0; i--) {
                 os << value.digits[i];
                 if (value.digits_size > 1 && i == value.digits_size - 1) os << '.';
@@ -513,7 +513,7 @@ namespace arithmetic {
 
     void LongDouble::removeZeroes() {
         int left = 0, right = 0;
-         for (int i = digits_size - 1; i >= 0; i--) {
+        for (int i = digits_size - 1; i >= 0; i--) {
             if (digits[i] == 0) {
                 right++;
             } else {
@@ -555,7 +555,7 @@ namespace arithmetic {
                 digits = temp;
             }
         }
-            
+        
     }
 
     bool check_non_negative(LongDouble v) {
@@ -915,202 +915,202 @@ namespace arithmetic {
     }
 
     LongDouble LongDouble::operator+(const LongDouble& x) const {
-          if (sign == x.sign) {
-            LongDouble res;
-            res.precision = precision;
-            res.sign = sign;
+      if (sign == x.sign) {
+        LongDouble res;
+        res.precision = precision;
+        res.sign = sign;
 
-            int res_size = max(digits_size + exponent, x.digits_size + x.exponent) - min(exponent, x.exponent);
-            digit* resd = (digit*) malloc(res_size * sizeof(digit));
-            if (!resd) memory_error();
-            memset(resd, 0, res_size * sizeof(digit));
+        int res_size = max(digits_size + exponent, x.digits_size + x.exponent) - min(exponent, x.exponent);
+        digit* resd = (digit*) malloc(res_size * sizeof(digit));
+        if (!resd) memory_error();
+        memset(resd, 0, res_size * sizeof(digit));
 
-            if (exponent <= x.exponent) {
-                res.exponent = exponent;
-                for (int i = 0; i < digits_size; i++) {
-                    resd[i] += digits[i];
-                }
-                for (int i = 0; i < x.digits_size; i++) {
-                    resd[i + x.exponent - exponent] += x.digits[i];
-                }
-            } else {
-                res.exponent = x.exponent;
-                for (int i = 0; i < x.digits_size; i++) {
-                    resd[i] += x.digits[i];
-                }
-                for (int i = 0; i < digits_size; i++) {
-                    resd[i + exponent - x.exponent] += digits[i];
-                }
+        if (exponent <= x.exponent) {
+            res.exponent = exponent;
+            for (int i = 0; i < digits_size; i++) {
+                resd[i] += digits[i];
             }
-            int carry = 0;
-            for (int i = 0; i < res_size; i++) {
-                resd[i] += carry;
-                carry = 0;
-                if (resd[i] >= base) resd[i] -= base, carry = 1;
+            for (int i = 0; i < x.digits_size; i++) {
+                resd[i + x.exponent - exponent] += x.digits[i];
             }
-            if (carry) {
-                resd = (digit*) realloc(resd, (res_size + 1) * sizeof(digit));
-                if (!resd) memory_error();
-
-                resd[res_size] = 1;
-                res_size++;
-            }
-            #ifdef FREE_MEMORY
-            free(res.digits);
-            #endif
-            res.digits = resd;
-            res.digits_size = res_size;
-            res.removeZeroes();
-            #ifdef PRECISION_ADD
-            if (res.digits_size > res.precision) {
-                res.removeFirst(res.digits_size - res.precision);
-            }
-            res.removeZeroes();
-            #endif
-            return res;
-        }
-
-        if (sign == -1)
-            return x - (-(*this));
-        
-        return *this - (-x); 
-    }
-
-    void LongDouble::operator+=(const LongDouble& x) {
-        *this = *this + x;
-    }  
-
-    LongDouble LongDouble::operator-(const LongDouble& x) const {
-        if (sign == 1 && x.sign == 1) {
-
-            if (*this < x) {
-                LongDouble res = x - *this;
-                return -res;
-            }
-
-            LongDouble res;
-            res.sign = 1;
-            res.precision = precision;
-            int res_size = max(digits_size + exponent, x.digits_size + x.exponent) - min(exponent, x.exponent);
-            digit* resd = (digit*) malloc(res_size * sizeof(digit));
-            if (!resd) memory_error();
-            memset(resd, 0, res_size * sizeof(digit));
-
-            if (exponent <= x.exponent) {
-                res.exponent = exponent;
-                for (int i = 0; i < digits_size; i++) {
-                    resd[i] += digits[i];
-                }
-                for (int i = 0; i < x.digits_size; i++) {
-                    resd[i + x.exponent - exponent] -= x.digits[i];
-                }
-            } else {
-                res.exponent = x.exponent;
-                for (int i = 0; i < x.digits_size; i++) {
-                    resd[i] -= x.digits[i];
-                }
-                for (int i = 0; i < digits_size; i++) {
-                    resd[i + exponent - x.exponent] += digits[i];
-                }
-            }
-
-            int carry = 0;
-            for (int i = 0; i < res_size; i++) {
-                resd[i] -= carry;
-                carry = 0;
-                if (resd[i] < 0) resd[i] += base, carry = 1;
-            }
-            assert(carry == 0);
-
-            #ifdef FREE_MEMORY
-            free(res.digits);
-            #endif
-
-            res.digits = resd;
-            res.digits_size = res_size;
-
-            res.removeZeroes();
-            #ifdef PRECISION_SUB
-            if (res.digits_size > res.precision) {
-                res.removeFirst(res.digits_size - res.precision);
-            }
-            res.removeZeroes();
-            #endif
-            return res;
-        }
-
-        if (sign == -1 && x.sign == -1)
-            return (-x) - (-(*this));
-        
-        return *this + (-x);
-    }
-
-    void LongDouble::operator-=(const LongDouble& x) {
-        *this = *this - x;
-    }
-
-    void div21(const LongDouble &a, const LongDouble &b, int n, LongDouble &res) { 
-        assert(a.exponent == 0 && b.exponent == 0 && a.sign == 1 && b.sign == 1);
-        LongDouble x = a, y = b;
-        x.precision = (int) 1e9;
-        y.precision = (int) 1e9;
-
-        int m = n >> 1;
-        if (n <= 1) {
-            int A = 0, B = 0;
-            for (int i = x.digits_size - 1; i >= 0; i--) {
-                A = A * x.base + x.digits[i]; 
-            }
-            for (int i = y.digits_size - 1; i >= 0; i--) {
-                B = B * y.base + y.digits[i];
-            }
-            if (B == 0) {
-                division_error();
-            }
-            res = LongDouble(A / B, (int) 1e9);
-            return;
-        }
-
-        LongDouble first3m(0, (int) 1e9);
-
-        if (x.digits_size >= m) {
-            first3m.digits_size = x.digits_size - m;
-            first3m.digits = (digit*) malloc(first3m.digits_size * sizeof(digit));
-            if (!first3m.digits) memory_error();
-            memcpy(first3m.digits, x.digits + m, (first3m.digits_size) * sizeof(digit));
         } else {
-            first3m.digits = (digit*) malloc(0 * sizeof(digit));
-            if (!first3m.digits) memory_error();
+            res.exponent = x.exponent;
+            for (int i = 0; i < x.digits_size; i++) {
+                resd[i] += x.digits[i];
+            }
+            for (int i = 0; i < digits_size; i++) {
+                resd[i + exponent - x.exponent] += digits[i];
+            }
         }
-        
-        LongDouble res1(0, (int) 1e9), rem1(0, (int) 1e9);
+        int carry = 0;
+        for (int i = 0; i < res_size; i++) {
+            resd[i] += carry;
+            carry = 0;
+            if (resd[i] >= base) resd[i] -= base, carry = 1;
+        }
+        if (carry) {
+            resd = (digit*) realloc(resd, (res_size + 1) * sizeof(digit));
+            if (!resd) memory_error();
 
-        div32(first3m, y, m, res1, rem1);
+            resd[res_size] = 1;
+            res_size++;
+        }
+            #ifdef FREE_MEMORY
+        free(res.digits);
+            #endif
+        res.digits = resd;
+        res.digits_size = res_size;
+        res.removeZeroes();
+            #ifdef PRECISION_ADD
+        if (res.digits_size > res.precision) {
+            res.removeFirst(res.digits_size - res.precision);
+        }
+        res.removeZeroes();
+            #endif
+        return res;
+    }
 
-        rem1.digits_size = rem1.digits_size + m;
-        digit* temp = (digit*) malloc(rem1.digits_size * sizeof(digit));
-        if (!temp) memory_error();
-        memset(temp, 0, m * sizeof(digit));
+    if (sign == -1)
+        return x - (-(*this));
+    
+    return *this - (-x); 
+}
 
-        memcpy(temp + m, rem1.digits, (rem1.digits_size - m) * sizeof(digit));
+void LongDouble::operator+=(const LongDouble& x) {
+    *this = *this + x;
+}  
+
+LongDouble LongDouble::operator-(const LongDouble& x) const {
+    if (sign == 1 && x.sign == 1) {
+
+        if (*this < x) {
+            LongDouble res = x - *this;
+            return -res;
+        }
+
+        LongDouble res;
+        res.sign = 1;
+        res.precision = precision;
+        int res_size = max(digits_size + exponent, x.digits_size + x.exponent) - min(exponent, x.exponent);
+        digit* resd = (digit*) malloc(res_size * sizeof(digit));
+        if (!resd) memory_error();
+        memset(resd, 0, res_size * sizeof(digit));
+
+        if (exponent <= x.exponent) {
+            res.exponent = exponent;
+            for (int i = 0; i < digits_size; i++) {
+                resd[i] += digits[i];
+            }
+            for (int i = 0; i < x.digits_size; i++) {
+                resd[i + x.exponent - exponent] -= x.digits[i];
+            }
+        } else {
+            res.exponent = x.exponent;
+            for (int i = 0; i < x.digits_size; i++) {
+                resd[i] -= x.digits[i];
+            }
+            for (int i = 0; i < digits_size; i++) {
+                resd[i + exponent - x.exponent] += digits[i];
+            }
+        }
+
+        int carry = 0;
+        for (int i = 0; i < res_size; i++) {
+            resd[i] -= carry;
+            carry = 0;
+            if (resd[i] < 0) resd[i] += base, carry = 1;
+        }
+        assert(carry == 0);
+
+            #ifdef FREE_MEMORY
+        free(res.digits);
+            #endif
+
+        res.digits = resd;
+        res.digits_size = res_size;
+
+        res.removeZeroes();
+            #ifdef PRECISION_SUB
+        if (res.digits_size > res.precision) {
+            res.removeFirst(res.digits_size - res.precision);
+        }
+        res.removeZeroes();
+            #endif
+        return res;
+    }
+
+    if (sign == -1 && x.sign == -1)
+        return (-x) - (-(*this));
+    
+    return *this + (-x);
+}
+
+void LongDouble::operator-=(const LongDouble& x) {
+    *this = *this - x;
+}
+
+void div21(const LongDouble &a, const LongDouble &b, int n, LongDouble &res) { 
+    assert(a.exponent == 0 && b.exponent == 0 && a.sign == 1 && b.sign == 1);
+    LongDouble x = a, y = b;
+    x.precision = (int) 1e9;
+    y.precision = (int) 1e9;
+
+    int m = n >> 1;
+    if (n <= 1) {
+        int A = 0, B = 0;
+        for (int i = x.digits_size - 1; i >= 0; i--) {
+            A = A * x.base + x.digits[i]; 
+        }
+        for (int i = y.digits_size - 1; i >= 0; i--) {
+            B = B * y.base + y.digits[i];
+        }
+        if (B == 0) {
+            division_error();
+        }
+        res = LongDouble(A / B, (int) 1e9);
+        return;
+    }
+
+    LongDouble first3m(0, (int) 1e9);
+
+    if (x.digits_size >= m) {
+        first3m.digits_size = x.digits_size - m;
+        first3m.digits = (digit*) malloc(first3m.digits_size * sizeof(digit));
+        if (!first3m.digits) memory_error();
+        memcpy(first3m.digits, x.digits + m, (first3m.digits_size) * sizeof(digit));
+    } else {
+        first3m.digits = (digit*) malloc(0 * sizeof(digit));
+        if (!first3m.digits) memory_error();
+    }
+    
+    LongDouble res1(0, (int) 1e9), rem1(0, (int) 1e9);
+
+    div32(first3m, y, m, res1, rem1);
+
+    rem1.digits_size = rem1.digits_size + m;
+    digit* temp = (digit*) malloc(rem1.digits_size * sizeof(digit));
+    if (!temp) memory_error();
+    memset(temp, 0, m * sizeof(digit));
+
+    memcpy(temp + m, rem1.digits, (rem1.digits_size - m) * sizeof(digit));
         #ifdef FREE_MEMORY
-        free(rem1.digits);
+    free(rem1.digits);
         #endif
-        rem1.digits = temp;
-        memcpy(rem1.digits, x.digits, min(m, x.digits_size) * sizeof(digit));
-        LongDouble res2(0, (int) 1e9), rem2(0, (int) 1e9);
-        div32(rem1, y, m, res2, rem2);
-        res1.digits_size = res1.digits_size + m;
-        temp = (digit*) malloc(res1.digits_size * sizeof(digit));
-        if (!temp) memory_error();
-        memset(temp, 0, m * sizeof(digit));
+    rem1.digits = temp;
+    memcpy(rem1.digits, x.digits, min(m, x.digits_size) * sizeof(digit));
+    LongDouble res2(0, (int) 1e9), rem2(0, (int) 1e9);
+    div32(rem1, y, m, res2, rem2);
+    res1.digits_size = res1.digits_size + m;
+    temp = (digit*) malloc(res1.digits_size * sizeof(digit));
+    if (!temp) memory_error();
+    memset(temp, 0, m * sizeof(digit));
 
-        memcpy(temp + m, res1.digits, (res1.digits_size - m) * sizeof(digit));
+    memcpy(temp + m, res1.digits, (res1.digits_size - m) * sizeof(digit));
 
         #ifdef FREE_MEMORY
-        free(res1.digits);
+    free(res1.digits);
         #endif
-        res1.digits = temp;
+    res1.digits = temp;
 
         memcpy(res1.digits, res2.digits, res2.digits_size * sizeof(digit)); // add m digits
         res = res1;
@@ -1256,7 +1256,7 @@ namespace arithmetic {
         res1.digits = temp;
         res1.digits_size += res1.exponent;
         res1.exponent = 0;
- 
+        
         res = res1;
         rem = current_rem;
     }

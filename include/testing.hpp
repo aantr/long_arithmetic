@@ -13,7 +13,7 @@ std::mt19937 rnd(7327158);
 namespace testing {
 
 	class Test {
-public:
+	public:
 		string name = "Empty test";
 		void test() {};
 		void _test() {cout << "Testing " + name + "..." << endl;};
@@ -191,13 +191,13 @@ public:
 				LongDouble xx(str, 16);
 
 				LongDouble s, r;
-		        sqrt_rem(x, s, r);
-		        assert(s * s + r == x);
-		        assert(r >= 0);
-		        assert((s + 1) * (s + 1) > x);
-		        x.sqrt_fast();
+				sqrt_rem(x, s, r);
+				assert(s * s + r == x);
+				assert(r >= 0);
+				assert((s + 1) * (s + 1) > x);
+				x.sqrt_fast();
 				xx.sqrt_int();
-		        assert(x == xx);
+				assert(x == xx);
 
 			}
 
@@ -250,8 +250,8 @@ public:
 	};
 
 	void test() {
- 		TestInit().test();
- 		TestInequlity().test();
+		TestInit().test();
+		TestInequlity().test();
 		TestAddition().test();
 		TestSubstracion().test();
 		TestRound().test();
