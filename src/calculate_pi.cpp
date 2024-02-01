@@ -6,6 +6,7 @@
 #include <limits.h>
 #include <math.h>
 #include <arithmetic.hpp>
+#include <assert.h>
 
 #define TIME (double) clock() / CLOCKS_PER_SEC
 #define CHECK_FROM_FILE
@@ -15,6 +16,7 @@ using namespace std;
 
 #define DEBUG 0
 
+// https://en.wikipedia.org/wiki/Chudnovsky_algorithm
 array<LongDouble, 3> binary_split(int l, int r, int digits) {
     LongDouble Pab, Qab, Rab;
     if (r == l + 1) {
@@ -32,22 +34,15 @@ array<LongDouble, 3> binary_split(int l, int r, int digits) {
     return {Pab, Qab, Rab};
 }
 
+int f(int n) {
+    auto [P1n, Q1n, R1n] = binary_split(1, 1 + n, (int) 1e9);  
+    return min({P1n.digits_size, Q1n.digits_size, R1n.digits_size});
+}
+
 LongDouble Chudnovsky(int digits) {
 
-    int n_eps = 5; // for precision
-    int p_eps = 5; // for precision
-
-    // let for n = 10 there's atleast C digits of P1n, Q1n, R1n
-    // how many digits will be correct with n++?
-    // for every n > 10 we 
-    // multiply P1n by not less than 61 * 19 * 65 - 4 digits; len(P1n) >= 11 + (n - C) * 4 
-    // multiply Q1n by not less than 10939058860032000 >= 10 digits; len(Q1) >= 11 + (n - C) * 10
-    // so len(Rab) for n >= 20 will be >= len(Qmb * Ram) >= 10 + (n / 2 - 5) * 4 + 10 + (n / 2 - C) * 10
-    // len(Rab) >= 20 + (n / 2 - C) * 4 + (n / 2 - C) * 10
-    // len(Rab) >= 20 + (n / 2 * 2 - C * 2) * 20
-    // n <= (digits / 4) will be correct    
-
-    int n = digits / 4 + n_eps;
+    // calc eps more so the last digit rounded down is correct
+    int p_eps = 2;
 
     LongDouble sq10005(10005, digits + p_eps);
     if (DEBUG) {
@@ -61,7 +56,7 @@ LongDouble Chudnovsky(int digits) {
     if (DEBUG) {
         cout << "[Calculating binary_split: "; cout.flush(); start = TIME;
     }
-    auto [P1n, Q1n, R1n] = binary_split(1, 1 + n, (int) 1e9);  
+    auto [P1n, Q1n, R1n] = binary_split(1, 1 + digits, (int) 1e9);  
     if (DEBUG) {
         cout << TIME - start << "]" << endl;
     }
@@ -91,7 +86,7 @@ LongDouble Chudnovsky(int digits) {
 
 int main() {
     int digits;
-    const int right_bound = 1000000;
+    const int right_bound = 1000;
 
     cout << "Количество знаков после запятой (0 - " << right_bound << "): ";
     cin >> digits;
