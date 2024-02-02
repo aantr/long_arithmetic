@@ -54,8 +54,8 @@ namespace arithmetic {
         return os;
     }
 
-    ostream& operator<<(ostream& os, const LongDouble& value) { // выведет все ненулевые цифры
-        if (value.sign == -1)
+    ostream& operator<<(ostream& os, const LongDouble& value) {
+            if (value.sign == -1)
             os << '-';
         if (value.digits_size == 0) {
             os << '0';
