@@ -135,7 +135,7 @@ void add_tests(TestSystem &ts) {
 		check(res_round == (double)round((double)x / y * pow(10, 5)) / pow(10, 5));
 	}
 	_TEST
-	// exit(0);
+	exit(0);
 
 	TEST_(Sqrt)
 	int count = 200;
