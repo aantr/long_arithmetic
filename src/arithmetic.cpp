@@ -410,11 +410,14 @@ namespace arithmetic {
 
     void LongDouble::floor(int number) {
         if (-exponent <= number) return;
-        if (-exponent - number >= digits_size) {
+        if (-exponent - number >= digits_size * base_exp) {
             *this = LongDouble(0, precision);
             return;
         }
-        removeFirst(-exponent - number);
+        removeFirst((-exponent - number) / base_exp);
+        if (rem > 0) {
+            digits[0] -= digits[0] % pow_10[rem];
+        }ge
         removeZeroes();
     }
 
