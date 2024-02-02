@@ -395,6 +395,7 @@ namespace arithmetic {
         assert(digits_size >= 1);
         int rem = (-exponent - number - 1) % base_exp;
         digits[0] -= digits[0] % pow_10[rem];
+
         bool was = true;
         if (digits[0] / pow_10[rem] % 10 < 5) was = false;
         if (was) {
@@ -402,6 +403,7 @@ namespace arithmetic {
             st.divBase(number);
             *this += st;
         }
+
         d = (-exponent - number - 1) / base_exp;
         rem = (-exponent - number - 1) % base_exp;
         // delete rem-th digit
@@ -481,7 +483,7 @@ namespace arithmetic {
         if (!(isInt() && *this >= 1)) {
             sqrt_int_limit_error();
         }
-        int plus = max(0, precision - (digits_size - exponent / base_exp - 1));
+        int plus = max(0, precision - (digits_size - exponent / base_exp) + 3);
         mulBase((plus * 2) * base_exp);
         LongDouble s, r;
         sqrt_rem(*this, s, r);
@@ -575,14 +577,14 @@ namespace arithmetic {
         if (exp_mod >= 0) {
             for (int i = 0; i < min(digits_size, x.digits_size); i++) {
                 int next_d = (digits_size - 1 - i - 1 >= 0 ? digits[digits_size - 1 - i - 1] / pow_10[base_exp - (exp_mod)] : 0);
-                if (digits[digits_size - 1 - i] * pow_10[exp_mod] + next_d > x.digits[x.digits_size - 1 - i]) return false ^ (sign == -1);                
-                if (digits[digits_size - 1 - i] * pow_10[exp_mod] + next_d < x.digits[x.digits_size - 1 - i]) return true ^ (sign == -1);                
+                if (digits[digits_size - 1 - i] % pow_10[base_exp - exp_mod] * pow_10[exp_mod] + next_d > x.digits[x.digits_size - 1 - i]) return false ^ (sign == -1);                
+                if (digits[digits_size - 1 - i] % pow_10[base_exp - exp_mod] * pow_10[exp_mod] + next_d < x.digits[x.digits_size - 1 - i]) return true ^ (sign == -1);                
             }
         } else {
             for (int i = 0; i < min(digits_size, x.digits_size); i++) {
                 int next_d = (x.digits_size - 1 - i - 1 >= 0 ? x.digits[x.digits_size - 1 - i - 1] / pow_10[base_exp - (-exp_mod)] : 0);
-                if (digits[digits_size - 1 - i] > x.digits[x.digits_size - 1 - i] * pow_10[-exp_mod] + next_d) return false ^ (sign == -1);
-                if (digits[digits_size - 1 - i] < x.digits[x.digits_size - 1 - i] * pow_10[-exp_mod] + next_d) return true ^ (sign == -1);
+                if (digits[digits_size - 1 - i] > x.digits[x.digits_size - 1 - i] % pow_10[base_exp - (-exp_mod)] * pow_10[-exp_mod] + next_d) return false ^ (sign == -1);
+                if (digits[digits_size - 1 - i] < x.digits[x.digits_size - 1 - i] % pow_10[base_exp - (-exp_mod)] * pow_10[-exp_mod] + next_d) return true ^ (sign == -1);
             }   
         }
         for (int i = min(digits_size, x.digits_size); i < digits_size; i++) {
@@ -639,12 +641,12 @@ namespace arithmetic {
         if (exp_mod >= 0) {
             for (int i = 0; i < min(digits_size, x.digits_size); i++) {
                 int next_d = (digits_size - 1 - i - 1 >= 0 ? digits[digits_size - 1 - i - 1] / pow_10[base_exp - (exp_mod)] : 0);
-                if (digits[digits_size - 1 - i] * pow_10[exp_mod] + next_d != x.digits[x.digits_size - 1 - i]) return false;                
+                if (digits[digits_size - 1 - i] % pow_10[base_exp - exp_mod] * pow_10[exp_mod] + next_d != x.digits[x.digits_size - 1 - i]) return false;                
             }
         } else {
             for (int i = 0; i < min(digits_size, x.digits_size); i++) {
                 int next_d = (x.digits_size - 1 - i - 1 >= 0 ? x.digits[x.digits_size - 1 - i - 1] / pow_10[base_exp - (-exp_mod)] : 0);
-                if (digits[digits_size - 1 - i] != x.digits[x.digits_size - 1 - i] * pow_10[-exp_mod] + next_d) return false;
+                if (digits[digits_size - 1 - i] != x.digits[x.digits_size - 1 - i] % pow_10[base_exp - (-exp_mod)] * pow_10[-exp_mod] + next_d) return false;
             }   
         }
         for (int i = min(digits_size, x.digits_size); i < digits_size; i++) {
@@ -707,23 +709,33 @@ namespace arithmetic {
             if (exp_div <= x_exp_div) {
                 res.exponent = exp_div * base_exp;
                 for (int i = 0; i < digits_size; i++) {
-                    int next_d = (i + 1 < digits_size ? digits[i + 1] / pow_10[base_exp - (exp_mod)] : 0);
-                    resd[i] += digits[i] * pow_10[exp_mod] + next_d; // + exp_mod
+                    int next_d = (i - 1 >= 0 ? digits[i - 1] / pow_10[base_exp - (exp_mod)] : 0);
+                    resd[i] += digits[i] % pow_10[base_exp - exp_mod] * pow_10[exp_mod] + next_d; // + exp_mod
                 }
+                int next_d = (digits_size - 1 >= 0 ? digits[digits_size - 1] / pow_10[base_exp - (exp_mod)] : 0);
+                resd[digits_size] += next_d;
+
                 for (int i = 0; i < x.digits_size; i++) {
-                    int next_d = (i + 1 < x.digits_size ? x.digits[i + 1] / pow_10[base_exp - (x_exp_mod)] : 0);
-                    resd[i + x_exp_div - exp_div] += x.digits[i] * pow_10[x_exp_mod] + next_d;
+                    int next_d = (i - 1 >= 0 ? x.digits[i - 1] / pow_10[base_exp - (x_exp_mod)] : 0);
+                    resd[i + x_exp_div - exp_div] += x.digits[i] % pow_10[base_exp - x_exp_mod] * pow_10[x_exp_mod] + next_d;
                 }
+                next_d = (x.digits_size - 1 >= 0 ? x.digits[x.digits_size - 1] / pow_10[base_exp - (x_exp_mod)] : 0);
+                resd[x.digits_size] += next_d;
+
             } else {
                 res.exponent = x_exp_div * base_exp;
                 for (int i = 0; i < x.digits_size; i++) {
-                    int next_d = (i + 1 < x.digits_size ? x.digits[i + 1] / pow_10[base_exp - (x_exp_mod)] : 0);
-                    resd[i] += x.digits[i] * pow_10[x_exp_mod] + next_d;
+                    int next_d = (i - 1 >= 0 ? x.digits[i - 1] / pow_10[base_exp - (x_exp_mod)] : 0);
+                    resd[i] += x.digits[i] % pow_10[base_exp - x_exp_mod] * pow_10[x_exp_mod] + next_d;
                 }
+                int next_d = (x.digits_size - 1 >= 0 ? x.digits[x.digits_size - 1] / pow_10[base_exp - (x_exp_mod)] : 0);
+                resd[x.digits_size] += next_d;
                 for (int i = 0; i < digits_size; i++) {
-                    int next_d = (i + 1 < digits_size ? digits[i + 1] / pow_10[base_exp - (exp_mod)] : 0);
-                    resd[i + exp_div - x_exp_div] += digits[i] * pow_10[exp_mod] + next_d;
+                    int next_d = (i - 1 >= 0 ? digits[i - 1] / pow_10[base_exp - (exp_mod)] : 0);
+                    resd[i + exp_div - x_exp_div] += digits[i] % pow_10[base_exp - exp_mod] * pow_10[exp_mod] + next_d;
                 }
+                next_d = (digits_size - 1 >= 0 ? digits[digits_size - 1] / pow_10[base_exp - (exp_mod)] : 0);
+                resd[digits_size + exp_div - x_exp_div] += next_d;
             }
 
             int carry = 0;
@@ -749,6 +761,7 @@ namespace arithmetic {
             }
             res.removeZeroes();
             #endif
+
             return res;
         }
 
@@ -786,23 +799,33 @@ namespace arithmetic {
             if (exp_div <= x_exp_div) {
                 res.exponent = exp_div * base_exp;
                 for (int i = 0; i < digits_size; i++) {
-                    int next_d = (i + 1 < digits_size ? digits[i + 1] / pow_10[base_exp - (exp_mod)] : 0);
-                    resd[i] += digits[i] * pow_10[exp_mod] + next_d; // + exp_mod
+                    int next_d = (i - 1 >= 0 ? digits[i - 1] / pow_10[base_exp - (exp_mod)] : 0);
+                    resd[i] += digits[i] % pow_10[base_exp - exp_mod] * pow_10[exp_mod] + next_d; // + exp_mod
                 }
+                int next_d = (digits_size - 1 >= 0 ? digits[digits_size - 1] / pow_10[base_exp - (exp_mod)] : 0);
+                resd[digits_size] += next_d;
+
                 for (int i = 0; i < x.digits_size; i++) {
-                    int next_d = (i + 1 < x.digits_size ? x.digits[i + 1] / pow_10[base_exp - (x_exp_mod)] : 0);
-                    resd[i + x_exp_div - exp_div] -= x.digits[i] * pow_10[x_exp_mod] + next_d;
+                    int next_d = (i - 1 >= 0 ? x.digits[i - 1] / pow_10[base_exp - (x_exp_mod)] : 0);
+                    resd[i + x_exp_div - exp_div] -= x.digits[i] % pow_10[base_exp - x_exp_mod] * pow_10[x_exp_mod] + next_d;
                 }
+                next_d = (x.digits_size - 1 >= 0 ? x.digits[x.digits_size - 1] / pow_10[base_exp - (x_exp_mod)] : 0);
+                resd[x.digits_size] -= next_d;
+
             } else {
                 res.exponent = x_exp_div * base_exp;
                 for (int i = 0; i < x.digits_size; i++) {
-                    int next_d = (i + 1 < x.digits_size ? x.digits[i + 1] / pow_10[base_exp - (x_exp_mod)] : 0);
-                    resd[i] -= x.digits[i] * pow_10[x_exp_mod] + next_d;
+                    int next_d = (i - 1 >= 0 ? x.digits[i - 1] / pow_10[base_exp - (x_exp_mod)] : 0);
+                    resd[i] -= x.digits[i] % pow_10[base_exp - x_exp_mod] * pow_10[x_exp_mod] + next_d;
                 }
+                int next_d = (x.digits_size - 1 >= 0 ? x.digits[x.digits_size - 1] / pow_10[base_exp - (x_exp_mod)] : 0);
+                resd[x.digits_size] -= next_d;
                 for (int i = 0; i < digits_size; i++) {
-                    int next_d = (i + 1 < digits_size ? digits[i + 1] / pow_10[base_exp - (exp_mod)] : 0);
-                    resd[i + exp_div - x_exp_div] += digits[i] * pow_10[exp_mod] + next_d;
+                    int next_d = (i - 1 >= 0 ? digits[i - 1] / pow_10[base_exp - (exp_mod)] : 0);
+                    resd[i + exp_div - x_exp_div] += digits[i] % pow_10[base_exp - exp_mod] * pow_10[exp_mod] + next_d;
                 }
+                next_d = (digits_size - 1 >= 0 ? digits[digits_size - 1] / pow_10[base_exp - (exp_mod)] : 0);
+                resd[digits_size + exp_div - x_exp_div] += next_d;
             }
 
             int carry = 0;
@@ -910,6 +933,9 @@ namespace arithmetic {
             first3m.digits = (digit*) malloc(first3m.digits_size * sizeof(digit));
             if (!first3m.digits) memory_error();
             memcpy(first3m.digits, x.digits + m, (first3m.digits_size) * sizeof(digit));
+            LongDouble::context_remove_left_zeroes = false;
+            first3m.removeZeroes();
+            LongDouble::context_remove_left_zeroes = true;
         } else {
             first3m.digits = (digit*) malloc(0 * sizeof(digit));
             if (!first3m.digits) memory_error();
@@ -917,9 +943,9 @@ namespace arithmetic {
 
         LongDouble res1(0, (int) 1e9), rem1(0, (int) 1e9);
 
+        assert(first3m.isZero() || first3m.digits[first3m.digits_size - 1] != 0);
         div32(first3m, y, m, res1, rem1);
         assert(first3m == y * res1 + rem1);
-
 
         rem1.digits_size = rem1.digits_size + m;
         digit* temp = (digit*) malloc(rem1.digits_size * sizeof(digit));
@@ -961,7 +987,7 @@ namespace arithmetic {
         y.precision = (int) 1e9;
 
         if (n <= 1) {
-            int A = 0, B = 0;
+            long long A = 0, B = 0;
             for (int i = x.digits_size - 1; i >= 0; i--) {
                 A = A * x.base + x.digits[i]; 
             }
@@ -985,7 +1011,6 @@ namespace arithmetic {
             free(rem.digits);
             rem.digits = temp;
             rem.exponent = 0;
-            // cout << a << " " << (b * rem + res).digits_size << endl;
             assert(a == b * res + rem);
             assert(rem < b);
 

@@ -116,7 +116,7 @@ int main() {
     }
 
     double start = (double) clock() / CLOCKS_PER_SEC;
-    LongDouble result = Leibnica(digits);
+    LongDouble result = Chudnovsky(digits);
     cout << "PI:\n" << result << "\n";
     cerr << "TIME: " << TIME - start<< " sec (total " << TIME << " sec)\n";
 

@@ -2,8 +2,8 @@
 
 #include <iostream>
 
-// #define PRECISION_ADD
-// #define PRECISION_SUB
+#define PRECISION_ADD
+#define PRECISION_SUB
 #define USE_SCIENTIFIC_OUTPUT 0
 #define MAX_DIGIT_SCIENTIFIC_OUTPUT 16
 #define MIN_PRECISION 1
@@ -100,9 +100,13 @@ namespace arithmetic {
         int sign = 1;
         digit* digits = nullptr; 
         int digits_size = 0;
-        static const int base = 100;
-        static const int base_exp = 2;
-        static constexpr int pow_10[3] = {1, 10, 100};
+        static const long long base = 10;
+        static const int base_exp = 1;
+        // static constexpr long long pow_10[18] = {1, 10, 100, 1000, 10000, 100000, 1000000, 
+        //                                         10000000, 100000000, 1000000000, 10000000000, 100000000000, 1000000000000, 10000000000000, 
+        //                                         100000000000000, 1000000000000000, 10000000000000000, 100000000000000000};
+        static constexpr int pow_10[10] = {1, 10, 100, 1000, 10000, 100000, 1000000, 
+                                                10000000, 100000000, 1000000000};
         int precision = 16; // >= MIN_PRECISION
         int exponent = 0; // base 10
         static bool context_remove_left_zeroes;
@@ -158,6 +162,7 @@ namespace arithmetic {
         LongDouble& operator=(const LongDouble& x); // assignment operator
         
         ~LongDouble();
+
     };
 
     istream& operator>>(istream& os, LongDouble& value);

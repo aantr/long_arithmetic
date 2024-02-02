@@ -15,7 +15,6 @@ void add_tests(TestSystem &ts) {
 	
 	TEST_(Init)
 	check("+22.0"_ld == "22.");
-
 	check((LongDouble((long long)1e18) == 1e18));
 	check(LongDouble((int)1e9 - 1) == 1e9 - 1);
 	check(LongDouble((double)1e18) == LongDouble((long double)1e18));
@@ -31,6 +30,7 @@ void add_tests(TestSystem &ts) {
 
 
 	TEST_(Inequality)
+
 	LongDouble a(123), b, c, d = -123, e("0123"), k = string("0");
 	check((a >= d) == true);
 	check((b <= k) == true);
@@ -61,7 +61,6 @@ void add_tests(TestSystem &ts) {
 	_TEST
 
 	TEST_(Round)
-
 	LongDouble a = 1.5, b = 1.4, c = -1.4, d = -1.5, e = -1.6, n = 123.45678;
 	a.round();
 	b.round();
@@ -110,7 +109,8 @@ void add_tests(TestSystem &ts) {
 	TEST_(Mul)
 	int count = 100;
 	for (int i = 0; i < count; i++) {
-		int x = (long long) (rnd() - rnd()) % 10000, y = (long long) (rnd() - rnd()) % 10000;
+		long long x = (long long) (rnd() - rnd()) % 1000000000, y = (long long) (rnd() - rnd()) % 1000000000;
+		// cout << x << " " << y << " " << x * y << " " << LongDouble(x) * LongDouble(y) << endl;
 		check(LongDouble(x * y) == LongDouble(x) * LongDouble(y));
 
 		LongDouble X = x;
@@ -142,8 +142,8 @@ void add_tests(TestSystem &ts) {
 	for (int i = 1; i < count; i++) {
 		string str = to_string(i);
 
-		LongDouble x(str, 16);
-		LongDouble xx(str, 16);
+		LongDouble x(str, 16 / LongDouble::base_exp + 1);
+		LongDouble xx(str, 16 / LongDouble::base_exp + 1);
 
 		LongDouble s, r;
 		sqrt_rem(x, s, r);
@@ -152,6 +152,8 @@ void add_tests(TestSystem &ts) {
 		check((s + 1) * (s + 1) > x);
 		x.sqrt_fast();
 		xx.sqrt_int();
+		x.floor(10);
+		xx.floor(10);
 		check(x == xx);
 
 	}
@@ -160,6 +162,7 @@ void add_tests(TestSystem &ts) {
 	for (int i = 0; i < count; i++) {
 		double x = rnd() % 1000000000;
 		x /= pow(10, rnd() % 5);
+		cout << x << endl;
 		LongDouble X ((double)x, 16);
 		X.sqrt();
 
@@ -167,6 +170,7 @@ void add_tests(TestSystem &ts) {
 		LongDouble st = 1;
 		int check = 6;
 		st.divBase(check);
+		cout << X * X << " " << LongDouble(x) << " " << (X - (double)x).abs() << endl;
 		check((X - (double)x).abs() < st);
 	}
 	_TEST

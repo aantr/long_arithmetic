@@ -20,14 +20,14 @@ public:
 	}
 
 	void run_testing() {
-		int failed = false;
+		int failed = 0;
 		for (Test test: tests) {
 			try {
 				test.test();
 				cout << "Test \"" << test.name << "\" passed" << endl;
 			} catch (const char *str) {
 				cout << "Test \"" << test.name << "\" failed, expression: (" << str << ")" << endl;
-				failed = true;
+				failed++;
 			}
 		}
 		if (failed) {
