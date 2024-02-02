@@ -14,6 +14,12 @@ std::mt19937 rnd(7327158);
 void add_tests(TestSystem &ts) {
 	
 	TEST_(Init)
+	LongDouble x = "22.";
+	cout << x << " " << x.exponent << endl;
+	for (int i = 0; i < x.digits_size; i++) {
+		cout << x.digits[i] << endl;
+	}
+	// exit(0);
 	check((LongDouble((long long)1e18) == 1e18));
 	check(LongDouble((int)1e9 - 1) == 1e9 - 1);
 	check(LongDouble((double)1e18) == LongDouble((long double)1e18));

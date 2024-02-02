@@ -100,9 +100,12 @@ namespace arithmetic {
         int sign = 1;
         digit* digits = nullptr; 
         int digits_size = 0;
-        int base = 10;
-        int precision = 64; // >= MIN_PRECISION
-        int exponent = 0;
+        const int base = 100;
+        const int base_exp = 2;
+        const int pow_10[3] = {1, 10, 100};
+        int precision = 64; // >= MIN_PRECISION, actuall base
+        int precision_10 = 64; // >= MIN_PRECISION, base 10
+        int exponent = 0; // base 10
 
         LongDouble(); 
         LongDouble(const LongDouble& x); 
