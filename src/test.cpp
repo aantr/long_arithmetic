@@ -14,17 +14,12 @@ std::mt19937 rnd(7327158);
 void add_tests(TestSystem &ts) {
 	
 	TEST_(Init)
-	LongDouble x = "22.";
-	cout << x << " " << x.exponent << endl;
-	for (int i = 0; i < x.digits_size; i++) {
-		cout << x.digits[i] << endl;
-	}
-	// exit(0);
+	check("+22.0"_ld == "22.");
+
 	check((LongDouble((long long)1e18) == 1e18));
 	check(LongDouble((int)1e9 - 1) == 1e9 - 1);
 	check(LongDouble((double)1e18) == LongDouble((long double)1e18));
 	LongDouble a(123), b = -0.00_ld, c = 0_ld, d = -123_ld, e("+0123.00"), k = "-0.0000";
-	check("+22.0"_ld == "22.");
 	check(a == e);
 	check(b == k);
 	check(a != d);
@@ -55,7 +50,6 @@ void add_tests(TestSystem &ts) {
 	return 0;
 	_TEST
 
-
 	TEST_(Sub)
 	int count = 100;
 	for (int i = 0; i < count; i++) {
@@ -65,6 +59,7 @@ void add_tests(TestSystem &ts) {
 	_TEST
 
 	TEST_(Round)
+
 	LongDouble a = 1.5, b = 1.4, c = -1.4, d = -1.5, e = -1.6, n = 123.45678;
 	a.round();
 	b.round();
@@ -100,7 +95,14 @@ void add_tests(TestSystem &ts) {
 	check(n == 9.5);
 	n = LongDouble((double)123 /  13);
 	n.round(2);
-	check(n == 9.46);	
+	check(n == 9.46);
+
+	for (int i = 1000; i < 1100; i++) {
+		LongDouble x = i;
+		x.divBase(2);
+		x.round();
+		check(x == (double) round((double) i / 100));
+	}	
 	_TEST
 
 
@@ -120,9 +122,9 @@ void add_tests(TestSystem &ts) {
 	_TEST
 
 	TEST_(Div)
-	int count = 100;
+	int count = 1000;
 	for (int i = 0; i < count; i++) {
-		int x = (long long) rnd() - rnd(), y = ((long long) rnd() - rnd()) / 100;
+		int x = (long long) (rnd() - rnd()) % 1000000, y = (long long) (rnd()) % 1000000 + 1;
 
 		LongDouble res = LongDouble(x) / LongDouble(y);
 		res.floor();
@@ -133,6 +135,7 @@ void add_tests(TestSystem &ts) {
 		check(res_round == (double)round((double)x / y * pow(10, 5)) / pow(10, 5));
 	}
 	_TEST
+	// exit(0);
 
 	TEST_(Sqrt)
 	int count = 200;

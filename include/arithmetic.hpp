@@ -23,7 +23,7 @@ how precision works
 precison >= MIN_PRECISION
 always use floor in math
 add/sub working only if defines
-mul working for double precision 
+mul/add/sub works for double precision 
 for ex:
 precision = 3
 => 
@@ -103,9 +103,9 @@ namespace arithmetic {
         const int base = 100;
         const int base_exp = 2;
         const int pow_10[3] = {1, 10, 100};
-        int precision = 64; // >= MIN_PRECISION, actuall base
-        int precision_10 = 64; // >= MIN_PRECISION, base 10
+        int precision = 5; // >= MIN_PRECISION, actuall base
         int exponent = 0; // base 10
+        static bool context_remove_left_zeroes;
 
         LongDouble(); 
         LongDouble(const LongDouble& x); 
