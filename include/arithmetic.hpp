@@ -100,10 +100,10 @@ namespace arithmetic {
         int sign = 1;
         digit* digits = nullptr; 
         int digits_size = 0;
-        const int base = 100;
-        const int base_exp = 2;
-        const int pow_10[3] = {1, 10, 100};
-        int precision = 5; // >= MIN_PRECISION, actuall base
+        static const int base = 100;
+        static const int base_exp = 2;
+        static constexpr int pow_10[3] = {1, 10, 100};
+        int precision = 16; // >= MIN_PRECISION
         int exponent = 0; // base 10
         static bool context_remove_left_zeroes;
 

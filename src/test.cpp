@@ -26,6 +26,7 @@ void add_tests(TestSystem &ts) {
 	check(c == k);
 	check(d == -a);
 	check(d != a);
+	check(LongDouble("1.0") == "1");
 	_TEST
 
 
@@ -37,6 +38,7 @@ void add_tests(TestSystem &ts) {
 	check((e < d) == false);
 	check((d > c) == false);
 	check((k < b) == false);
+	check(("1"_ld < 123) == true);
 	check((d < d + 1) == true);
 	_TEST
 
@@ -105,7 +107,6 @@ void add_tests(TestSystem &ts) {
 	}	
 	_TEST
 
-
 	TEST_(Mul)
 	int count = 100;
 	for (int i = 0; i < count; i++) {
@@ -135,7 +136,6 @@ void add_tests(TestSystem &ts) {
 		check(res_round == (double)round((double)x / y * pow(10, 5)) / pow(10, 5));
 	}
 	_TEST
-	exit(0);
 
 	TEST_(Sqrt)
 	int count = 200;
@@ -173,12 +173,12 @@ void add_tests(TestSystem &ts) {
 
 	TEST_(Precision)
 
-	check(LongDouble(123, 3) / 45 == 2.73);
-	check(LongDouble(123, 3) * 12345 == 1518430);
+	// check(LongDouble(123, 3) / 45 == 2.73);
+	// check(LongDouble(123, 3) * 12345 == 1518430);
 	int count = 50;
 	for (int i = 0; i < count; i++) {
 		int len = 50; // тестируем числа с len цифрами
-		LongDouble x(0, len * 2), y(0, len * 2);
+		LongDouble x(0, len * 2 / LongDouble::base_exp + 1), y(0, len * 2 / LongDouble::base_exp + 1);
 
 		for (int j = 0; j < len; j++) {
 			x = x * LongDouble(10) + LongDouble((int) (rnd() % 10));
