@@ -23,15 +23,17 @@ public:
 		int failed = 0;
 		for (Test test: tests) {
 			try {
+				cout << "Test \"" << test.name << "\" ... "; cout.flush();
 				test.test();
-				cout << "Test \"" << test.name << "\" passed" << endl;
+				cout << "passed" << endl;
 			} catch (const char *str) {
-				cout << "Test \"" << test.name << "\" failed, expression: (" << str << ")" << endl;
+				cout << "failed, expression: (" << str << ")" << endl;
 				failed++;
 			}
 		}
 		if (failed) {
-			cout << failed << " tests failed" << endl;
+			if (failed == 1) cout << failed << " test failed" << endl;
+			else cout << failed << " tests failed" << endl;
 		} else {
 			cout << "All tests passed" << endl;
 		}

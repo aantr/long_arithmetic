@@ -470,11 +470,13 @@ namespace arithmetic {
             if (x.digits_size > x.precision) {
                 x.removeFirst(x.digits_size - x.precision); // floor x
             }
+            
 
             if (x == prev) {
                 break;
             }
             prev = x;
+
         }
         *this = x;
     }
@@ -558,6 +560,9 @@ namespace arithmetic {
             return sign < x.sign && (!isZero() || !x.isZero());
         }
 
+
+        assert(digits[digits_size - 1] != 0 && x.digits[x.digits_size - 1] != 0);
+
         int digits_size_10 = digits_size * base_exp;
         while (digits_size_10 > 0 && digits[(digits_size_10 - 1) / base_exp] / pow_10[(digits_size_10 - 1) % base_exp] % 10 == 0) {
             digits_size_10--;
@@ -621,7 +626,6 @@ namespace arithmetic {
         }
 
         assert(digits[digits_size - 1] != 0 && x.digits[x.digits_size - 1] != 0);
-
         int digits_size_10 = digits_size * base_exp;
         while (digits_size_10 > 0 && digits[(digits_size_10 - 1) / base_exp] / pow_10[(digits_size_10 - 1) % base_exp] % 10 == 0) {
             digits_size_10--;
@@ -701,6 +705,7 @@ namespace arithmetic {
             int x_exp_div = x.exponent / base_exp, x_exp_mod = x.exponent % base_exp;
             if (x_exp_mod < 0) x_exp_mod += base_exp, x_exp_div--;
 
+
             int res_size = max(digits_size + exp_div, x.digits_size + x_exp_div) - min(exp_div, x_exp_div) + 1;
             digit* resd = (digit*) malloc(res_size * sizeof(digit));
             if (!resd) memory_error();
@@ -714,13 +719,13 @@ namespace arithmetic {
                 }
                 int next_d = (digits_size - 1 >= 0 ? digits[digits_size - 1] / pow_10[base_exp - (exp_mod)] : 0);
                 resd[digits_size] += next_d;
-
                 for (int i = 0; i < x.digits_size; i++) {
                     int next_d = (i - 1 >= 0 ? x.digits[i - 1] / pow_10[base_exp - (x_exp_mod)] : 0);
                     resd[i + x_exp_div - exp_div] += x.digits[i] % pow_10[base_exp - x_exp_mod] * pow_10[x_exp_mod] + next_d;
                 }
                 next_d = (x.digits_size - 1 >= 0 ? x.digits[x.digits_size - 1] / pow_10[base_exp - (x_exp_mod)] : 0);
-                resd[x.digits_size] += next_d;
+                resd[x.digits_size + x_exp_div - exp_div] += next_d;
+
 
             } else {
                 res.exponent = x_exp_div * base_exp;
@@ -810,7 +815,8 @@ namespace arithmetic {
                     resd[i + x_exp_div - exp_div] -= x.digits[i] % pow_10[base_exp - x_exp_mod] * pow_10[x_exp_mod] + next_d;
                 }
                 next_d = (x.digits_size - 1 >= 0 ? x.digits[x.digits_size - 1] / pow_10[base_exp - (x_exp_mod)] : 0);
-                resd[x.digits_size] -= next_d;
+                resd[x.digits_size + x_exp_div - exp_div] -= next_d;
+
 
             } else {
                 res.exponent = x_exp_div * base_exp;
@@ -944,7 +950,9 @@ namespace arithmetic {
         LongDouble res1(0, (int) 1e9), rem1(0, (int) 1e9);
 
         assert(first3m.isZero() || first3m.digits[first3m.digits_size - 1] != 0);
+
         div32(first3m, y, m, res1, rem1);
+
         assert(first3m == y * res1 + rem1);
 
         rem1.digits_size = rem1.digits_size + m;
@@ -962,6 +970,7 @@ namespace arithmetic {
         rem1.removeZeroes();
         LongDouble::context_remove_left_zeroes = true;
 
+
         div32(rem1, y, m, res2, rem2);
         assert(rem1 == y * res2 + rem2);
         res1.digits_size = res1.digits_size + m;
@@ -975,7 +984,11 @@ namespace arithmetic {
         res1.digits = temp;
 
         memcpy(res1.digits, res2.digits, res2.digits_size * sizeof(digit)); // add m digits
+        LongDouble::context_remove_left_zeroes = false;
+        res1.removeZeroes();
+        LongDouble::context_remove_left_zeroes = true;
         res = res1;
+
     }
 
     void div32(const LongDouble &a, const LongDouble &b, int n, LongDouble &res, LongDouble& rem) {
@@ -1039,6 +1052,8 @@ namespace arithmetic {
             return;
         }
 
+
+
         LongDouble x1(0, (int) 1e9); // first |x| - (|y| - n)
         x1.digits_size = max(0, x.digits_size - (y.digits_size - n));
         x1.digits = (digit*) malloc(x1.digits_size * sizeof(digit));
@@ -1090,14 +1105,20 @@ namespace arithmetic {
             res1.mulBase(n * x.base_exp);
             res1 -= 1;
         } else {
-            div21(x1, y1, n, res1);
+            div21(x1, y1, n, res1);            
         }
+
         LongDouble::context_remove_left_zeroes = false;
+
         LongDouble current_rem = LongDouble(x, (int) 1e9) - res1 * y; // may be exp != 0
         while (current_rem < 0) {
-            current_rem += y;            
+
+            current_rem += y;  
+
             res1 -= 1;
+
         }
+
         LongDouble::context_remove_left_zeroes = true;
         assert(res1.exponent == 0);
 

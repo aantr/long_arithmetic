@@ -32,6 +32,7 @@ void add_tests(TestSystem &ts) {
 	TEST_(Inequality)
 
 	LongDouble a(123), b, c, d = -123, e("0123"), k = string("0");
+	check(1_ld < 2);
 	check((a >= d) == true);
 	check((b <= k) == true);
 	check((d > a) == false);
@@ -49,10 +50,10 @@ void add_tests(TestSystem &ts) {
 		long long x = rnd(), y = rnd();
 		check(LongDouble(x + y) == LongDouble(x) + LongDouble(y));
 	}
-	return 0;
 	_TEST
 
 	TEST_(Sub)
+	
 	int count = 100;
 	for (int i = 0; i < count; i++) {
 		long long x = (long long) rnd() - rnd(), y = (long long) rnd() - rnd();
@@ -141,19 +142,19 @@ void add_tests(TestSystem &ts) {
 	int count = 200;
 	for (int i = 1; i < count; i++) {
 		string str = to_string(i);
-
 		LongDouble x(str, 16 / LongDouble::base_exp + 1);
 		LongDouble xx(str, 16 / LongDouble::base_exp + 1);
-
 		LongDouble s, r;
 		sqrt_rem(x, s, r);
 		check(s * s + r == x);
 		check(r >= 0);
 		check((s + 1) * (s + 1) > x);
+
 		x.sqrt_fast();
-		xx.sqrt_int();
+		xx.sqrt_int();				
 		x.floor(10);
 		xx.floor(10);
+
 		check(x == xx);
 
 	}
@@ -162,23 +163,21 @@ void add_tests(TestSystem &ts) {
 	for (int i = 0; i < count; i++) {
 		double x = rnd() % 1000000000;
 		x /= pow(10, rnd() % 5);
-		cout << x << endl;
-		LongDouble X ((double)x, 16);
+		LongDouble X ((double)x, 16 / LongDouble::base_exp + 1);
 		X.sqrt();
-
+		// cout << fixed << X << " " << x << endl;
 		x = sqrt(x);
 		LongDouble st = 1;
 		int check = 6;
 		st.divBase(check);
-		cout << X * X << " " << LongDouble(x) << " " << (X - (double)x).abs() << endl;
+		if (!((X - (double)x).abs() < st)) {
+			cout << X << " " << LongDouble(x) << " " << X - x << endl;
+		}
 		check((X - (double)x).abs() < st);
 	}
 	_TEST
 
 	TEST_(Precision)
-
-	// check(LongDouble(123, 3) / 45 == 2.73);
-	// check(LongDouble(123, 3) * 12345 == 1518430);
 	int count = 50;
 	for (int i = 0; i < count; i++) {
 		int len = 50; // тестируем числа с len цифрами
