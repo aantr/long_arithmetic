@@ -7,34 +7,34 @@
 #define MIN_PRECISION 1
 
 /*
-Short documentaion:
+
+base_exp - how mush digits in 10 base we save in one digit
 
 input string format:
 [-+][0-9][.][0-9]
 
 output format:
-outputing all digits
-big output -> print exponent if needed
-small output -> print without exponent
+use_scientific_output - scientific / not
+outputing max presicion digits in given stream
 
 how precision works
 precison >= MIN_PRECISION
 always use floor in math
 add/sub works only if defines
 for ex:
-precision = 3
+cout.precision() == 3
 => 
-123 * 12345 = 151843e+1
+123 * 12345 = 1518430
 division:
-precision = 3
+cout.precision() == 3
 123 / 45 = 2.73
 
 assymptotics:
 
 sub / add O(n)
 mul O(n * log n) (fft)
-div O(n * log ^ 2 (n))
-sqrt O(n * log ^ 2(n)) Karatsuba square root algorithm
+div O(n * log ^ 2 (n)) ????????????
+sqrt O(n * log ^ 2(n)) Karatsuba square root algorithm ??????????????????
 
 */
 
@@ -98,8 +98,8 @@ namespace arithmetic {
         digit* digits = nullptr; 
         int digits_size = 0;
         static bool use_scientific_output;
-        static const int base = 10000;
-        static const int base_exp = 4;
+        static const int base = 10;
+        static const int base_exp = 1;
         static constexpr int pow_10[10] = { 1, 10, 100, 1000, 10000, 100000, 1000000, 
                                             10000000, 100000000, 1000000000 };
         int precision = 32; // >= MIN_PRECISION
@@ -154,7 +154,7 @@ namespace arithmetic {
         bool operator>=(const LongDouble& x) const;
         bool operator==(const LongDouble& x) const;
         bool operator!=(const LongDouble& x) const;
-        LongDouble& operator=(const LongDouble& x); // assignment operator
+        LongDouble& operator=(const LongDouble& x);
         
         ~LongDouble();
 
