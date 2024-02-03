@@ -16,8 +16,6 @@
 using namespace arithmetic;
 using namespace std;
 
-#define DEBUG 0
-
 // https://en.wikipedia.org/wiki/Chudnovsky_algorithm
 array<LongDouble, 3> binary_split(int l, int r, int digits) {
     LongDouble Pab, Qab, Rab;

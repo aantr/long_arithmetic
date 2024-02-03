@@ -40,7 +40,9 @@ CFLAGS += -I $(abspath include)
 
 SOURCES = \
 	arithmetic.cpp \
+	arithmetic_operators.cpp \
 	fft.cpp
+
 
 SOURCE_EXECUTABLE = calculate_pi.cpp
 SOURCE_TEST = test.cpp
