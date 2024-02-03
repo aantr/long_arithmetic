@@ -441,13 +441,22 @@ namespace arithmetic {
         l.precision = precision;
         r.precision = precision;
         LongDouble prev = -1;
+        int less_one =  (*this < 1);
+        if (less_one) {
+            r = LongDouble(1, precision);
+        }
+        // cout << *this << endl;
         while (1) {
             LongDouble m = (l + r) * 0.5;
             if (m.digits_size > m.precision) {
                 m.removeFirst(m.digits_size - m.precision); // floor m
             }
+
+            // cout << m << " " << m * m << " " << *this << endl;
+
             if (m * m <= *this) {
                 l = m;
+                // cout << "less" << endl;
             } else {                
                 r = m;
             }
@@ -458,7 +467,7 @@ namespace arithmetic {
         *this = l;
     }
 
-    void LongDouble::sqrt_int() { // works only for integers >= 1
+    void LongDouble::sqrt_int() {
         if (!(isInt() && *this >= 1)) {
             sqrt_int_limit_error();
         }
@@ -466,12 +475,10 @@ namespace arithmetic {
         x.mulBase((digits_size - 1) / 2);
         LongDouble prev = -1;
         while (1) {
-            x = (LongDouble(*this, precision) / x + x) * 0.5;
+            x = (LongDouble(*this, precision + 2) / x + x) * 0.5;
             if (x.digits_size > x.precision) {
-                x.removeFirst(x.digits_size - x.precision); // floor x
+                x.removeFirst(x.digits_size - x.precision);
             }
-            
-
             if (x == prev) {
                 break;
             }
@@ -485,10 +492,13 @@ namespace arithmetic {
         if (!(isInt() && *this >= 1)) {
             sqrt_int_limit_error();
         }
-        int plus = max(0, precision - (digits_size - exponent / base_exp) + 3);
+        int plus = max(0, precision - (digits_size - exponent / base_exp) / 2 + 1);
         mulBase((plus * 2) * base_exp);
         LongDouble s, r;
-        sqrt_rem(*this, s, r);
+        sqrt_rem(LongDouble(*this, digits_size + exponent / base_exp + 1), s, r);
+
+        assert(*this == s * s + r);
+
         *this = LongDouble(s, precision);
         divBase(plus * base_exp);
 
@@ -540,8 +550,8 @@ namespace arithmetic {
         digits = res;
         digits_size = res_size;
         removeZeroes();
-        if (digits_size > precision * 2) {
-            removeFirst(digits_size - precision * 2);
+        if (digits_size > precision) {
+            removeFirst(digits_size - precision);
         }
         removeZeroes();
 
@@ -761,8 +771,8 @@ namespace arithmetic {
             res.digits_size = res_size;
             res.removeZeroes();
             #ifdef PRECISION_ADD
-            if (res.digits_size > res.precision * 2) {
-                res.removeFirst(res.digits_size - res.precision * 2);
+            if (res.digits_size > res.precision) {
+                res.removeFirst(res.digits_size - res.precision);
             }
             res.removeZeroes();
             #endif
@@ -849,8 +859,8 @@ namespace arithmetic {
 
             res.removeZeroes();
             #ifdef PRECISION_SUB
-            if (res.digits_size > res.precision * 2) {
-                res.removeFirst(res.digits_size - res.precision * 2);
+            if (res.digits_size > res.precision) {
+                res.removeFirst(res.digits_size - res.precision);
             }
             res.removeZeroes();
             #endif
@@ -868,8 +878,6 @@ namespace arithmetic {
     }
 
     LongDouble LongDouble::operator/(const LongDouble& other) const {
-        // cout << "div " << *this << " " << other << endl;
-        // cout << digits_size << " " << exponent << endl;
         LongDouble x (*this);
         x.sign = 1;
         LongDouble y (other);
@@ -1153,18 +1161,17 @@ namespace arithmetic {
             sqrt_int_limit_error();
         }
 
-        if (n < n.base * n.base) {
-            LongDouble x(n, n.digits_size + n.exponent / n.base_exp + 3); // rerererer
-
+        if (n < (long long) n.base * n.base) {
+            LongDouble x(n, n.digits_size + n.exponent / n.base_exp + 1); 
             x.sqrt_int();
             x.floor();
             s = x;
             r = n - s * s;
-
+            assert(n == s * s + r);
             return;
         }
 
-        int current_precison = n.digits_size + (n.exponent - 1) / n.base_exp + 1 + 1;
+        int current_precison = n.digits_size + (n.exponent - 1) / n.base_exp + 3;
         LongDouble x(n, current_precison);
 
         // 10 ^ (d - 1) <= n < 10 ^ d
@@ -1205,6 +1212,7 @@ namespace arithmetic {
             x *= 4;
             was = 1;
         }
+
         int power_b = (power - 1) / 4 + 1;
         LongDouble b(2, current_precison);
         b.pow(power_b);
@@ -1214,18 +1222,21 @@ namespace arithmetic {
         x.precision = x.digits_size + (x.exponent - 1) / LongDouble::base_exp - (b.digits_size + (b.exponent - 1) / LongDouble::base_exp) + 3;
         x /= b;
         x.floor();
+        x.precision = (int) 1e9;
         a0 = temp_ - x * b;
 
         temp_ = x;
         x.precision = x.digits_size + (x.exponent - 1) / LongDouble::base_exp - (b.digits_size + (b.exponent - 1) / LongDouble::base_exp) + 3;
         x /= b;
         x.floor();
+        x.precision = (int) 1e9;
         a1 = temp_ - x * b;
 
         temp_ = x;
         x.precision = x.digits_size + (x.exponent - 1) / LongDouble::base_exp - (b.digits_size + (b.exponent - 1) / LongDouble::base_exp) + 3;
         x /= b;
         x.floor();
+        x.precision = (int) 1e9;
         a2 = temp_ - x * b;
 
         a3 = x;
@@ -1238,12 +1249,13 @@ namespace arithmetic {
         r1.precision = current_precison;
 
         LongDouble A(r1 * b + a1, current_precison), B(s1 * 2, current_precison);
-        A.precision = max(MIN_PRECISION, A.digits_size + A.exponent + 1 - (B.digits_size + B.exponent) + 2);
+        A.precision = max(MIN_PRECISION, A.digits_size + (A.exponent - 1) / LongDouble::base_exp - (B.digits_size + (B.exponent - 1) / LongDouble::base_exp)) + 3;
 
         q = A / B;
-        q.floor(); 
+        q.floor();
+        q.precision = (int) 1e9;
         u = A - q * B;
-
+        u.precision = (int) 1e9;
         s = s1 * b + q;
         r = u * b + a0 - q * q;
 
@@ -1252,11 +1264,12 @@ namespace arithmetic {
             s -= 1;
         }
 
-        if (was) { // if n was multipled by 4            
+        if (was) { // if n was multipled by 4
             s *= 0.5;
             s.floor();
-            r = n - s * s; 
+            r = n - s * s;
         }
+        assert(n == s * s + r);
 
     }
 

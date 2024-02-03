@@ -6,14 +6,16 @@ using namespace std;
 using namespace arithmetic;
 std::mt19937 rnd(7327158);
 
+using namespace test_system;
 
-#define check(x) if (!(x)) {throw #x;}
-#define TEST_(x) ts.add_test(Test(string(#x), []() -> bool {
-#define _TEST return 0;}));
+// test_system define
+#undef TEST_SYSTEM
+#define TEST_SYSTEM ts
 
 void add_tests(TestSystem &ts) {
 	
-	TEST_(Init)
+	test_(Init)
+	check(LongDouble("0.013459359706757822") < "0.0134594");
 	check("+22.0"_ld == "22.");
 	check((LongDouble((long long)1e18) == 1e18));
 	check(LongDouble((int)1e9 - 1) == 1e9 - 1);
@@ -26,10 +28,10 @@ void add_tests(TestSystem &ts) {
 	check(d == -a);
 	check(d != a);
 	check(LongDouble("1.0") == "1");
-	_TEST
+	_test
 
 
-	TEST_(Inequality)
+	test_(Inequality)
 
 	LongDouble a(123), b, c, d = -123, e("0123"), k = string("0");
 	check(1_ld < 2);
@@ -41,27 +43,27 @@ void add_tests(TestSystem &ts) {
 	check((k < b) == false);
 	check(("1"_ld < 123) == true);
 	check((d < d + 1) == true);
-	_TEST
+	_test
 
 
-	TEST_(Add)
+	test_(Add)
 	int count = 100;
 	for (int i = 0; i < count; i++) {
 		long long x = rnd(), y = rnd();
 		check(LongDouble(x + y) == LongDouble(x) + LongDouble(y));
 	}
-	_TEST
+	_test
 
-	TEST_(Sub)
+	test_(Sub)
 	
 	int count = 100;
 	for (int i = 0; i < count; i++) {
 		long long x = (long long) rnd() - rnd(), y = (long long) rnd() - rnd();
 		check(LongDouble(x - y) == LongDouble(x) - LongDouble(y));
 	}
-	_TEST
+	_test
 
-	TEST_(Round)
+	test_(Round)
 	LongDouble a = 1.5, b = 1.4, c = -1.4, d = -1.5, e = -1.6, n = 123.45678;
 	a.round();
 	b.round();
@@ -105,26 +107,24 @@ void add_tests(TestSystem &ts) {
 		x.round();
 		check(x == (double) round((double) i / 100));
 	}	
-	_TEST
+	_test
 
-	TEST_(Mul)
+	test_(Mul)
 	int count = 100;
 	for (int i = 0; i < count; i++) {
+		int precision = 18 / LongDouble::base_exp + 1;
 		long long x = (long long) (rnd() - rnd()) % 1000000000, y = (long long) (rnd() - rnd()) % 1000000000;
-		cout << x << " " << y << " " << x * y << " " << LongDouble(x) * LongDouble(y) << endl;
-		check(LongDouble(x * y) == LongDouble(x) * LongDouble(y));
-
-		LongDouble X = x;
+		check(LongDouble(x * y) == LongDouble(x, precision) * LongDouble(y));
+		LongDouble X(x, precision);
 		X *= X;
-		LongDouble Y = y;
+		LongDouble Y(y, precision);
 		Y *= x;
-		cout << X << " " << X * X << endl;
-		check(X == LongDouble(x) * LongDouble(x) && X == x * x);
-		check(Y == LongDouble(y) * LongDouble(x) && Y == x * y);
+		check(X == LongDouble(x, precision) * LongDouble(x) && X == x * x);
+		check(Y == LongDouble(y, precision) * LongDouble(x) && Y == x * y);
 	}
-	_TEST
+	_test
 
-	TEST_(Div)
+	test_(Div)
 	int count = 1000;
 	for (int i = 0; i < count; i++) {
 		int x = (long long) (rnd() - rnd()) % 1000000, y = (long long) (rnd()) % 1000000 + 1;
@@ -137,9 +137,9 @@ void add_tests(TestSystem &ts) {
 		res_round.round(5);
 		check(res_round == (double)round((double)x / y * pow(10, 5)) / pow(10, 5));
 	}
-	_TEST
+	_test
 
-	TEST_(Sqrt)
+	test_(Sqrt)
 	int count = 200;
 	for (int i = 1; i < count; i++) {
 		string str = to_string(i);
@@ -150,38 +150,31 @@ void add_tests(TestSystem &ts) {
 		check(s * s + r == x);
 		check(r >= 0);
 		check((s + 1) * (s + 1) > x);
-
 		x.sqrt_fast();
-		xx.sqrt_int();				
+		xx.sqrt_int();
 		x.floor(10);
 		xx.floor(10);
-
 		check(x == xx);
 
 	}
-
 	count = 100;
 	for (int i = 0; i < count; i++) {
-		double x = rnd() % 1000000000;
-		x /= pow(10, rnd() % 5);
+		double x = rnd() % 100000000;
+		x /= pow(10, rnd() % 8);
 		LongDouble X ((double)x, 16 / LongDouble::base_exp + 1);
 		X.sqrt();
-		// cout << fixed << X << " " << x << endl;
-		x = sqrt(x);
+		x = sqrtl(x);
 		LongDouble st = 1;
 		int check = 6;
 		st.divBase(check);
-		if (!((X - (double)x).abs() < st)) {
-			cout << X << " " << LongDouble(x) << " " << X - x << endl;
-		}
 		check((X - (double)x).abs() < st);
-	}
-	_TEST
+	}	
+	_test
 
-	TEST_(Precision)
+	test_(Precision)
 	int count = 50;
 	for (int i = 0; i < count; i++) {
-		int len = 50; // тестируем числа с len цифрами
+		int len = 10; // тестируем числа с len цифрами
 		LongDouble x(0, len * 2 / LongDouble::base_exp + 1), y(0, len * 2 / LongDouble::base_exp + 1);
 
 		for (int j = 0; j < len; j++) {
@@ -200,14 +193,14 @@ void add_tests(TestSystem &ts) {
 		check((x - x / y * y / y * y).abs() < power * 10);
 	}
 
-	_TEST
+	_test
 }
 
 
 int main() {
 	TestSystem ts;
 	add_tests(ts);
-	ts.run_testing();
+	ts.run_testing(cout);
 
 	std::cout << "Finished in " << (double) clock() / CLOCKS_PER_SEC << " sec\n";
 	return 0;

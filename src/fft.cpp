@@ -7,7 +7,6 @@
 
 namespace fft {
 
-
     FFT::FFT () {
         init();
     }
