@@ -445,18 +445,13 @@ namespace arithmetic {
         if (less_one) {
             r = LongDouble(1, precision);
         }
-        // cout << *this << endl;
         while (1) {
             LongDouble m = (l + r) * 0.5;
             if (m.digits_size > m.precision) {
                 m.removeFirst(m.digits_size - m.precision); // floor m
             }
-
-            // cout << m << " " << m * m << " " << *this << endl;
-
             if (m * m <= *this) {
                 l = m;
-                // cout << "less" << endl;
             } else {                
                 r = m;
             }
@@ -475,14 +470,19 @@ namespace arithmetic {
         x.mulBase((digits_size - 1) / 2);
         LongDouble prev = -1;
         while (1) {
-            x = (LongDouble(*this, precision + 2) / x + x) * 0.5;
-            if (x.digits_size > x.precision) {
-                x.removeFirst(x.digits_size - x.precision);
+
+            x = (LongDouble(*this, precision + 1) / x + x) * 0.5;
+
+            if (x.digits_size > precision) {
+                x.removeFirst(x.digits_size - precision);
             }
+
+            x.precision = precision;
             if (x == prev) {
                 break;
             }
             prev = x;
+
 
         }
         *this = x;
@@ -918,6 +918,7 @@ namespace arithmetic {
     }
 
     void div21(const LongDouble &a, const LongDouble &b, int n, LongDouble &res) {
+
         assert(a.exponent == 0 && b.exponent == 0 && a.sign == 1 && b.sign == 1);
         // should be assert on no right nulls digits
         LongDouble x = a, y = b;
@@ -926,6 +927,9 @@ namespace arithmetic {
 
         int m = n >> 1;
         if (n <= 1) {
+
+
+
             int A = 0, B = 0;
             for (int i = x.digits_size - 1; i >= 0; i--) {
                 A = A * x.base + x.digits[i]; 
@@ -939,6 +943,7 @@ namespace arithmetic {
             res = LongDouble(A / B, (int) 1e9);
             return;
         }
+
 
         LongDouble first3m(0, (int) 1e9);
 
@@ -955,11 +960,14 @@ namespace arithmetic {
             if (!first3m.digits) memory_error();
         }
 
+
+        
+
         LongDouble res1(0, (int) 1e9), rem1(0, (int) 1e9);
 
         assert(first3m.isZero() || first3m.digits[first3m.digits_size - 1] != 0);
-
         div32(first3m, y, m, res1, rem1);
+
 
         assert(first3m == y * res1 + rem1);
 
@@ -980,6 +988,7 @@ namespace arithmetic {
 
 
         div32(rem1, y, m, res2, rem2);
+
         assert(rem1 == y * res2 + rem2);
         res1.digits_size = res1.digits_size + m;
         temp = (digit*) malloc(res1.digits_size * sizeof(digit));
@@ -1000,6 +1009,8 @@ namespace arithmetic {
     }
 
     void div32(const LongDouble &a, const LongDouble &b, int n, LongDouble &res, LongDouble& rem) {
+
+
         assert(a.exponent == 0 && b.exponent == 0 && a.sign == 1 && b.sign == 1);
         // should be assert on no right nulls digits
 
@@ -1008,6 +1019,7 @@ namespace arithmetic {
         y.precision = (int) 1e9;
 
         if (n <= 1) {
+
             __uint128_t A = 0, B = 0;
             for (int i = x.digits_size - 1; i >= 0; i--) {
                 A = A * x.base + x.digits[i]; 
@@ -1033,10 +1045,12 @@ namespace arithmetic {
             rem.digits = temp;
             rem.exponent = 0;
             assert(a == b * res + rem);
+            assert(rem >= 0);
             assert(rem < b);
 
             return;
         }
+
 
         if (y.digits_size <= n) {
             div21(x, y, n, res);
@@ -1060,8 +1074,6 @@ namespace arithmetic {
             return;
         }
 
-
-
         LongDouble x1(0, (int) 1e9); // first |x| - (|y| - n)
         x1.digits_size = max(0, x.digits_size - (y.digits_size - n));
         x1.digits = (digit*) malloc(x1.digits_size * sizeof(digit));
@@ -1076,7 +1088,7 @@ namespace arithmetic {
 
         memcpy(y1.digits, y.digits + (y.digits_size - n), (y1.digits_size) * sizeof(digit));
 
-        // y *= 10 ^ n
+        // y *= base ^ n
         y1.digits_size += n;
         digit* temp = (digit*) malloc(y1.digits_size * sizeof(digit));
         if (!temp) memory_error();
@@ -1088,7 +1100,7 @@ namespace arithmetic {
 
         bool maxres = x1 >= y1;
 
-        // y /= 10 ^ n
+        // y /= base ^ n
         y1.digits_size -= n;
         temp = (digit*) malloc(y1.digits_size * sizeof(digit));
         if (!temp) memory_error();
@@ -1097,14 +1109,16 @@ namespace arithmetic {
         free(y1.digits);
         y1.digits = temp;
 
-        // if x1 >= y1 * 10 ^ n dont call div21
+        // if x1 >= y1 * base ^ n dont call div21
 
         // some statements
         // x1/y1 >= x/y
         // x1 / (y1 + 1) <= x/y
-        // x1/y1 - 10 <= x1 / (y1 + 1)
+        // x1/y1 - base <= x1 / (y1 + 1)
         // x1 / (y1 + 1) <= x/y <= x1/y1
-        // x1/y1-10 <= x/y <= x1/y1
+        // x1/y1-base <= x/y <= x1/y1
+
+
 
         LongDouble res1(0, (int) 1e9);
         if (maxres) {
@@ -1119,13 +1133,18 @@ namespace arithmetic {
         LongDouble::context_remove_left_zeroes = false;
 
         LongDouble current_rem = LongDouble(x, (int) 1e9) - res1 * y; // may be exp != 0
-        while (current_rem < 0) {
-
-            current_rem += y;  
-
-            res1 -= 1;
-
+        int count = 0;
+        int q = 0;
+        int leftq = -1, rightq = LongDouble::base - 1;
+        while (rightq - leftq > 1) {
+            int m = (leftq + rightq) / 2;
+            (current_rem + y * m >= 0 ? rightq : leftq) = m; // n log**2(n)
         }
+        q = rightq;
+        current_rem += y * q;
+        res1 -= q;  
+
+        assert(count < LongDouble::base);
 
         LongDouble::context_remove_left_zeroes = true;
         assert(res1.exponent == 0);
@@ -1154,16 +1173,18 @@ namespace arithmetic {
         rem = current_rem;
         assert(a == b * res + rem);
         assert(rem < b);
+        assert(rem >= 0);
+
+
     }
 
     void sqrt_rem(const LongDouble n, LongDouble &s, LongDouble &r) {
         if (!(n.isInt() && n >= 1)) {
             sqrt_int_limit_error();
         }
-
-        if (n < (long long) n.base * n.base) {
-            LongDouble x(n, n.digits_size + n.exponent / n.base_exp + 1); 
-            x.sqrt_int();
+        if (n <= 4) {
+            LongDouble x(n, 2); 
+            x.sqrt_int();            
             x.floor();
             s = x;
             r = n - s * s;
