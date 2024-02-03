@@ -33,7 +33,7 @@ namespace arithmetic {
             digits_size_10--;
         }
         int left = max(0, digits_size_10 - (int)os.precision());
-        while (left < digits_size_10 && value.digits[left / value.base_exp] / value.pow_10[left % value.base_exp] % 10 == 0) {
+        while (LongDouble::output_insignificant_zeroes == false && left < digits_size_10 && value.digits[left / value.base_exp] / value.pow_10[left % value.base_exp] % 10 == 0) {
             left++;
         }
 
@@ -443,7 +443,11 @@ namespace arithmetic {
     }
 
     LongDouble LongDouble::operator/(const LongDouble& other) const {
+
         LongDouble x (*this);
+        assert(x.isZero() || x.digits[x.digits_size - 1] != 0);
+        assert(other.isZero() || other.digits[other.digits_size - 1] != 0);
+
         x.sign = 1;
         LongDouble y (other);
         y.sign = 1;
@@ -452,19 +456,24 @@ namespace arithmetic {
         y.exponent = 0;
         int plus = max(0, precision - x.digits_size + y.digits_size + 2);
 
-        int temp_size = plus + x.digits_size;
-        digit* temp = (digit*) malloc(temp_size * sizeof(digit));
-        if (!temp) memory_error();
-        memset(temp, 0, plus * sizeof(digit));
-        memcpy(temp + plus, x.digits, digits_size * sizeof(digit));
-        free(x.digits);
-        x.digits = temp;
-        x.digits_size = temp_size;
+
+        if (!x.isZero()) {
+            int temp_size = plus + x.digits_size;
+            digit* temp = (digit*) malloc(temp_size * sizeof(digit));
+            if (!temp) memory_error();
+            memset(temp, 0, plus * sizeof(digit));
+            memcpy(temp + plus, x.digits, x.digits_size * sizeof(digit));
+            free(x.digits);
+            x.digits = temp;
+            x.digits_size = temp_size;
+        }
+
 
         res_exponent -= plus * base_exp;
         LongDouble res;
         int n = 1;
         while (x.digits_size > 2 * n || y.digits_size > n || x.digits_size - y.digits_size + 1 > n) n <<= 1;
+
         div21(x, y, n, res);  
         res.precision = precision;
         res.exponent += res_exponent;

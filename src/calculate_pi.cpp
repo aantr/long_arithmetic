@@ -89,6 +89,7 @@ int main() {
     double start = (double) clock() / CLOCKS_PER_SEC;
     LongDouble result = Chudnovsky(digits);
     stringstream ss;
+    LongDouble::output_insignificant_zeroes = true;
     ss << setprecision(digits + 1) << result;
     string result_string = ss.str();
     cout << "PI:\n" << result_string << "\n";

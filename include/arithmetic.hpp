@@ -98,8 +98,9 @@ namespace arithmetic {
         digit* digits = nullptr; 
         int digits_size = 0;
         static bool use_scientific_output;
-        static const int base = 10;
-        static const int base_exp = 1;
+        static bool output_insignificant_zeroes;
+        static const int base = 1000;
+        static const int base_exp = 3;
         static constexpr int pow_10[10] = { 1, 10, 100, 1000, 10000, 100000, 1000000, 
                                             10000000, 100000000, 1000000000 };
         int precision = 32; // >= MIN_PRECISION

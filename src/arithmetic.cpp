@@ -13,6 +13,7 @@ namespace arithmetic {
 
     bool LongDouble::context_remove_left_zeroes = true;
     bool LongDouble::use_scientific_output = false;
+    bool LongDouble::output_insignificant_zeroes = false;
 
     void division_error() {
         throw DivisionByZeroException();
@@ -442,6 +443,8 @@ namespace arithmetic {
     void div21(const LongDouble &a, const LongDouble &b, int n, LongDouble &res) {
 
         assert(a.exponent == 0 && b.exponent == 0 && a.sign == 1 && b.sign == 1);
+        assert(a.isZero() || a.digits[a.digits_size - 1] != 0);
+        assert(b.isZero() || b.digits[b.digits_size - 1] != 0);
         // should be assert on no right nulls digits
         LongDouble x = a, y = b;
         x.precision = (int) 1e9;
@@ -466,7 +469,6 @@ namespace arithmetic {
             return;
         }
 
-
         LongDouble first3m(0, (int) 1e9);
 
         if (x.digits_size >= m) {
@@ -481,9 +483,6 @@ namespace arithmetic {
             first3m.digits = (digit*) malloc(0 * sizeof(digit));
             if (!first3m.digits) memory_error();
         }
-
-
-        
 
         LongDouble res1(0, (int) 1e9), rem1(0, (int) 1e9);
 
@@ -507,7 +506,6 @@ namespace arithmetic {
         LongDouble::context_remove_left_zeroes = false;
         rem1.removeZeroes();
         LongDouble::context_remove_left_zeroes = true;
-
 
         div32(rem1, y, m, res2, rem2);
 
@@ -534,6 +532,9 @@ namespace arithmetic {
 
 
         assert(a.exponent == 0 && b.exponent == 0 && a.sign == 1 && b.sign == 1);
+        assert(a.isZero() || a.digits[a.digits_size - 1] != 0);
+        assert(b.isZero() || b.digits[b.digits_size - 1] != 0);
+
         // should be assert on no right nulls digits
 
         LongDouble x = a, y = b;
@@ -593,6 +594,7 @@ namespace arithmetic {
             assert(rem.sign == 1);
             assert(a == b * res + rem);
             assert(rem < b);
+            assert(rem >= 0);
             return;
         }
 
@@ -649,24 +651,68 @@ namespace arithmetic {
             res1.mulBase(n * x.base_exp);
             res1 -= 1;
         } else {
+            assert(x1.isZero() || x1.digits[x1.digits_size - 1] != 0);
+
             div21(x1, y1, n, res1);            
         }
 
         LongDouble::context_remove_left_zeroes = false;
 
-        LongDouble current_rem = LongDouble(x, (int) 1e9) - res1 * y; // may be exp != 0
-        int count = 0;
-        int q = 0;
-        int leftq = -1, rightq = LongDouble::base - 1;
-        while (rightq - leftq > 1) {
-            int m = (leftq + rightq) / 2;
-            (current_rem + y * m >= 0 ? rightq : leftq) = m; // n log**2(n)
+        LongDouble current_rem = LongDouble(x, (int) 1e9) - res1 * y; 
+                assert(current_rem.isZero() || current_rem.digits[current_rem.digits_size - 1] != 0);
+        assert(y.isZero() || y.digits[y.digits_size - 1] != 0);
+        assert(current_rem.isZero() || current_rem.digits[current_rem.digits_size - 1] != 0);
+
+
+        // current_rem /= y ? 
+        // current_rem / y * y + current_rem
+        // -current_rem % y
+        // q = ceil(abs(current_rem) / y)
+
+        // cout << current_rem.digits_size << " " << endl;
+
+        int q;
+
+        long long A = 0, B = 0;
+        if (current_rem.digits_size < y.digits_size) {
+            q = 0;
+        } else {
+            for (int i = 0; i < min(2, current_rem.digits_size); i++) {
+                A = A * LongDouble::base + current_rem.digits[current_rem.digits_size - 1 - i];
+                B = B * LongDouble::base + y.digits[y.digits_size - 1 - i];
+            }
+            if (A == 0) {
+                q = 0;
+            } else {
+                q = A / B;
+            }
         }
-        q = rightq;
+
+
+        // int leftq = -1, rightq = LongDouble::base;
+        // while (rightq - leftq > 1) {
+        //     int m = (leftq + rightq) / 2;
+        //     (current_rem + y * m >= 0 ? rightq : leftq) = m; // n log**2(n)
+        // }
+        // q = rightq;
+
+
+        // cout << current_rem << " " << y << endl;
+        assert(q == 0 || current_rem.isZero() || current_rem.digits_size - y.digits_size == 0);
+        assert(q == 0 || current_rem.isZero() || q >= A / B && abs(q - A / B) <= 2);
+
         current_rem += y * q;
         res1 -= q;  
 
-        assert(count < LongDouble::base);
+        assert(q <= LongDouble::base);
+
+        int count = 0;
+        while (current_rem < 0) {
+            res1 -= 1;
+            count++;
+            current_rem += y;
+        }
+        assert(count <= 1);
 
         LongDouble::context_remove_left_zeroes = true;
         assert(res1.exponent == 0);
@@ -704,6 +750,8 @@ namespace arithmetic {
         if (!(n.isInt() && n >= 1)) {
             sqrt_int_limit_error();
         }
+        assert(n.isZero() || n.digits[n.digits_size - 1] != 0);
+
         if (n <= 4) {
             LongDouble x(n, 2); 
             x.sqrt_int();            
