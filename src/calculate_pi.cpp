@@ -76,7 +76,7 @@ LongDouble Leibnica(int digits) {
 }
 int main() {
     int digits;
-    const int right_bound = 10000;
+    const int right_bound = 1000000;
 
     cout << "Количество знаков после запятой (0 - " << right_bound << "): ";
     cin >> digits;

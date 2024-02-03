@@ -15,6 +15,7 @@ using namespace test_system;
 
 void add_tests(TestSystem &ts) {
 	
+	cout << setprecision(16);
 	test_(Init)
 	check(LongDouble("0.013459359706757822") < "0.0134594");
 	check("+22.0"_ld == "22.");

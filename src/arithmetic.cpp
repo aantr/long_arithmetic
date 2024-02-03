@@ -674,7 +674,7 @@ namespace arithmetic {
         int q;
 
         long long A = 0, B = 0;
-        if (current_rem.digits_size < y.digits_size) {
+        if (current_rem.digits_size < y.digits_size || current_rem >= 0) {
             q = 0;
         } else {
             for (int i = 0; i < min(2, current_rem.digits_size); i++) {
@@ -696,10 +696,8 @@ namespace arithmetic {
         // }
         // q = rightq;
 
-
-        // cout << current_rem << " " << y << endl;
-        assert(q == 0 || current_rem.isZero() || current_rem.digits_size - y.digits_size == 0);
-        assert(q == 0 || current_rem.isZero() || q >= A / B && abs(q - A / B) <= 2);
+        assert(q == 0 || current_rem.digits_size < y.digits_size || current_rem.digits_size - y.digits_size == 0);
+        assert(q == 0 || current_rem.digits_size < y.digits_size || q >= A / B && abs(q - A / B) <= 1);
 
         current_rem += y * q;
         res1 -= q;  
