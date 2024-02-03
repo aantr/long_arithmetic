@@ -68,12 +68,14 @@ namespace arithmetic {
         while (digits_size_10 > 0 && value.digits[(digits_size_10 - 1) / value.base_exp] / value.pow_10[(digits_size_10 - 1) % value.base_exp] % 10 == 0) {
             digits_size_10--;
         }
+        int left = max(0, digits_size_10 - (int)os.precision());
+
         if (USE_SCIENTIFIC_OUTPUT && (digits_size_10 > MAX_DIGIT_SCIENTIFIC_OUTPUT || 
             (value.exponent > 0 && digits_size_10 + value.exponent > MAX_DIGIT_SCIENTIFIC_OUTPUT) || 
             (value.exponent <= -digits_size_10 && -value.exponent + 1 > MAX_DIGIT_SCIENTIFIC_OUTPUT))) {
-            for (int i = digits_size_10 - 1; i >= 0; i--) {
+            for (int i = digits_size_10 - 1; i >= left; i--) {
                 os << value.digits[i / value.base_exp] / value.pow_10[i % value.base_exp] % 10;
-                if (digits_size_10 > 1 && i == digits_size_10 - 1) os << '.';
+                if (digits_size_10 - left > 1 && i == digits_size_10 - 1) os << '.';
             }
             int val = value.exponent + digits_size_10 - 1;
             if (val > 0) os << 'e' << '+' << val;
@@ -83,9 +85,9 @@ namespace arithmetic {
                 os << '0';
                 if (i == -value.exponent) os << '.';
             }
-            for (int i = digits_size_10 - 1; i >= 0; i--) {
+            for (int i = digits_size_10 - 1; i >= left; i--) {
                 os << value.digits[i / value.base_exp] / value.pow_10[i % value.base_exp] % 10;
-                if (i > 0 && i == -value.exponent) os << '.';
+                if (i > left && i == -value.exponent) os << '.';
             }
             for (int i = 0; i < value.exponent; i++) {
                 os << '0';
