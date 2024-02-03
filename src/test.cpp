@@ -111,13 +111,14 @@ void add_tests(TestSystem &ts) {
 	int count = 100;
 	for (int i = 0; i < count; i++) {
 		long long x = (long long) (rnd() - rnd()) % 1000000000, y = (long long) (rnd() - rnd()) % 1000000000;
-		// cout << x << " " << y << " " << x * y << " " << LongDouble(x) * LongDouble(y) << endl;
+		cout << x << " " << y << " " << x * y << " " << LongDouble(x) * LongDouble(y) << endl;
 		check(LongDouble(x * y) == LongDouble(x) * LongDouble(y));
 
 		LongDouble X = x;
 		X *= X;
 		LongDouble Y = y;
 		Y *= x;
+		cout << X << " " << X * X << endl;
 		check(X == LongDouble(x) * LongDouble(x) && X == x * x);
 		check(Y == LongDouble(y) * LongDouble(x) && Y == x * y);
 	}

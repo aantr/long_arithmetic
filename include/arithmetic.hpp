@@ -44,7 +44,7 @@ sqrt O(n * log ^ 2(n)) Karatsuba square root algorithm
 namespace arithmetic {  
 
     using namespace std;
-    using digit = int32_t;
+    using digit = int64_t;
 
     class DivisionByZeroException {
 
@@ -100,12 +100,12 @@ namespace arithmetic {
         int sign = 1;
         digit* digits = nullptr; 
         int digits_size = 0;
-        static const long long base = 10;
-        static const int base_exp = 1;
+        static const long long base = 100000000;
+        static const int base_exp = 8;
         // static constexpr long long pow_10[18] = {1, 10, 100, 1000, 10000, 100000, 1000000, 
         //                                         10000000, 100000000, 1000000000, 10000000000, 100000000000, 1000000000000, 10000000000000, 
         //                                         100000000000000, 1000000000000000, 10000000000000000, 100000000000000000};
-        static constexpr int pow_10[10] = {1, 10, 100, 1000, 10000, 100000, 1000000, 
+        static constexpr long long pow_10[10] = {1, 10, 100, 1000, 10000, 100000, 1000000, 
                                                 10000000, 100000000, 1000000000};
         int precision = 16; // >= MIN_PRECISION
         int exponent = 0; // base 10

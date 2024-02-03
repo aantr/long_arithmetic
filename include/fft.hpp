@@ -9,7 +9,7 @@
 namespace fft {
 
     using namespace std;
-    using digit = int32_t;
+    using digit = int64_t;
     typedef complex<double> ftype;
 
     class FFT { 

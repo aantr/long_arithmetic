@@ -107,13 +107,13 @@ namespace fft {
     }
 
     void FFT::normalize(digit*& c, int &size, int base) {
-        int carry = 0;
+        digit carry = 0;
         for (int i = 0; i < size; i++) {
             c[i] += carry;
             carry = c[i] / base;
             c[i] %= base;
         }
-        int temp = carry;
+        digit temp = carry;
         int count = 0;
         while (carry) {
             count++;
@@ -137,6 +137,7 @@ namespace fft {
         }
         poly_multiply(a, size_a, b, size_b, res, res_size);
         normalize(res, res_size, base);
+        for (int i = 0; i < res_size; i++) assert(res[i]>=0);
     }
 
 }

@@ -1000,7 +1000,7 @@ namespace arithmetic {
         y.precision = (int) 1e9;
 
         if (n <= 1) {
-            long long A = 0, B = 0;
+            __uint128_t A = 0, B = 0;
             for (int i = x.digits_size - 1; i >= 0; i--) {
                 A = A * x.base + x.digits[i]; 
             }
@@ -1010,8 +1010,8 @@ namespace arithmetic {
             if (B == 0) {
                 division_error();
             }
-            res = LongDouble(A / B, (int) 1e9);
-            rem = LongDouble(A % B, (int) 1e9);
+            res = LongDouble((long long) (A / B), (int) 1e9);
+            rem = LongDouble((long long) (A % B), (int) 1e9);
 
             assert(rem.exponent % rem.base_exp == 0);
             int d = rem.exponent / rem.base_exp;
