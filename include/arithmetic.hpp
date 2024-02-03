@@ -4,8 +4,6 @@
 
 #define PRECISION_ADD
 #define PRECISION_SUB
-#define USE_SCIENTIFIC_OUTPUT 0
-#define MAX_DIGIT_SCIENTIFIC_OUTPUT 16
 #define MIN_PRECISION 1
 
 /*
@@ -99,6 +97,7 @@ namespace arithmetic {
         int sign = 1;
         digit* digits = nullptr; 
         int digits_size = 0;
+        static bool use_scientific_output;
         static const int base = 10000;
         static const int base_exp = 4;
         static constexpr int pow_10[10] = { 1, 10, 100, 1000, 10000, 100000, 1000000, 

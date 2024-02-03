@@ -1,6 +1,7 @@
 #include <arithmetic.hpp>
 #include <test_system.hpp>
 #include <random>
+#include <iomanip>
 
 using namespace std;
 using namespace arithmetic;

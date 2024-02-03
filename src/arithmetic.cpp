@@ -14,6 +14,7 @@ namespace arithmetic {
     using namespace fft;
 
     bool LongDouble::context_remove_left_zeroes = true;
+    bool LongDouble::use_scientific_output = false;
 
     void division_error() {
         throw DivisionByZeroException();
@@ -69,15 +70,16 @@ namespace arithmetic {
             digits_size_10--;
         }
         int left = max(0, digits_size_10 - (int)os.precision());
+        while (left < digits_size_10 && value.digits[left / value.base_exp] / value.pow_10[left % value.base_exp] % 10 == 0) {
+            left++;
+        }
 
-        if (USE_SCIENTIFIC_OUTPUT && (digits_size_10 > MAX_DIGIT_SCIENTIFIC_OUTPUT || 
-            (value.exponent > 0 && digits_size_10 + value.exponent > MAX_DIGIT_SCIENTIFIC_OUTPUT) || 
-            (value.exponent <= -digits_size_10 && -value.exponent + 1 > MAX_DIGIT_SCIENTIFIC_OUTPUT))) {
+        if (value.use_scientific_output) {
             for (int i = digits_size_10 - 1; i >= left; i--) {
                 os << value.digits[i / value.base_exp] / value.pow_10[i % value.base_exp] % 10;
-                if (digits_size_10 - left > 1 && i == digits_size_10 - 1) os << '.';
+                if (digits_size_10 - left > 1 && i == digits_size_10 - 1) os << '.'; // output first digit with . if >= 2
             }
-            int val = value.exponent + digits_size_10 - 1;
+            int val = value.exponent + digits_size_10 - 1; // than we can print exponent
             if (val > 0) os << 'e' << '+' << val;
             else if (val < 0) os << 'e' << val;
         } else {
@@ -89,7 +91,7 @@ namespace arithmetic {
                 os << value.digits[i / value.base_exp] / value.pow_10[i % value.base_exp] % 10;
                 if (i > left && i == -value.exponent) os << '.';
             }
-            for (int i = 0; i < value.exponent; i++) {
+            for (int i = 0; i < value.exponent + left; i++) {
                 os << '0';
             }
         }
