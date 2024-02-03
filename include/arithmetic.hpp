@@ -99,8 +99,8 @@ namespace arithmetic {
         int sign = 1;
         digit* digits = nullptr; 
         int digits_size = 0;
-        static const int base = 1000000000;
-        static const int base_exp = 9;
+        static const int base = 1000000;
+        static const int base_exp = 6;
         static constexpr int pow_10[10] = { 1, 10, 100, 1000, 10000, 100000, 1000000, 
                                             10000000, 100000000, 1000000000 };
         int precision = 32; // >= MIN_PRECISION
