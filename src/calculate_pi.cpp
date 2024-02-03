@@ -92,7 +92,6 @@ int main() {
     LongDouble result = Chudnovsky(digits);
     stringstream ss;
     ss << setprecision(digits + 1) << result;
-    ss << setprecision(6) << result;
     string result_string = ss.str();
     cout << "PI:\n" << result_string << "\n";
     cout << setprecision(6);
