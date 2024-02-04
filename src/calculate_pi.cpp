@@ -1,3 +1,5 @@
+#include <defines.hpp>
+
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -8,7 +10,6 @@
 #include <arithmetic.hpp>
 #include <assert.h>
 #include <sstream>
-
 
 #define TIME (double) clock() / CLOCKS_PER_SEC
 #define CHECK_FROM_FILE
@@ -32,11 +33,6 @@ array<LongDouble, 3> binary_split(int l, int r, int digits) {
         Rab = Qmb * Ram + Pam * Rmb;
     }
     return {Pab, Qab, Rab};
-}
-
-int f(int n) {
-    auto [P1n, Q1n, R1n] = binary_split(1, 1 + n, (int) 1e9);  
-    return min({P1n.digits_size, Q1n.digits_size, R1n.digits_size});
 }
 
 LongDouble Chudnovsky(int digits) {

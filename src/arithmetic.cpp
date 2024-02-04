@@ -6,6 +6,7 @@
 #include <exception>
 #include <arithmetic.hpp>
 #include <fft.hpp>
+#include <defines.hpp>
 
 namespace arithmetic {
 
@@ -704,13 +705,10 @@ namespace arithmetic {
 
         assert(q <= LongDouble::base);
 
-        int count = 0;
         while (current_rem < 0) {
             res1 -= 1;
-            count++;
             current_rem += y;
         }
-        assert(count <= 1);
 
         LongDouble::context_remove_left_zeroes = true;
         assert(res1.exponent == 0);

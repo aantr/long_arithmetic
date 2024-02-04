@@ -33,7 +33,8 @@ RESET   = \033[0m
 INCLUDES = \
 	include/arithmetic.hpp \
 	include/test_system.hpp \
-	include/fft.hpp
+	include/fft.hpp \
+	include/defines.hpp
 
 # Add "include" folder to header search path:
 CFLAGS += -I $(abspath include) 
