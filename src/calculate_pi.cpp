@@ -84,11 +84,9 @@ int main() {
 
     double start = (double) clock() / CLOCKS_PER_SEC;
     LongDouble result = Chudnovsky(digits);
-    stringstream ss;
     LongDouble::output_insignificant_zeroes = true;
-    ss << setprecision(digits + 1) << result;
-    string result_string = ss.str();
-    cout << "PI:\n" << result_string << "\n";
+
+    cout << "PI:\n" << setprecision(digits + 1) << result << "\n";
     cout << setprecision(6);
     cerr << "TIME: " << TIME - start<< " sec (total " << TIME << " sec)\n";
 
@@ -98,6 +96,9 @@ int main() {
     if (pifile.is_open()) {
         string correct;
         pifile >> correct;
+        stringstream ss;
+        ss << setprecision(digits + 1) << result;
+        string result_string = ss.str();
         if (result_string != correct.substr(0, digits + 2) && !(digits == 0 && result_string == "3")) {
             cout << "Incorrect output, correct:\n" << correct.substr(0, digits + 2) << "\n";
         } else {
