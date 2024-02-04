@@ -116,13 +116,21 @@ void add_tests(TestSystem &ts) {
 	test_(Mul)
 	int count = 100;
 	for (int i = 0; i < count; i++) {
+		cout << setprecision(200);
 		int precision = 18 / LongDouble::base_exp + 1;
 		long long x = (long long) (rnd() - rnd()) % 1000000000, y = (long long) (rnd() - rnd()) % 1000000000;
+		if (!(LongDouble(x * y) == LongDouble(x, precision) * LongDouble(y))) {
+			cout << x << " " << y <<  " " << LongDouble(x, precision) * LongDouble(y)<< endl;	
+			exit(0);
+		}
+
 		check(LongDouble(x * y) == LongDouble(x, precision) * LongDouble(y));
+
 		LongDouble X(x, precision);
 		X *= X;
 		LongDouble Y(y, precision);
 		Y *= x;
+
 		check(X == LongDouble(x, precision) * LongDouble(x) && X == x * x);
 		check(Y == LongDouble(y, precision) * LongDouble(x) && Y == x * y);
 	}
@@ -154,11 +162,11 @@ void add_tests(TestSystem &ts) {
 		check(s * s + r == x);
 		check(r >= 0);
 		check((s + 1) * (s + 1) > x);
-		// x.sqrt_fast();
+		x.sqrt_fast();
 		xx.sqrt_int();
-		// x.floor(10);
-		// xx.floor(10);
-		// check(x == xx);
+		x.floor(10);
+		xx.floor(10);
+		check(x == xx);
 
 	}
 	count = 100;

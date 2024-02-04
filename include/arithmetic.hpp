@@ -41,7 +41,7 @@ sqrt O(n * log ^ 2(n)) Karatsuba square root algorithm ??????????????????
 namespace arithmetic {  
 
     using namespace std;
-    using digit = int64_t;
+    using digit = int32_t;
 
     class DivisionByZeroException {
 
