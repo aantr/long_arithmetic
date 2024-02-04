@@ -41,12 +41,11 @@ LongDouble Chudnovsky(int digits) {
     LongDouble sq10005 = 10005;
     sq10005.sqrt_fast();
     LongDouble::default_precision = (int) 1e9;
-    auto [P1n, Q1n, R1n] = binary_split(1, digits + 1);  
+    auto [P1n, Q1n, R1n] = binary_split(1, digits / 5 + 1);  
     LongDouble::default_precision = precision;
     Q1n.precision = precision;
     LongDouble res = Q1n * LongDouble(426880) * sq10005;
     LongDouble res2 = Q1n * LongDouble(13591409) + R1n;
-    assert(res.precision < 1e9);
     res /= res2;
     return res;
 }
@@ -71,7 +70,7 @@ LongDouble Leibnica(int digits) {
 
 int main() {
     int digits;
-    const int right_bound = 100000;
+    const int right_bound = 10000000;
 
     cout << "Количество знаков после запятой (0 - " << right_bound << "): ";
     cin >> digits;
@@ -85,9 +84,9 @@ int main() {
     LongDouble result = Chudnovsky(digits);
     LongDouble::output_insignificant_zeroes = true;
 
-    cout << "PI:\n" << setprecision(digits + 1) << result << "\n";
+    cout << "PI:\n" << setprecision(digits + 1) << result << endl;
     cout << setprecision(6);
-    cerr << "TIME: " << TIME - start<< " sec (total " << TIME << " sec)\n";
+    cerr << "TIME: " << TIME - start<< " sec (total " << TIME << " sec)" << endl;
 
     #ifdef CHECK_FROM_FILE
     const string pifilename = "src/pi-1000000.txt";
