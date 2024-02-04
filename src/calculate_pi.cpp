@@ -45,21 +45,18 @@ LongDouble Chudnovsky(int digits) {
     LongDouble res = (Q1n * LongDouble(426880) * sq10005);
     LongDouble res2 = (Q1n * LongDouble(13591409) + R1n);
     res /= res2;
-    if (res.digits_size - 1 - digits > 0) {
-        res.removeFirst(res.digits_size - 1 - digits);
-    }
     return res;
 }
 
 LongDouble Leibnica(int digits) {
-    int eps = 1;
+    int eps = 5;
     digits += eps;
-    LongDouble sum (1, digits);
-    LongDouble sm (1, digits);
+    LongDouble sum (1, digits / LongDouble::base_exp + 2);
+    LongDouble sm (1, digits / LongDouble::base_exp + 2);
     LongDouble st(1);
     st.divBase(digits);
     for (int i = 1; ; i++) {
-        sm *= (LongDouble(i, digits) / (LongDouble(2 * i + 1, digits)));
+        sm *= (LongDouble(i, digits / LongDouble::base_exp + 2) / (LongDouble(2 * i + 1)));
         sum += sm;
         if (sm < st) {
             break;
@@ -67,9 +64,9 @@ LongDouble Leibnica(int digits) {
     }
     digits -= eps;
     sum *= 2;
-    sum.floor(digits);
     return sum;
 }
+
 int main() {
     int digits;
     const int right_bound = 1000000;
@@ -83,7 +80,7 @@ int main() {
     }
 
     double start = (double) clock() / CLOCKS_PER_SEC;
-    LongDouble result = Chudnovsky(digits);
+    LongDouble result = Leibnica(digits);
     LongDouble::output_insignificant_zeroes = true;
 
     cout << "PI:\n" << setprecision(digits + 1) << result << "\n";

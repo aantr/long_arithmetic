@@ -15,6 +15,13 @@ namespace arithmetic {
     bool LongDouble::context_remove_left_zeroes = true;
     bool LongDouble::use_scientific_output = false;
     bool LongDouble::output_insignificant_zeroes = false;
+    int LongDouble::default_precision = 32;
+
+    const int LongDouble::base = 100000000;
+    const int LongDouble::base_exp = 8;
+    const int LongDouble::pow_10[10] = { 1, 10, 100, 1000, 10000, 100000, 1000000, 
+                                        10000000, 100000000, 1000000000 };
+
 
     void division_error() {
         throw DivisionByZeroException();
@@ -53,24 +60,22 @@ namespace arithmetic {
     }
 
     LongDouble::LongDouble() {
-        *this = 0; // default precision
+        digits = (digit*) malloc(0);
+        *this = 0;
     }
 
     LongDouble::LongDouble(const LongDouble& x) {
+        digits = (digit*) malloc(0);
         *this = x;
     }
 
-    LongDouble::LongDouble(const LongDouble& other, int precision): precision(precision) {
+    LongDouble::LongDouble(const LongDouble& other, int precision) {
         if (precision < MIN_PRECISION) {
             init_precison_error();
         }
-        sign = other.sign;
-        digits_size = other.digits_size;
-        free(digits);
-        digits = (digit*) malloc(other.digits_size * sizeof(digit));
-        if (!digits) memory_error();
-        memcpy(digits, other.digits, other.digits_size * sizeof(digit));
-        exponent = other.exponent;
+        digits = (digit*) malloc(0);
+        *this = other;
+        this->precision = precision;
     }
 
     template<class T>
@@ -101,7 +106,6 @@ namespace arithmetic {
         res.exponent = 0; 
         int digits_size_10 = size - index - dot;
         res.digits_size = (digits_size_10 - 1) / res.base_exp + 1;
-        free(res.digits);
         res.digits = (digit*) malloc(res.digits_size * sizeof(digit));
         memset(res.digits, 0, res.digits_size * sizeof(digit));
         if (!res.digits) memory_error();
@@ -129,9 +133,9 @@ namespace arithmetic {
     template<class T>
     void init_from_int(LongDouble& res, T value) {
         T x = value;
+        res.sign = 1;
         if (x < 0) res.sign = -1, x = -x;
         res.digits_size = 0;
-        free(res.digits);
         res.digits = (digit*) malloc(res.digits_size * sizeof(digit));
         if (!res.digits) memory_error();
         while (x) {
@@ -155,6 +159,7 @@ namespace arithmetic {
 
     LongDouble::LongDouble(const char* value) {
         init_from_string(*this, value);
+        precision = default_precision;
     }
 
     LongDouble::LongDouble(const char* value, int precision): precision(precision) {
@@ -166,6 +171,7 @@ namespace arithmetic {
 
     LongDouble::LongDouble(const string& value) {
         init_from_string(*this, value.c_str());
+        precision = default_precision;
     }
 
     LongDouble::LongDouble(const string& value, int precision): precision(precision) {
@@ -177,6 +183,7 @@ namespace arithmetic {
 
     LongDouble::LongDouble(const int &v) {
         init_from_int(*this, v);
+        precision = default_precision;
     }
 
     LongDouble::LongDouble(const int &v, int precision): precision(precision) {
@@ -188,6 +195,7 @@ namespace arithmetic {
 
     LongDouble::LongDouble(const long long &v) {
         init_from_int(*this, v);
+        precision = default_precision;
     }
 
     LongDouble::LongDouble(const long long &v, int precision): precision(precision) {
@@ -199,6 +207,7 @@ namespace arithmetic {
 
     LongDouble::LongDouble(const double &v) {
         init_from_double(*this, v);
+        precision = default_precision;
     }
 
     LongDouble::LongDouble(const double &v, int precision): precision(precision) {
@@ -210,6 +219,7 @@ namespace arithmetic {
 
     LongDouble::LongDouble(const long double &v) {
         init_from_double(*this, v);
+        precision = default_precision;
     }
 
     LongDouble::LongDouble(const long double &v, int precision): precision(precision) {
