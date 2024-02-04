@@ -32,7 +32,6 @@ void add_tests(TestSystem &ts) {
 	check(d == -a);
 	check(d != a);
 	check(LongDouble("1.0") == "1");
-	check(0);
 	_test
 
 

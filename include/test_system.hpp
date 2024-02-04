@@ -55,14 +55,14 @@ namespace test_system {
 			}
 			if (failed) {
 				if (failed == 1) {
-					os << failed << " test " + RED + "failed\n" + RESET;
+					os << failed << " test " + BRED + "failed\n" + RESET;
 					os.flush();
 				} else {
-					os << failed << " tests " + RED + "failed\n" + RESET;
+					os << failed << " tests " + BRED + "failed\n" + RESET;
 					os.flush();
 				}
 			} else {
-				os << GREEN + "All tests passed\n" + RESET;
+				os << BGREEN + "All tests passed\n" + RESET;
 				os.flush();
 			}
 		}
