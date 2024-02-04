@@ -24,7 +24,7 @@ add/sub works only if defines
 for ex:
 cout.precision() == 3
 => 
-123 * 12345 = 1518430
+123 * 12345 = 15100000
 division:
 cout.precision() == 3
 123 / 45 = 2.73
