@@ -1,3 +1,5 @@
+#include <defines.hpp>
+
 #include <arithmetic.hpp>
 #include <test_system.hpp>
 #include <random>
@@ -30,6 +32,7 @@ void add_tests(TestSystem &ts) {
 	check(d == -a);
 	check(d != a);
 	check(LongDouble("1.0") == "1");
+	check(0);
 	_test
 
 
