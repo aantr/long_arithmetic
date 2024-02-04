@@ -18,16 +18,16 @@ using namespace arithmetic;
 using namespace std;
 
 // https://en.wikipedia.org/wiki/Chudnovsky_algorithm
-array<LongDouble, 3> binary_split(int l, int r, int digits) {
+array<LongDouble, 3> binary_split(int l, int r) {
     LongDouble Pab, Qab, Rab;
     if (r == l + 1) {
-        Pab = -LongDouble((6 * l - 5), digits) * LongDouble((2 * l - 1)) * LongDouble((6 * l - 1));
-        Qab = LongDouble(l, digits) * l * l * 10939058860032000ll;
-        Rab = Pab * LongDouble(545140134ll * l + 13591409, digits);
+        Pab = -LongDouble((6 * l - 5)) * LongDouble((2 * l - 1)) * LongDouble((6 * l - 1));
+        Qab = LongDouble(l) * l * l * 10939058860032000_ld;
+        Rab = Pab * LongDouble(545140134_ld * l + 13591409);
     } else {
         int m = (l + r) / 2;
-        auto [Pam, Qam, Ram] = binary_split(l, m, digits);
-        auto [Pmb, Qmb, Rmb] = binary_split(m, r, digits);
+        auto [Pam, Qam, Ram] = binary_split(l, m);
+        auto [Pmb, Qmb, Rmb] = binary_split(m, r);
         Pab = Pam * Pmb;
         Qab = Qam * Qmb;
         Rab = Qmb * Ram + Pam * Rmb;
@@ -36,14 +36,17 @@ array<LongDouble, 3> binary_split(int l, int r, int digits) {
 }
 
 LongDouble Chudnovsky(int digits) {
-
-    // calc eps more so the last digit rounded down is correct
-    LongDouble sq10005(10005, digits / LongDouble::base_exp + 2);
+    int precision = digits / LongDouble::base_exp + 2;
+    LongDouble::default_precision = precision;
+    LongDouble sq10005 = 10005;
     sq10005.sqrt_fast();
-    auto [P1n, Q1n, R1n] = binary_split(1, digits / LongDouble::base_exp + 2, (int) 1e9);  
-    Q1n.precision = digits / LongDouble::base_exp + 2;
-    LongDouble res = (Q1n * LongDouble(426880) * sq10005);
-    LongDouble res2 = (Q1n * LongDouble(13591409) + R1n);
+    LongDouble::default_precision = (int) 1e9;
+    auto [P1n, Q1n, R1n] = binary_split(1, digits + 1);  
+    LongDouble::default_precision = precision;
+    Q1n.precision = precision;
+    LongDouble res = Q1n * LongDouble(426880) * sq10005;
+    LongDouble res2 = Q1n * LongDouble(13591409) + R1n;
+    assert(res.precision < 1e9);
     res /= res2;
     return res;
 }
@@ -51,12 +54,11 @@ LongDouble Chudnovsky(int digits) {
 LongDouble Leibnica(int digits) {
     int eps = 5;
     digits += eps;
-    LongDouble sum (1, digits / LongDouble::base_exp + 2);
-    LongDouble sm (1, digits / LongDouble::base_exp + 2);
-    LongDouble st(1);
+    LongDouble::default_precision = digits / LongDouble::base_exp + 2;
+    LongDouble sum = 1, sm = 1, st = 1;
     st.divBase(digits);
     for (int i = 1; ; i++) {
-        sm *= (LongDouble(i, digits / LongDouble::base_exp + 2) / (LongDouble(2 * i + 1)));
+        sm *= (LongDouble(i) / (LongDouble(2 * i + 1)));
         sum += sm;
         if (sm < st) {
             break;
@@ -69,7 +71,7 @@ LongDouble Leibnica(int digits) {
 
 int main() {
     int digits;
-    const int right_bound = 1000000;
+    const int right_bound = 100000;
 
     cout << "Количество знаков после запятой (0 - " << right_bound << "): ";
     cin >> digits;
@@ -80,7 +82,7 @@ int main() {
     }
 
     double start = (double) clock() / CLOCKS_PER_SEC;
-    LongDouble result = Leibnica(digits);
+    LongDouble result = Chudnovsky(digits);
     LongDouble::output_insignificant_zeroes = true;
 
     cout << "PI:\n" << setprecision(digits + 1) << result << "\n";

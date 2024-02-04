@@ -510,13 +510,12 @@ namespace arithmetic {
             x.digits_size = temp_size;
         }
 
-
         res_exponent -= plus * base_exp;
         LongDouble res;
         int n = 1;
         while (x.digits_size > 2 * n || y.digits_size > n || x.digits_size - y.digits_size + 1 > n) n <<= 1;
-
-        div21(x, y, n, res);  
+        
+        div21(x, y, n, res);
         res.precision = precision;
         res.exponent += res_exponent;
         res.sign = sign * other.sign;
