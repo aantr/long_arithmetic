@@ -18,7 +18,7 @@ namespace arithmetic {
     bool LongDouble::output_insignificant_zeroes = false;
     int LongDouble::default_precision = 32;
 
-    const int LongDouble::base_exp = 4;
+    const int LongDouble::base_exp = 8;
     const int LongDouble::base = std::pow(10, base_exp);
     const int LongDouble::pow_10[10] = { 1, 10, 100, 1000, 10000, 100000, 1000000, 
                                         10000000, 100000000, 1000000000 };

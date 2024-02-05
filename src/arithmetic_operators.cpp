@@ -105,70 +105,69 @@ namespace arithmetic {
         sign = sign * x.sign;
         exponent = exponent + x.exponent;
 
-        // fft::digit* res = (fft::digit*) malloc(0 * sizeof(fft::digit));
-        // if (!res) memory_error();
-        // int res_size = 0;
-
-        // // cut on a half blocks
-        // auto cut = [](digit* arr, int size) -> pair<fft::digit*, int> {
-        //     if (base_exp == 1 || size == 0) {
-        //         fft::digit* res = (fft::digit*) malloc(size * sizeof(fft::digit));
-        //         memcpy(res, arr, size * sizeof(fft::digit));
-        //         return {res, size};
-        //     }
-        //     assert(base_exp % 2 == 0);
-        //     int newsize = size * 2;
-        //     int k1 = base_exp / 2;
-        //     fft::digit* res = (fft::digit*) malloc(newsize * sizeof(fft::digit));
-        //     for (int i = 0; i < size; i++) {
-        //         res[i * 2] = arr[i] % pow_10[k1];
-        //         res[i * 2 + 1] = arr[i] / pow_10[k1];
-        //     }
-        //     return {res, newsize};
-        // };
-        // auto merge = [](fft::digit* arr, int size) -> pair<digit*, int> {
-        //     if (base_exp == 1 || size == 0) {
-        //         digit* res = (digit*) malloc(size * sizeof(digit));
-        //         for (int i = 0; i < size; i++) {
-        //             res[i] = arr[i];
-        //         }
-        //         return {res, size};
-        //     }
-        //     assert(base_exp % 2 == 0);
-        //     int newsize = (size - 1) / 2 + 1;
-        //     int k1 = base_exp / 2;
-        //     digit* res = (digit*) malloc(newsize * sizeof(digit));
-        //     for (int i = 0; i < size; i++) {
-        //         if (i % 2 == 0) res[i / 2] = arr[i];
-        //         else res[i / 2] += (digit) arr[i] * pow_10[k1];
-        //     }
-        //     return {res, newsize};
-        // };
-        // auto [first, first_size] = cut(digits, digits_size);
-        // free(digits);
-
-        // auto [second, second_size] = cut(x.digits, x.digits_size);
-        // fft.multiply(first, first_size, second, second_size, res, res_size, base / pow_10[base_exp / 2]);
-        // free(first);
-        // free(second);
-        // auto [newres, newressize] = merge(res, res_size);
-        // free(res);
-
-        // digits = newres;
-        // digits_size = newressize;
-        // fft::digit* res = (fft::digit*) malloc(0 * sizeof(fft::digit));
-        // if (!res) memory_error();
-        // int res_size = 0;
-
         fft::digit* res = (fft::digit*) malloc(0 * sizeof(fft::digit));
         if (!res) memory_error();
         int res_size = 0;
-        
-        fft.multiply(digits, digits_size, x.digits, x.digits_size, res, res_size, base);
 
+        // cut on a half blocks
+        auto cut = [](digit* arr, int size) -> pair<fft::digit*, int> {
+            if (base_exp == 1 || size == 0) {
+                fft::digit* res = (fft::digit*) malloc(size * sizeof(fft::digit));
+                memcpy(res, arr, size * sizeof(fft::digit));
+                return {res, size};
+            }
+            assert(base_exp % 2 == 0);
+            int newsize = size * 2;
+            int k1 = base_exp / 2;
+            fft::digit* res = (fft::digit*) malloc(newsize * sizeof(fft::digit));
+            for (int i = 0; i < size; i++) {
+                res[i * 2] = arr[i] % pow_10[k1];
+                res[i * 2 + 1] = arr[i] / pow_10[k1];
+            }
+            return {res, newsize};
+        };
+        auto merge = [](fft::digit* arr, int size) -> pair<digit*, int> {
+            if (base_exp == 1 || size == 0) {
+                digit* res = (digit*) malloc(size * sizeof(digit));
+                for (int i = 0; i < size; i++) {
+                    res[i] = arr[i];
+                }
+                return {res, size};
+            }
+            assert(base_exp % 2 == 0);
+            int newsize = (size - 1) / 2 + 1;
+            int k1 = base_exp / 2;
+            digit* res = (digit*) malloc(newsize * sizeof(digit));
+            for (int i = 0; i < size; i++) {
+                if (i % 2 == 0) res[i / 2] = arr[i];
+                else res[i / 2] += (digit) arr[i] * pow_10[k1];
+            }
+            return {res, newsize};
+        };
+        auto [first, first_size] = cut(digits, digits_size);
         free(digits);
-        digits = res;
-        digits_size = res_size;
+
+        auto [second, second_size] = cut(x.digits, x.digits_size);
+        fft.multiply(first, first_size, second, second_size, res, res_size, base / pow_10[base_exp / 2]);
+        free(first);
+        free(second);
+        auto [newres, newressize] = merge(res, res_size);
+        free(res);
+
+        digits = newres;
+        digits_size = newressize;
+
+        // int res_size = 0;
+        // fft::digit* res = (fft::digit*) malloc(0 * sizeof(fft::digit));
+        // if (!res) memory_error();
+        // int res_size = 0;
+        
+        // fft.multiply(digits, digits_size, x.digits, x.digits_size, res, res_size, base);
+
+        // free(digits);
+        // digits = res;
+        // digits_size = res_size;
+
         removeZeroes();
         if (digits_size > precision) {
             removeFirst(digits_size - precision);
