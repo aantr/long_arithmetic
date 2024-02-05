@@ -17,7 +17,6 @@ using namespace test_system;
 
 void add_tests(TestSystem &ts) {
 	
-	cout << setprecision(16);
 	test_(Init)
 	check(LongDouble("0.013459359706757822") < "0.0134594");
 	check("+22.0"_ld == "22.");
@@ -212,7 +211,9 @@ void add_tests(TestSystem &ts) {
 int main() {
 	TestSystem ts;
 	add_tests(ts);
+	cout << setprecision(32);
 	ts.run_testing(cout);
+	cout << setprecision(6);
 
 	std::cout << "Finished in " << (double) clock() / CLOCKS_PER_SEC << " sec\n";
 	return 0;

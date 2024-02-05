@@ -12,7 +12,7 @@
 #include <sstream>
 
 #define TIME (double) clock() / CLOCKS_PER_SEC
-#define CHECK_FROM_FILE
+// #define CHECK_FROM_FILE
 
 using namespace arithmetic;
 using namespace std;
@@ -41,7 +41,7 @@ LongDouble Chudnovsky(int digits) {
     LongDouble sq10005 = 10005;
     sq10005.sqrt_fast();
     LongDouble::default_precision = (int) 1e9;
-    auto [P1n, Q1n, R1n] = binary_split(1, digits / 5 + 1);  
+    auto [P1n, Q1n, R1n] = binary_split(1, digits / 10 + 1);  
     LongDouble::default_precision = precision;
     Q1n.precision = precision;
     LongDouble res = Q1n * LongDouble(426880) * sq10005;
@@ -70,7 +70,13 @@ LongDouble Leibnica(int digits) {
 
 int main() {
     int digits;
-    const int right_bound = 10000000;
+    const int right_bound = 3000000;
+    // 1e3 - 201989
+    // 1e4 - 5678
+    // 1e5 - 4646
+    // 1e6 - 8151 // 13 sec
+    // 2e6 - 7909
+    // 3e6 - 3943
 
     cout << "Количество знаков после запятой (0 - " << right_bound << "): ";
     cin >> digits;
