@@ -41,7 +41,7 @@ LongDouble Chudnovsky(int digits) {
     LongDouble sq10005 = 10005;
     sq10005.sqrt_fast();
     LongDouble::default_precision = (int) 1e9;
-    auto [P1n, Q1n, R1n] = binary_split(1, digits / 10 + 1);  
+    auto [P1n, Q1n, R1n] = binary_split(1, digits + 1);  
     LongDouble::default_precision = precision;
     Q1n.precision = precision;
     LongDouble res = Q1n * LongDouble(426880) * sq10005;
@@ -70,13 +70,16 @@ LongDouble Leibnica(int digits) {
 
 int main() {
     int digits;
-    const int right_bound = 3000000;
+    const int right_bound = 1000000;
     // 1e3 - 201989
     // 1e4 - 5678
-    // 1e5 - 4646
+    // 1e5 - 4646 // 1 sec
     // 1e6 - 8151 // 13 sec
     // 2e6 - 7909
-    // 3e6 - 3943
+    // 3e6 - 3943 // 48 sec
+    // 33e5 - 4104 // 52 sec
+    // 34e5 - 9624 // 52 sec
+    // 35e5 - 7835 // 52 sec
 
     cout << "Количество знаков после запятой (0 - " << right_bound << "): ";
     cin >> digits;
