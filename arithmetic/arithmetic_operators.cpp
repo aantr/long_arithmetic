@@ -341,14 +341,15 @@ namespace arithmetic {
 
             if (exp_div <= x_exp_div) {
                 res.exponent = exp_div * base_exp;
+                int next_d;
                 for (int i = 0; i < digits_size; i++) {
-                    int next_d = (i - 1 >= 0 ? digits[i - 1] / pow_10[base_exp - (exp_mod)] : 0);
+                    next_d = (i - 1 >= 0 ? digits[i - 1] / pow_10[base_exp - (exp_mod)] : 0);
                     resd[i] += digits[i] % pow_10[base_exp - exp_mod] * pow_10[exp_mod] + next_d; // + exp_mod
                 }
-                int next_d = (digits_size - 1 >= 0 ? digits[digits_size - 1] / pow_10[base_exp - (exp_mod)] : 0);
+                next_d = (digits_size - 1 >= 0 ? digits[digits_size - 1] / pow_10[base_exp - (exp_mod)] : 0);
                 resd[digits_size] += next_d;
                 for (int i = 0; i < x.digits_size; i++) {
-                    int next_d = (i - 1 >= 0 ? x.digits[i - 1] / pow_10[base_exp - (x_exp_mod)] : 0);
+                    next_d = (i - 1 >= 0 ? x.digits[i - 1] / pow_10[base_exp - (x_exp_mod)] : 0);
                     resd[i + x_exp_div - exp_div] += x.digits[i] % pow_10[base_exp - x_exp_mod] * pow_10[x_exp_mod] + next_d;
                 }
                 next_d = (x.digits_size - 1 >= 0 ? x.digits[x.digits_size - 1] / pow_10[base_exp - (x_exp_mod)] : 0);
@@ -357,14 +358,15 @@ namespace arithmetic {
 
             } else {
                 res.exponent = x_exp_div * base_exp;
+                int next_d;
                 for (int i = 0; i < x.digits_size; i++) {
-                    int next_d = (i - 1 >= 0 ? x.digits[i - 1] / pow_10[base_exp - (x_exp_mod)] : 0);
+                    next_d = (i - 1 >= 0 ? x.digits[i - 1] / pow_10[base_exp - (x_exp_mod)] : 0);
                     resd[i] += x.digits[i] % pow_10[base_exp - x_exp_mod] * pow_10[x_exp_mod] + next_d;
                 }
-                int next_d = (x.digits_size - 1 >= 0 ? x.digits[x.digits_size - 1] / pow_10[base_exp - (x_exp_mod)] : 0);
+                next_d = (x.digits_size - 1 >= 0 ? x.digits[x.digits_size - 1] / pow_10[base_exp - (x_exp_mod)] : 0);
                 resd[x.digits_size] += next_d;
                 for (int i = 0; i < digits_size; i++) {
-                    int next_d = (i - 1 >= 0 ? digits[i - 1] / pow_10[base_exp - (exp_mod)] : 0);
+                    next_d = (i - 1 >= 0 ? digits[i - 1] / pow_10[base_exp - (exp_mod)] : 0);
                     resd[i + exp_div - x_exp_div] += digits[i] % pow_10[base_exp - exp_mod] * pow_10[exp_mod] + next_d;
                 }
                 next_d = (digits_size - 1 >= 0 ? digits[digits_size - 1] / pow_10[base_exp - (exp_mod)] : 0);
@@ -431,15 +433,16 @@ namespace arithmetic {
 
             if (exp_div <= x_exp_div) {
                 res.exponent = exp_div * base_exp;
+                int next_d;
                 for (int i = 0; i < digits_size; i++) {
-                    int next_d = (i - 1 >= 0 ? digits[i - 1] / pow_10[base_exp - (exp_mod)] : 0);
+                    next_d = (i - 1 >= 0 ? digits[i - 1] / pow_10[base_exp - (exp_mod)] : 0);
                     resd[i] += digits[i] % pow_10[base_exp - exp_mod] * pow_10[exp_mod] + next_d; // + exp_mod
                 }
-                int next_d = (digits_size - 1 >= 0 ? digits[digits_size - 1] / pow_10[base_exp - (exp_mod)] : 0);
+                next_d = (digits_size - 1 >= 0 ? digits[digits_size - 1] / pow_10[base_exp - (exp_mod)] : 0);
                 resd[digits_size] += next_d;
 
                 for (int i = 0; i < x.digits_size; i++) {
-                    int next_d = (i - 1 >= 0 ? x.digits[i - 1] / pow_10[base_exp - (x_exp_mod)] : 0);
+                    next_d = (i - 1 >= 0 ? x.digits[i - 1] / pow_10[base_exp - (x_exp_mod)] : 0);
                     resd[i + x_exp_div - exp_div] -= x.digits[i] % pow_10[base_exp - x_exp_mod] * pow_10[x_exp_mod] + next_d;
                 }
                 next_d = (x.digits_size - 1 >= 0 ? x.digits[x.digits_size - 1] / pow_10[base_exp - (x_exp_mod)] : 0);
@@ -448,14 +451,15 @@ namespace arithmetic {
 
             } else {
                 res.exponent = x_exp_div * base_exp;
+                int next_d;
                 for (int i = 0; i < x.digits_size; i++) {
-                    int next_d = (i - 1 >= 0 ? x.digits[i - 1] / pow_10[base_exp - (x_exp_mod)] : 0);
+                    next_d = (i - 1 >= 0 ? x.digits[i - 1] / pow_10[base_exp - (x_exp_mod)] : 0);
                     resd[i] -= x.digits[i] % pow_10[base_exp - x_exp_mod] * pow_10[x_exp_mod] + next_d;
                 }
-                int next_d = (x.digits_size - 1 >= 0 ? x.digits[x.digits_size - 1] / pow_10[base_exp - (x_exp_mod)] : 0);
+                next_d = (x.digits_size - 1 >= 0 ? x.digits[x.digits_size - 1] / pow_10[base_exp - (x_exp_mod)] : 0);
                 resd[x.digits_size] -= next_d;
                 for (int i = 0; i < digits_size; i++) {
-                    int next_d = (i - 1 >= 0 ? digits[i - 1] / pow_10[base_exp - (exp_mod)] : 0);
+                    next_d = (i - 1 >= 0 ? digits[i - 1] / pow_10[base_exp - (exp_mod)] : 0);
                     resd[i + exp_div - x_exp_div] += digits[i] % pow_10[base_exp - exp_mod] * pow_10[exp_mod] + next_d;
                 }
                 next_d = (digits_size - 1 >= 0 ? digits[digits_size - 1] / pow_10[base_exp - (exp_mod)] : 0);
