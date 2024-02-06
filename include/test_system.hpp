@@ -6,9 +6,9 @@
 
 using namespace std;
 
-#define check(x) if (!(x)) {throw #x;}
-#define test_(x) TEST_SYSTEM.add_test(Test(string(#x), []() -> bool {
-#define _test return 0;}));
+#define ASSERT(x) if (!(x)) {throw #x;}
+#define TEST_(x) TEST_SYSTEM.add_test(Test(string(#x), []() -> bool {
+#define _TEST return 0;}));
 #define TEST_SYSTEM test_system
 
 // # Use ANSI color codes:
@@ -49,6 +49,10 @@ namespace test_system {
 					os << GREEN + "passed" + RESET << std::endl;
 				} catch (const char *str) {
 					os << RED + "failed" + RESET + ", expression: (" << str << ")\n";
+					os.flush();
+					failed++;
+				} catch (exception exc) {
+					os << RED + "failed" + RESET + ", error: (" << exc.what() << ")\n";
 					os.flush();
 					failed++;
 				}
