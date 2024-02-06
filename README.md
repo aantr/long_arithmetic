@@ -6,9 +6,9 @@ cmake ../long_arithmetic
 cmake --build .
 ```
 *Run*
-`make start_pi`
+```make start_pi```
 or 
-`./pi/pi`
+```./pi/pi```
 
 *Test*
-`ctest`
+```ctest```
