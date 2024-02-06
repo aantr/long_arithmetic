@@ -36,17 +36,19 @@ array<LongDouble, 3> binary_split(int l, int r) {
 }
 
 LongDouble Chudnovsky(int digits) {
-    digits += 1000;
     int precision = digits / LongDouble::base_exp + 2;
     LongDouble::default_precision = precision;
     LongDouble sq10005 = 10005;
     sq10005.sqrt_fast();
+
     LongDouble::default_precision = (int) 1e9;
-    auto [P1n, Q1n, R1n] = binary_split(1, digits / 10 + 1);  
-    LongDouble::default_precision = precision;
+    auto [P1n, Q1n, R1n] = binary_split(1, digits + 1);  
+    Q1n.precision = precision;
+    LongDouble::default_precision = 32;
     LongDouble res = Q1n * LongDouble(426880) * sq10005;
     LongDouble res2 = Q1n * LongDouble(13591409) + R1n;
     res /= res2;
+
     return res;
 }
 

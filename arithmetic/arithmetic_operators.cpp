@@ -513,7 +513,6 @@ namespace arithmetic {
         y.exponent = 0;
         int plus = max(0, precision - x.digits_size + y.digits_size + 2);
 
-
         if (!x.isZero()) {
             int temp_size = plus + x.digits_size;
             digit* temp = (digit*) malloc(temp_size * sizeof(digit));
@@ -529,7 +528,7 @@ namespace arithmetic {
         LongDouble res;
         int n = 1;
         while (x.digits_size > 2 * n || y.digits_size > n || x.digits_size - y.digits_size + 1 > n) n <<= 1;
-        
+
         div21(x, y, n, res);
         res.precision = precision;
         res.exponent += res_exponent;
