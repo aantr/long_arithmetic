@@ -484,8 +484,6 @@ namespace arithmetic_32 {
                 next_d = (digits_size - 1 >= 0 && exp_mod ? digits[digits_size - 1] >> (32 - (exp_mod)) : 0);
                 resd[digits_size + exp_div - x_exp_div] += next_d;
 
-                for (int i = 0; i < res_size; i++) cout << resd[i] << " "; cout << endl;
-
                 for (int i = 0; i < x.digits_size; i++) {
                     next_d = (i - 1 >= 0 && x_exp_mod ? x.digits[i - 1] >> (32 - (x_exp_mod)) : 0);
                     int y = ((x.digits[i] & ones[32 - x_exp_mod]) << x_exp_mod) | next_d;

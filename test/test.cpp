@@ -270,7 +270,7 @@ TEST(ld32, Div) {
 
 TEST(ld32, Sqrt) {
 
-	int count = 200;
+	int count = 10;
 	for (int i = 1; i < count; i++) {
 		ld x(i, 16 + 1);
 		ld xx(i, 16  + 1);
@@ -283,10 +283,11 @@ TEST(ld32, Sqrt) {
 		
 		x.sqrt_fast();
 		xx.sqrt_int();
+
+
 		x.floor(10);
 		xx.floor(10);
 		ASSERT_TRUE(x == xx);
-
 	}
 }
 

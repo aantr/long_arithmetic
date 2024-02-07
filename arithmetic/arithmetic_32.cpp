@@ -16,7 +16,7 @@ namespace arithmetic_32 {
     bool LongDouble::context_remove_left_zeroes = true;
     bool LongDouble::use_scientific_output = false;
     bool LongDouble::output_insignificant_zeroes = false;
-    int LongDouble::default_precision = 32;
+    int LongDouble::default_precision = 8;
     const uint64_t LongDouble::base = 1ll << 32;
     digit LongDouble::ones[33] = {  0b0u, 0b1u, 0b11u, 0b111u, 0b1111u, 0b11111u, 0b111111u, 
                                     0b1111111u, 0b11111111u, 0b111111111u, 0b1111111111u, 
@@ -720,6 +720,7 @@ namespace arithmetic_32 {
             sqrt_int_limit_error();
         }
 
+
         assert(n.isZero() || n.digits[n.digits_size - 1] != 0);
 
 
@@ -729,25 +730,11 @@ namespace arithmetic_32 {
             x.sqrt_int();  
             x.floor();
 
-            cout << "x, xx: "<< x << " " << x.exponent << endl;                      
-
-
             s = x;
-            cout << "s, ss: "<< s * s << " " << (n) << endl;                      
-
             r = n - s * s;
-
-            cout << r << " " << r.exponent << endl;
-
             assert(n == s * s + r);
-            if (!(n == s * s + r)) {
-                cout << n << " " << (s * s).exponent << endl;
-                throw "sdsd";
-            }
-            cout << "OK" << endl;
             return;
         }
-
 
         int current_precison = n.digits_size + ((n.exponent - 1) >> 5) + 3;
         LongDouble x(n, current_precison);
@@ -798,10 +785,13 @@ namespace arithmetic_32 {
             was = 1;
         }
 
+        cout << n << " " << n.exponent << endl;
+
         int power_b = ((power - 1) >> 2) + 1;
-        cout << "x_: " << x << " " << x.exponent << endl;
         LongDouble a0 = x.getFirstBits(power_b);
         x >>= power_b;
+        cout << x << " " << x.exponent << endl;
+
         LongDouble a1 = x.getFirstBits(power_b);
         x >>= power_b;
         LongDouble a2 = x.getFirstBits(power_b);
