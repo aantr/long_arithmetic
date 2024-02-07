@@ -466,8 +466,6 @@ namespace arithmetic_32 {
                     carry = 0;
                 }
 
-                cout << "last: "; for (int i = 0; i < res_size; i++) cout << resd[i] << " "; cout << endl;
-
             } else {
                 res.exponent = x_exp_div << 5;
                 digit next_d;

@@ -230,12 +230,44 @@ TEST(LongDouble32, Sub) {
 }
 
 
+TEST(ld32, Mul) {
+	int count = 100;
+	for (int i = 0; i < count; i++) {
+		cout << setprecision(200);
+		int precision = 10;
+		long long x = (long long) (rnd() - rnd()) % 1000000000, y = (long long) (rnd() - rnd()) % 1000000000;
+		if (!(ld(x * y) == ld(x, precision) * ld(y))) {
+			cout << x << " " << y <<  " " << ld(x, precision) * ld(y) << endl;	
+			exit(0);
+		}
 
+		ASSERT_TRUE(ld(x * y) == ld(x, precision) * ld(y));
 
+		ld X(x, precision);
+		X *= X;
+		ld Y(y, precision);
+		Y *= x;
 
+		ASSERT_TRUE(X == ld(x, precision) * ld(x) && X == x * x);
+		ASSERT_TRUE(Y == ld(y, precision) * ld(x) && Y == x * y);
+	}
+}
 
+TEST(ld32, Div) {
+	int count = 1000;
+	for (int i = 0; i < count; i++) {
+		int x = (long long) (rnd() - rnd()) % 1000000, y = (long long) (rnd()) % 1000000 + 1;
 
+		ld res = ld(x) / ld(y);
+		res.floor();
+		cout << x << " " << y << endl;
+		ASSERT_TRUE(ld(x / y) == res) << "val: " << ld(x / y) << " " << res;
 
+		ld res_round = ld(x) / ld(y);
+		res_round.round(5);
+		ASSERT_TRUE(res_round == (double)round((double)x / y * pow(10, 5)) / pow(10, 5));
+	}
+}
 
 
 

@@ -298,14 +298,14 @@ namespace arithmetic_32 {
 
     void LongDouble::floor(int number) {
         if (-exponent <= number) return;
-        if (-exponent - number >= digits_size >> 5) {
+        if (-exponent - number >= digits_size << 5) {
             *this = LongDouble(0, precision);
             return;
         }
         removeFirst((-exponent - number) >> 5);
         int rem = (-exponent - number) & (31);
         if (rem > 0) {
-            digits[0] -= digits[0] & ((1u << rem) - 1);
+            digits[0] -= digits[0] & ones[rem];
         }
         removeZeroes();
     }
