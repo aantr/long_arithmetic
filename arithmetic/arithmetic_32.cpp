@@ -100,7 +100,8 @@ namespace arithmetic_32 {
             res.digits = (digit*) realloc(res.digits, (res.digits_size + 1) * sizeof(digit));
             if (!res.digits) memory_error();
 
-            res.digits[res.digits_size] = x % res.base;
+            res.digits[res.digits_size] = x & LongDouble::ones[32];
+            // cout << "digit: " <<  res.digits[res.digits_size]  << endl;;
             res.digits_size++;
             x /= res.base;
         }
@@ -109,10 +110,18 @@ namespace arithmetic_32 {
     }
 
     template<class T>
-    void init_from_double(LongDouble& res, T& v) { // todo: change base
-        uint64_t u;
-        memcpy(&u, &v, sizeof(v));
-        init_from_int(res, u);
+    void init_from_double(LongDouble& res, T& v) {
+        int exp;
+        int sign = 1;
+        if (v < 0) {
+            sign = -1;
+        }
+        double fr = frexp(abs(v), &exp);
+        fr *= 1ll << 62;
+        int64_t result = round(fr);
+        init_from_int(res, result * sign);
+        // cout << "constructor: " << result << " " << exp - 62 << endl;
+        res.exponent += exp - 62;
     }
 
     LongDouble::LongDouble(const int &v) {
@@ -272,7 +281,7 @@ namespace arithmetic_32 {
             return;
         }
         int d = (-exponent - number - 1) >> 5;
-        removeFirst((-exponent - number - 1) >> 5);
+        removeFirst(d);
         assert(digits_size >= 1);
         int rem = (-exponent - number - 1) & (31);
         digits[0] -= digits[0] & ((1u << rem) - 1);
@@ -288,8 +297,9 @@ namespace arithmetic_32 {
         d = (-exponent - number - 1) >> 5;
         rem = (-exponent - number - 1) & (31);
         // delete rem-th digit
-        digits[d] -= digits[d] & ((1u << (rem)) - 1);
+        digits[d] -= digits[d] & ones[rem + 1];
         removeZeroes();
+
     }
 
     void LongDouble::round() {
@@ -344,15 +354,20 @@ namespace arithmetic_32 {
     }
 
     void LongDouble::sqrt_int() {
+                    assert(0);
+
         if (!(isInt() && *this >= 1)) {
             sqrt_int_limit_error();
         }
         LongDouble x(1, precision);
         x.mulBase((digits_size - 1) / 2);
         LongDouble prev = -1;
-        while (1) {
+            // cout << "sqrt_int: " << x << endl;                      
 
+        for (int i = 0; i < 5; i++) {
+            // cout << "current sqrt_int: " << x << " "  << (LongDouble(*this, precision + 1) / x + x) * 0.5 << endl;                      
             x = (LongDouble(*this, precision + 1) / x + x) * 0.5;
+                // throw "ass";
 
             if (x.digits_size > precision) {
                 x.removeFirst(x.digits_size - precision);
@@ -366,6 +381,7 @@ namespace arithmetic_32 {
 
 
         }
+        // cout << "result: "<<x <<endl;
         *this = x;
     }
 
@@ -698,20 +714,40 @@ namespace arithmetic_32 {
     }
 
     void sqrt_rem(const LongDouble n, LongDouble &s, LongDouble &r) {
+
+
         if (!(n.isInt() && n >= 1)) {
             sqrt_int_limit_error();
         }
+
         assert(n.isZero() || n.digits[n.digits_size - 1] != 0);
 
+
         if (n <= 4) {
-            LongDouble x(n, 2); 
-            x.sqrt_int();            
+            LongDouble x(n, 4);
+
+            x.sqrt_int();  
             x.floor();
+
+            cout << "x, xx: "<< x << " " << x.exponent << endl;                      
+
+
             s = x;
+            cout << "s, ss: "<< s * s << " " << (n) << endl;                      
+
             r = n - s * s;
+
+            cout << r << " " << r.exponent << endl;
+
             assert(n == s * s + r);
+            if (!(n == s * s + r)) {
+                cout << n << " " << (s * s).exponent << endl;
+                throw "sdsd";
+            }
+            cout << "OK" << endl;
             return;
         }
+
 
         int current_precison = n.digits_size + ((n.exponent - 1) >> 5) + 3;
         LongDouble x(n, current_precison);
@@ -763,7 +799,7 @@ namespace arithmetic_32 {
         }
 
         int power_b = ((power - 1) >> 2) + 1;
-
+        cout << "x_: " << x << " " << x.exponent << endl;
         LongDouble a0 = x.getFirstBits(power_b);
         x >>= power_b;
         LongDouble a1 = x.getFirstBits(power_b);

@@ -173,7 +173,7 @@ TEST(LongDouble, Sqrt) {
 		int ASSERT_TRUE = 6;
 		st.divBase(ASSERT_TRUE);
 		ASSERT_TRUE((X - (double)x).abs() < st);
-	}	
+	}		
 }
 
 TEST(LongDouble, Precision) {
@@ -200,9 +200,9 @@ TEST(LongDouble, Precision) {
 }
 
 TEST(LongDouble32, Inequality) {
-	ld a(123), b, c, d = -123, e = 123, k = 0;
+	ld a(123.1), b, c, d = -123.1, e = 123.0, k = 0.0;
 	ASSERT_TRUE(1_ld < 2);
-	ASSERT_TRUE((a >= d) == true);
+	ASSERT_TRUE((a >= d) == true) << a << " " << a.sign << "  " << d << " " << d.sign;
 	ASSERT_TRUE((b <= k) == true);
 	ASSERT_TRUE((d > a) == false);
 	ASSERT_TRUE((e < d) == false);
@@ -260,17 +260,35 @@ TEST(ld32, Div) {
 
 		ld res = ld(x) / ld(y);
 		res.floor();
-		cout << x << " " << y << endl;
 		ASSERT_TRUE(ld(x / y) == res) << "val: " << ld(x / y) << " " << res;
 
 		ld res_round = ld(x) / ld(y);
 		res_round.round(5);
-		ASSERT_TRUE(res_round == (double)round((double)x / y * pow(10, 5)) / pow(10, 5));
+		ASSERT_TRUE(res_round == (double)round((double)x / y * pow(2, 5)) / pow(2, 5)) << "test: " << x << " " << y << " " << ld((double)round((double)x / y * pow(2, 5)) / pow(2, 5)) << " "<<res_round;
 	}
 }
 
+TEST(ld32, Sqrt) {
 
+	int count = 200;
+	for (int i = 1; i < count; i++) {
+		ld x(i, 16 + 1);
+		ld xx(i, 16  + 1);
+		ld s, r;
 
+		arithmetic_32::sqrt_rem(x, s, r);
+		ASSERT_TRUE(s * s + r == x);
+		ASSERT_TRUE(r >= 0);
+		ASSERT_TRUE((s + 1) * (s + 1) > x);
+		
+		x.sqrt_fast();
+		xx.sqrt_int();
+		x.floor(10);
+		xx.floor(10);
+		ASSERT_TRUE(x == xx);
+
+	}
+}
 
 
 
