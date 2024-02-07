@@ -2,12 +2,15 @@
 
 #include <gtest/gtest.h>
 #include <arithmetic.hpp>
+#include <arithmetic_32.hpp>
 #include <random>
 #include <iomanip>
 
 using namespace std;
 using namespace arithmetic;
 std::mt19937 rnd(7327158);
+
+using ld = arithmetic_32::LongDouble;
 
 	
 TEST(LongDouble, Init) {
@@ -195,4 +198,48 @@ TEST(LongDouble, Precision) {
 		ASSERT_TRUE((x - x / y * y / y * y).abs() < power * 10);
 	}
 }
+
+TEST(LongDouble32, Inequality) {
+	ld a(123), b, c, d = -123, e = 123, k = 0;
+	ASSERT_TRUE(1_ld < 2);
+	ASSERT_TRUE((a >= d) == true);
+	ASSERT_TRUE((b <= k) == true);
+	ASSERT_TRUE((d > a) == false);
+	ASSERT_TRUE((e < d) == false);
+	ASSERT_TRUE((d > c) == false);
+	ASSERT_TRUE((k < b) == false);
+	ASSERT_TRUE((d < d + 1) == true) << "d: " << d << "d + 1: " << d + 1;
+}
+
+
+TEST(LongDouble32, Add) {
+	int count = 1000;
+	for (int i = 0; i < count; i++) {
+		long long x = rnd(), y = rnd();
+		ASSERT_TRUE(ld(x + y) == ld(x) + ld(y)) << "test: " << x << " " << y << " "<< ld(x) + ld(y);
+	}
+}
+
+TEST(LongDouble32, Sub) {
+	int count = 1000;
+	for (int i = 0; i < count; i++) {
+		long long x = (long long) rnd() - rnd(), y = (long long) rnd() - rnd();
+		cout << "test: " << x << " " << y << " "<< ld(x) - ld(y) << endl;
+		ASSERT_TRUE(ld(x - y) == ld(x) - ld(y)) << "test: " << x << " " << y << " "<< ld(x) - ld(y);;
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

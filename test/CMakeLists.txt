@@ -1,6 +1,6 @@
 add_executable(test_ test.cpp)
 
-target_link_libraries(test_ arithmetic GTest::gtest_main)
+target_link_libraries(test_ arithmetic arithmetic_32 GTest::gtest_main)
 
 target_include_directories(test_ PRIVATE
         "${PROJECT_SOURCE_DIR}/include"

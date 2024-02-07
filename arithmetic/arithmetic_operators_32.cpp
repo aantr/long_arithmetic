@@ -14,46 +14,17 @@ namespace arithmetic_32 {
 
     fft::FFT fft;
 
-    // ostream& operator<<(ostream& os, const LongDouble& value) {
-    //     if (value.sign == -1)
-    //         os << '-';
-    //     if (value.digits_size == 0) {
-    //         os << '0';
-    //         return os;
-    //     }
+    ostream& operator<<(ostream& os, const LongDouble& value) {
+        if (value.sign == -1)
+            os << '-';
+        if (value.digits_size == 0) {
+            os << '0';
+            return os;
+        }
 
-    //     int digits_size_2 = value.digits_size * value.base_exp;
-    //     while (digits_size_2 > 0 && value.digits[(digits_size_2 - 1) / value.base_exp] / value.pow_10[(digits_size_2 - 1) % value.base_exp] % 10 == 0) {
-    //         digits_size_2--;
-    //     }
-    //     int left = max(0, digits_size_2 - (int)os.precision());
-    //     while (LongDouble::output_insignificant_zeroes == false && left < digits_size_2 && value.digits[left / value.base_exp] / value.pow_10[left % value.base_exp] % 10 == 0) {
-    //         left++;
-    //     }
-
-    //     if (value.use_scientific_output) {
-    //         for (int i = digits_size_2 - 1; i >= left; i--) {
-    //             os << value.digits[i / value.base_exp] / value.pow_10[i % value.base_exp] % 10;
-    //             if (digits_size_2 - left > 1 && i == digits_size_2 - 1) os << '.'; // output first digit with . if >= 2
-    //         }
-    //         int val = value.exponent + digits_size_2 - 1; // than we can print exponent
-    //         if (val > 0) os << 'e' << '+' << val;
-    //         else if (val < 0) os << 'e' << val;
-    //     } else {
-    //         for (int i = -value.exponent; i > digits_size_2 - 1; i--) {
-    //             os << '0';
-    //             if (i == -value.exponent) os << '.';
-    //         }
-    //         for (int i = digits_size_2 - 1; i >= left; i--) {
-    //             os << value.digits[i / value.base_exp] / value.pow_10[i % value.base_exp] % 10;
-    //             if (i > left && i == -value.exponent) os << '.';
-    //         }
-    //         for (int i = 0; i < value.exponent + left; i++) {
-    //             os << '0';
-    //         }
-    //     }
-    //     return os;
-    // }
+        for (int i = 0; i < value.digits_size; i++) os << value.digits[value.digits_size - 1 - i] << " ";
+        return os;
+    }
 
     LongDouble& LongDouble::operator=(const LongDouble& other) // C5267
     {
@@ -162,7 +133,7 @@ namespace arithmetic_32 {
         free(digits);
 
         auto [second, second_size] = cut(x.digits, x.digits_size);
-        fft.multiply(first, first_size, second, second_size, res, res_size, 16);
+        fft.multiply(first, first_size, second, second_size, res, res_size, 1 << 16);
         free(first);
         free(second);
         auto [newres, newressize] = merge(res, res_size);
@@ -206,40 +177,38 @@ namespace arithmetic_32 {
 
         int digits_size_2 = digits_size << 5;
         int left = 0;
-        while (left < 32 && digits[digits_size - 1] >> (31 - left) & 1) {
+        while (left < 32 && (digits[digits_size - 1] >> (31 - left) & 1) == 0) {
             digits_size_2--;
             left++;
         }
 
         int x_digits_size_2 = x.digits_size << 5;
         left = 0;
-        while (left < 32 && x.digits[x.digits_size - 1] >> (31 - left) & 1) {
+        while (left < 32 && (x.digits[x.digits_size - 1] >> (31 - left) & 1) == 0) {
             x_digits_size_2--;
             left++;
-        }
-
+        }   
         if (digits_size_2 + exponent != x_digits_size_2 + x.exponent) {
             return (digits_size_2 + exponent < x_digits_size_2 + x.exponent) ^ (sign == -1);
         }
 
         int exp_mod = (digits_size << 5) - digits_size_2 - ((x.digits_size << 5) - x_digits_size_2);
-
         if (exp_mod >= 0) {
             for (int i = 0; i < min(digits_size, x.digits_size); i++) {
-                digit next_d = (digits_size - 1 - i - 1 >= 0 ? digits[digits_size - 1 - i - 1] >> (32 - (exp_mod)) : 0);
-                if ((((digits[digits_size - 1 - i] & ((1u << (32 - exp_mod)) - 1)) << exp_mod) | next_d) > x.digits[x.digits_size - 1 - i]) return false ^ (sign == -1);                
-                if ((((digits[digits_size - 1 - i] & ((1u << (32 - exp_mod)) - 1)) << exp_mod) | next_d) < x.digits[x.digits_size - 1 - i]) return true ^ (sign == -1);                
+                digit next_d = (digits_size - 1 - i - 1 >= 0 && exp_mod ? digits[digits_size - 1 - i - 1] >> (32 - (exp_mod)) : 0);
+                if ((((digits[digits_size - 1 - i] & ones[32 - exp_mod]) << exp_mod) | next_d) > x.digits[x.digits_size - 1 - i]) return false ^ (sign == -1);                
+                if ((((digits[digits_size - 1 - i] & ones[32 - exp_mod]) << exp_mod) | next_d) < x.digits[x.digits_size - 1 - i]) return true ^ (sign == -1);                
             }
         } else {
             for (int i = 0; i < min(digits_size, x.digits_size); i++) {
-                digit next_d = (x.digits_size - 1 - i - 1 >= 0 ? x.digits[x.digits_size - 1 - i - 1] >> (32 - (-exp_mod)) : 0);
-                if (digits[digits_size - 1 - i] > (((x.digits[x.digits_size - 1 - i] & ((1u << (32 - (-exp_mod))) - 1)) << (-exp_mod)) | next_d)) return false ^ (sign == -1);
-                if (digits[digits_size - 1 - i] < (((x.digits[x.digits_size - 1 - i] & ((1u << (32 - (-exp_mod))) - 1)) << (-exp_mod)) | next_d)) return true ^ (sign == -1);
+                digit next_d = (x.digits_size - 1 - i - 1 >= 0 && exp_mod ? x.digits[x.digits_size - 1 - i - 1] >> (32 - (-exp_mod)) : 0);
+                if (digits[digits_size - 1 - i] > (((x.digits[x.digits_size - 1 - i] & ones[32 + exp_mod]) << (-exp_mod)) | next_d)) return false ^ (sign == -1);
+                if (digits[digits_size - 1 - i] < (((x.digits[x.digits_size - 1 - i] & ones[32 + exp_mod]) << (-exp_mod)) | next_d)) return true ^ (sign == -1);
             }   
         }
         for (int i = min(digits_size, x.digits_size); i < digits_size; i++) {
             if (i == min(digits_size, x.digits_size) && exp_mod > 0) {
-                if ((digits[digits_size - 1 - i] & ((1u << (32 - exp_mod)) - 1)) != 0) {
+                if ((digits[digits_size - 1 - i] & ones[32 - exp_mod]) != 0) {
                     return false ^ (sign == -1);
                 }
             } else {
@@ -250,7 +219,7 @@ namespace arithmetic_32 {
         }
         for (int i = min(digits_size, x.digits_size); i < x.digits_size; i++) {
             if (i == min(digits_size, x.digits_size) && -(exp_mod) > 0) {
-                if ((x.digits[x.digits_size - 1 - i] & ((1u << (32 - (-exp_mod))) - 1)) != 0) {
+                if ((x.digits[x.digits_size - 1 - i] & ones[32 + exp_mod]) != 0) {
                     return true ^ (sign == -1);
                 }
             } else {
@@ -274,14 +243,14 @@ namespace arithmetic_32 {
 
         int digits_size_2 = digits_size << 5;
         int left = 0;
-        while (left < 32 && digits[digits_size - 1] >> (31 - left) & 1) {
+        while (left < 32 && (digits[digits_size - 1] >> (31 - left) & 1) == 0) {
             digits_size_2--;
             left++;
         }
 
         int x_digits_size_2 = x.digits_size << 5;
         left = 0;
-        while (left < 32 && x.digits[x.digits_size - 1] >> (31 - left) & 1) {
+        while (left < 32 && (x.digits[x.digits_size - 1] >> (31 - left) & 1) == 0) {
             x_digits_size_2--;
             left++;
         }
@@ -294,20 +263,20 @@ namespace arithmetic_32 {
 
         if (exp_mod >= 0) {
             for (int i = 0; i < min(digits_size, x.digits_size); i++) {
-                digit next_d = (digits_size - 1 - i - 1 >= 0 ? digits[digits_size - 1 - i - 1] >> (32 - (exp_mod)) : 0);
-                if ((((digits[digits_size - 1 - i] & ((1u << (32 - exp_mod)) - 1)) << exp_mod) | next_d) > x.digits[x.digits_size - 1 - i]) return false;               
-                if ((((digits[digits_size - 1 - i] & ((1u << (32 - exp_mod)) - 1)) << exp_mod) | next_d) < x.digits[x.digits_size - 1 - i]) return false;               
+                digit next_d = (digits_size - 1 - i - 1 >= 0 && exp_mod ? digits[digits_size - 1 - i - 1] >> (32 - (exp_mod)) : 0);
+                if ((((digits[digits_size - 1 - i] & ones[32 - exp_mod]) << exp_mod) | next_d) != x.digits[x.digits_size - 1 - i]) {
+                    return false;
+                }
             }
         } else {
             for (int i = 0; i < min(digits_size, x.digits_size); i++) {
-                digit next_d = (x.digits_size - 1 - i - 1 >= 0 ? x.digits[x.digits_size - 1 - i - 1] >> (32 - (-exp_mod)) : 0);
-                if (digits[digits_size - 1 - i] > (((x.digits[x.digits_size - 1 - i] & ((1u << (32 - (-exp_mod))) - 1)) << (-exp_mod)) | next_d)) return false;
-                if (digits[digits_size - 1 - i] < (((x.digits[x.digits_size - 1 - i] & ((1u << (32 - (-exp_mod))) - 1)) << (-exp_mod)) | next_d)) return false;
+                digit next_d = (x.digits_size - 1 - i - 1 >= 0 && exp_mod ? x.digits[x.digits_size - 1 - i - 1] >> (32 - (-exp_mod)) : 0);
+                if (digits[digits_size - 1 - i] != (((x.digits[x.digits_size - 1 - i] & ones[32 + exp_mod]) << (-exp_mod)) | next_d)) return false;
             }   
         }
         for (int i = min(digits_size, x.digits_size); i < digits_size; i++) {
             if (i == min(digits_size, x.digits_size) && exp_mod > 0) {
-                if ((digits[digits_size - 1 - i] & ((1u << (32 - exp_mod)) - 1)) != 0) {
+                if ((digits[digits_size - 1 - i] & ones[32 - exp_mod]) != 0) {
                     return false;
                 }
             } else {
@@ -318,7 +287,7 @@ namespace arithmetic_32 {
         }
         for (int i = min(digits_size, x.digits_size); i < x.digits_size; i++) {
             if (i == min(digits_size, x.digits_size) && -(exp_mod) > 0) {
-                if ((x.digits[x.digits_size - 1 - i] & ((1u << (32 - (-exp_mod))) - 1)) != 0) {
+                if ((x.digits[x.digits_size - 1 - i] & ones[32 + exp_mod]) != 0) {
                     return false;
                 }
             } else {
@@ -347,7 +316,7 @@ namespace arithmetic_32 {
     }
 
     #define SUM(a, b) (a += b, (a >= b))
-    #define SUB(a, b) (a += b, (a >= b))
+    #define SUB(a, b) (a -= b, (a + b >= a))
 
     LongDouble LongDouble::operator+(const LongDouble& x) const {
         if (sign == x.sign) {
@@ -355,9 +324,9 @@ namespace arithmetic_32 {
             res.precision = precision;
             res.sign = sign;
 
-            int exp_div = exponent >> 5, exp_mod = exponent & 31;
+            int exp_div = exponent / 32, exp_mod = exponent % 32;
             if (exp_mod < 0) exp_mod += 32, exp_div--;
-            int x_exp_div = x.exponent >> 5, x_exp_mod = x.exponent & 31;
+            int x_exp_div = x.exponent / 32, x_exp_mod = x.exponent % 32;
             if (x_exp_mod < 0) x_exp_mod += 32, x_exp_div--;
 
 
@@ -370,47 +339,47 @@ namespace arithmetic_32 {
                 res.exponent = exp_div << 5;
                 digit next_d;
                 for (int i = 0; i < digits_size; i++) {
-                    next_d = (i - 1 >= 0 ? digits[i - 1] >> (32 - (exp_mod)) : 0);
-                    resd[i] += (((digits[i] & ((1 << (32 - exp_mod)) - 1)) << exp_mod) | next_d); // + exp_mod
+                    next_d = (i - 1 >= 0 && exp_mod ? digits[i - 1] >> (32 - (exp_mod)) : 0);
+                    resd[i] += (((digits[i] & ones[32 - exp_mod]) << exp_mod) | next_d); // + exp_mod
                 }
-                next_d = (digits_size - 1 >= 0 ? digits[digits_size - 1] >> (32 - (exp_mod)) : 0);
-                resd[digits_size] |= next_d;
+                next_d = (digits_size - 1 >= 0 && exp_mod ? digits[digits_size - 1] >> (32 - (exp_mod)) : 0);
+                resd[digits_size] += next_d;
+
                 for (int i = 0; i < x.digits_size; i++) {
-                    next_d = (i - 1 >= 0 ? x.digits[i - 1] >> (32 - (x_exp_mod)) : 0);
-                    digit y = (x.digits[i] & ((1 << (32 - x_exp_mod)) - 1) << x_exp_mod) | next_d;
+                    next_d = (i - 1 >= 0 && x_exp_mod ? x.digits[i - 1] >> (32 - (x_exp_mod)) : 0);
+                    digit y = ((x.digits[i] & ones[32 - x_exp_mod]) << x_exp_mod) | next_d;
                     if (!SUM(resd[i + x_exp_div - exp_div], y + carry)) {
                         carry = 1;
                     } else {
                         carry = 0;
                     }
                 }
-                next_d = (x.digits_size - 1 >= 0 ? x.digits[x.digits_size - 1] >> (32 - (x_exp_mod)) : 0);
-                // resd[x.digits_size + x_exp_div - exp_div] += next_d + carry;
+                next_d = (x.digits_size - 1 >= 0 && x_exp_mod ? x.digits[x.digits_size - 1] >> (32 - (x_exp_mod)) : 0);
                 if (!SUM(resd[x.digits_size + x_exp_div - exp_div], next_d + carry)) {
                     carry = 1;
                 } else {
                     carry = 0;
                 }
+
             } else {
                 res.exponent = x_exp_div << 5;
                 digit next_d;
                 for (int i = 0; i < x.digits_size; i++) {
-                    next_d = (i - 1 >= 0 ? x.digits[i - 1] >> (32 - (x_exp_mod)) : 0);
-                    resd[i] += (x.digits[i] & ((1 << (32 - x_exp_mod)) - 1) << x_exp_mod) | next_d;
+                    next_d = (i - 1 >= 0 && x_exp_mod ? x.digits[i - 1] >> (32 - (x_exp_mod)) : 0);
+                    resd[i] += ((x.digits[i] & ones[32 - x_exp_mod]) << x_exp_mod) | next_d;
                 }
-                next_d = (x.digits_size - 1 >= 0 ? x.digits[x.digits_size - 1] >> (32 - (x_exp_mod)) : 0);
+                next_d = (x.digits_size - 1 >= 0 && x_exp_mod ? x.digits[x.digits_size - 1] >> (32 - (x_exp_mod)) : 0);
                 resd[x.digits_size] += next_d;
                 for (int i = 0; i < digits_size; i++) {
-                    next_d = (i - 1 >= 0 ? digits[i - 1] >> (32 - (exp_mod)) : 0);
-                    digit y = (((digits[i] & ((1 << (32 - exp_mod)) - 1)) << exp_mod) | next_d);
-                    if (!SUM(resd[i + exp_div - x_exp_div], y)) {
+                    next_d = (i - 1 >= 0 && exp_mod ? digits[i - 1] >> (32 - (exp_mod)) : 0);
+                    digit y = (((digits[i] & ones[32 - exp_mod]) << exp_mod) | next_d);
+                    if (!SUM(resd[i + exp_div - x_exp_div], y + carry)) {
                         carry = 1;
                     } else {
                         carry = 0;
                     }
                 }
-                next_d = (digits_size - 1 >= 0 ? digits[digits_size - 1] >> (32 - (exp_mod)) : 0);
-                // resd[digits_size + exp_div - x_exp_div] += next_d;
+                next_d = (digits_size - 1 >= 0 && exp_mod ? digits[digits_size - 1] >> (32 - (exp_mod)) : 0);
                 if (!SUM(resd[digits_size + exp_div - x_exp_div], next_d + carry)) {
                     carry = 1;
                 } else {
@@ -458,11 +427,10 @@ namespace arithmetic_32 {
             res.sign = 1;
             res.precision = precision;
 
-            int exp_div = exponent >> 5, exp_mod = exponent & 31;
+            int exp_div = exponent / 32, exp_mod = exponent % 32;
             if (exp_mod < 0) exp_mod += 32, exp_div--;
-            int x_exp_div = x.exponent >> 5, x_exp_mod = x.exponent & 31;
+            int x_exp_div = x.exponent / 32, x_exp_mod = x.exponent % 32;
             if (x_exp_mod < 0) x_exp_mod += 32, x_exp_div--;
-
 
             int res_size = max(digits_size + exp_div, x.digits_size + x_exp_div) - min(exp_div, x_exp_div) + 1;
             digit* resd = (digit*) malloc(res_size * sizeof(digit));
@@ -473,40 +441,46 @@ namespace arithmetic_32 {
                 res.exponent = exp_div << 5;
                 digit next_d;
                 for (int i = 0; i < digits_size; i++) {
-                    next_d = (i - 1 >= 0 ? digits[i - 1] >> (32 - (exp_mod)) : 0);
-                    resd[i] += (((digits[i] & ((1 << (32 - exp_mod)) - 1)) << exp_mod) | next_d); // + exp_mod
+                    next_d = (i - 1 >= 0 && exp_mod ? digits[i - 1] >> (32 - (exp_mod)) : 0);
+                    resd[i] += (((digits[i] & ones[32 - exp_mod]) << exp_mod) | next_d); // + exp_mod
                 }
-                next_d = (digits_size - 1 >= 0 ? digits[digits_size - 1] >> (32 - (exp_mod)) : 0);
-                resd[digits_size] |= next_d;
+                next_d = (digits_size - 1 >= 0 && exp_mod ? digits[digits_size - 1] >> (32 - (exp_mod)) : 0);
+                resd[digits_size] += next_d;
+
                 for (int i = 0; i < x.digits_size; i++) {
-                    next_d = (i - 1 >= 0 ? x.digits[i - 1] >> (32 - (x_exp_mod)) : 0);
-                    digit y = (x.digits[i] & ((1 << (32 - x_exp_mod)) - 1) << x_exp_mod) | next_d;
+                    next_d = (i - 1 >= 0 && x_exp_mod ? x.digits[i - 1] >> (32 - (x_exp_mod)) : 0);
+                    digit y = ((x.digits[i] & ones[32 - x_exp_mod]) << x_exp_mod) | next_d;
                     if (!SUB(resd[i + x_exp_div - exp_div], y + carry)) {
                         carry = 1;
                     } else {
                         carry = 0;
                     }
                 }
-                next_d = (x.digits_size - 1 >= 0 ? x.digits[x.digits_size - 1] >> (32 - (x_exp_mod)) : 0);
+
+
+                next_d = (x.digits_size - 1 >= 0 && x_exp_mod ? (x.digits[x.digits_size - 1] >> (32 - (x_exp_mod))) : 0);
                 // resd[x.digits_size + x_exp_div - exp_div] += next_d + carry;
                 if (!SUB(resd[x.digits_size + x_exp_div - exp_div], next_d + carry)) {
                     carry = 1;
                 } else {
                     carry = 0;
                 }
+
+                cout << "last: "; for (int i = 0; i < res_size; i++) cout << resd[i] << " "; cout << endl;
+
             } else {
                 res.exponent = x_exp_div << 5;
                 digit next_d;
                 for (int i = 0; i < x.digits_size; i++) {
                     next_d = (i - 1 >= 0 ? x.digits[i - 1] >> (32 - (x_exp_mod)) : 0);
-                    resd[i] += (x.digits[i] & ((1 << (32 - x_exp_mod)) - 1) << x_exp_mod) | next_d;
+                    resd[i] += ((x.digits[i] & ones[32 - x_exp_mod]) << x_exp_mod) | next_d;
                 }
                 next_d = (x.digits_size - 1 >= 0 ? x.digits[x.digits_size - 1] >> (32 - (x_exp_mod)) : 0);
                 resd[x.digits_size] += next_d;
                 for (int i = 0; i < digits_size; i++) {
                     next_d = (i - 1 >= 0 ? digits[i - 1] >> (32 - (exp_mod)) : 0);
-                    digit y = (((digits[i] & ((1 << (32 - exp_mod)) - 1)) << exp_mod) | next_d);
-                    if (!SUB(resd[i + exp_div - x_exp_div], y)) {
+                    digit y = (((digits[i] & ones[32 - exp_mod]) << exp_mod) | next_d);
+                    if (!SUB(resd[i + exp_div - x_exp_div], y + carry)) {
                         carry = 1;
                     } else {
                         carry = 0;

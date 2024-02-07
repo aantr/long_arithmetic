@@ -68,6 +68,7 @@ namespace arithmetic_32 {
         static bool context_remove_left_zeroes;
         static int default_precision;
         static const uint64_t base;
+        static digit ones[33];
 
         int sign;
         digit* digits; 
