@@ -862,12 +862,20 @@ namespace arithmetic {
             s -= 1;
         }
 
+        assert((n * (was ? 4 : 1)) == s * s + r);
+
+
         if (was) { // if n was multipled by 4
+            // assert((s.digits[0] & 1) == 0);
             s *= 0.5;
             s.floor();
+
             r = n - s * s;
         }
+        // cout << s << endl;
         assert(n == s * s + r);
+        assert(n >= s * s);
+        assert(n < (s + 1) * (s + 1));
 
     }
 

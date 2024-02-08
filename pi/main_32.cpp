@@ -53,6 +53,10 @@ LongDouble Chudnovsky(int digits) {
 }
 
 int main() {
+
+    // LongDouble res, rem;
+    // sqrt_rem(LongDouble(10005, INT_MAX) << 1000000, res, rem);
+
     int digits;
     const int right_bound = 1000000;
 
@@ -71,6 +75,5 @@ int main() {
     cout << "PI:\n" << setprecision(digits + 1) << result << endl;
     cout << setprecision(6);
     cerr << "TIME: " << TIME - start<< " sec (total " << TIME << " sec)" << endl;
-
     return 0;
 }

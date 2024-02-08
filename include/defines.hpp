@@ -7,7 +7,7 @@ using namespace std;
 
 void _print();
 
-template <class T, class... V>
+template <typename T, typename... V>
 void _print(T t, V... v);
 
 #define debug(...) {\

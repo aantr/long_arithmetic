@@ -75,7 +75,7 @@ void __print(const T& x) {
 void _print() {
 	cerr << "]" << endl;
 }
-template <class T, class... V>
+template <typename T, typename... V>
 void _print(T t, V... v) {
 	__print(t);
 	if (sizeof...(v))
@@ -83,10 +83,4 @@ void _print(T t, V... v) {
 	_print(v...);
 }
 
-void _print(arithmetic_32::LongDouble t) {
-	__print(t);
-	// if (sizeof...(v))
-	// 	cerr << ", ";
-	// _print(v...);
-}
 

@@ -42,7 +42,7 @@ LongDouble Chudnovsky(int digits) {
     sq10005.sqrt_fast();
 
     LongDouble::default_precision = (int) 1e9;
-    auto [P1n, Q1n, R1n] = binary_split(1, digits / 10 + 1); // todo: proof that we can use this constant
+    auto [P1n, Q1n, R1n] = binary_split(1, digits / 10 + 2); // todo: proof that we can use this constant
     Q1n.precision = precision;
     LongDouble::default_precision = 32;
     LongDouble res = Q1n * LongDouble(426880) * sq10005;
@@ -71,6 +71,14 @@ LongDouble Leibnica(int digits) {
 }
 
 int main() {
+
+    // LongDouble q = LongDouble(10005, INT_MAX), st = 2, rem, res;
+    // st.precision = INT_MAX;
+    // st.pow(1000000);
+    // cout << setprecision(10000000) << st << endl;
+    // q *= st;
+    // sqrt_rem(q, res, rem);
+
     int digits;
     const int right_bound = 1000000;
     // 1e3 - 201989

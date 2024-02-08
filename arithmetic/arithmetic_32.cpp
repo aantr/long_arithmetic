@@ -485,6 +485,8 @@ namespace arithmetic_32 {
         res1.removeZeroes();
         LongDouble::context_remove_left_zeroes = true;
         res = res1;
+        cout << a << " " << b << " " << res << endl;
+
         assert(a >= b * res);
         assert(a <= b * (res + 1));
     }
@@ -702,8 +704,6 @@ namespace arithmetic_32 {
         assert(a == b * res + rem);
         assert(rem < b);
         assert(rem >= 0);
-
-
     }
 
     void sqrt_rem(const LongDouble n, LongDouble &s, LongDouble &r) {
@@ -730,41 +730,12 @@ namespace arithmetic_32 {
                 s = 2;
                 r = 0;
             }
+            assert(n == s * s + r);
+
             return;
         }
 
-        int current_precison = n.digits_size + ((n.exponent - 1) >> 5) + 3;
-        LongDouble x(n, current_precison);
-
-        // 10 ^ (d - 1) <= n < 10 ^ d
-        // d - 1 <= log10 n < d
-
-        // 2 ^ (d2 - 1) <= n < 2 ^ d2
-        // d2 - 1 <= log2 n < d2
-
-        // (d - 1) / d2 < log10(2)
-        // d / (d2 - 1) > log10(2)
-
-        // d2 > (d - 1) * log2(10)
-        // d2 < d * log2(10) + 1
-
-        // d * log2(10) - log(2, 10) < d2 < d * log2(10) + 1
-
-        // int digits_size_10 = n.digits_size * n.base_exp;
-        // while (digits_size_10 > 0 && n.digits[(digits_size_10 - 1) / n.base_exp] / n.pow_10[(digits_size_10 - 1) % n.base_exp] % 10 == 0) {
-        //     digits_size_10--;
-        // }
-
-        // int power = floor((double) (digits_size_10 + n.exponent - 1) * log2(10)) + 1;
-        // // int power_max = floor((double) (n.digits_size + n.exponent) * log2(10));        
-        // LongDouble two(2, current_precison);
-        // two.pow(power);
-        // while (two <= x) { // max four times
-        //     power++;
-        //     two *= 2;
-        // }
-        // assert(two > x);
-        // assert(two <= x * 2);
+        LongDouble x(n, INT_MAX);
 
         int power = (x.digits_size << 5) + x.exponent;
         int left = 0;
@@ -774,46 +745,33 @@ namespace arithmetic_32 {
         }
 
         int was = 0;
-        LongDouble st(1, current_precison);
-        st.mulBase(power);
         int rem = power & 3;
         if (rem == 1 || rem == 2) {
             x <<= 2;
             was = 1;
         }
 
-        // cout << "x: " << x << " " << x.exponent << endl;
-
         int power_b = ((power - 1) >> 2) + 1;
         LongDouble b = 1_ld << power_b;
         LongDouble a0 = x.getFirstBits(power_b);
-        // cout << "a0: " << a0 << " " << a0.exponent << endl;
-        // cout << power_b << endl;
         x >>= power_b;
-        // cout << "x: " << x << " " << x.exponent << endl;
-
         LongDouble a1 = x.getFirstBits(power_b);
         x >>= power_b;
-        // cout << "x: " << x << " " << x.exponent << endl;
-
         LongDouble a2 = x.getFirstBits(power_b);
         x >>= power_b;
 
         LongDouble a3 = x;
 
-        // cout << "a3: " << a3 << endl;
-
-
         LongDouble s1, r1, q, u;
         sqrt_rem((a3 << power_b) + a2, s1, r1);
+        assert((a3 << power_b) + a2 == s1 * s1 + r1);
+        assert(r1 >= 0);
+        assert((a3 << power_b) + a2 < (s1 + 1) * (s1 + 1));
 
-        s1.precision = current_precison;
-        r1.precision = current_precison;
+        s1.precision = INT_MAX;
+        r1.precision = INT_MAX;
 
-        LongDouble A((r1 << power_b) + a1, current_precison), B((s1 << 1), current_precison);
-
-        // cout << "n, A, B: " << n << " " << A << " " << B << endl;
-
+        LongDouble A((r1 << power_b) + a1, INT_MAX), B((s1 << 1), INT_MAX);
 
         A.precision = max(MIN_PRECISION, A.digits_size + ((A.exponent - 1) >> 5) - (B.digits_size + ((B.exponent - 1) >> 5))) + 3;
 
@@ -821,51 +779,51 @@ namespace arithmetic_32 {
         q.floor();
         q.precision = INT_MAX;
         u = A - q * B;
-        assert(u >= 0);
-        assert(A == B * q + u);
-        assert(A >= B * q);
-        assert(A < B * (q + 1));
-        // cout << "n, q, u: " << n << " " << q << " " << u << endl;
-
-
         u.precision = INT_MAX;
-
         s = (s1 << power_b) + q;
-        assert(s == s1 * b + q);
-        // cout << "s: " << (s1 << power_b) << " " << power_b << " " << q << " " << s << endl;
         r = (u << power_b) + a0 - q * q;
-        // cout << "power_b: " << power_b << endl;
-        // cout << "r: " << u << " " << power_b << " " << (u << power_b) << " " << a0 << " " << " " << q * q << endl;
-        // cout << "r: " << u << " " << endl;
+
+        assert(A >= B * q);
+        assert(A < B * (q + 1) * (q + 1));
+        assert(A == B * q + u);
+
+        assert(s == s1 * b + q);
         assert(u == (r + q * q - a0) >> power_b);
         assert(r == u * b + a0 - q * q);
+
+
+        // cout << n << endl;
+        // cout << a0 << endl << a1 << endl << a2 << endl << a3 << endl;
+        // cout << (a3 << power_b) + a2 << endl;
+        // cout << endl;
+        // cout << s1 << endl;
+        // cout << r1 << endl;
+        assert((n << (was ? 2 : 0)) == s * s + r);
+
 
         if (r < 0) {
             r = r + (s << 1) - 1;
             s -= 1;
         }
-        // cout << "n, A, B: " << n << " " << A << " " << B << endl;
-        // cout << "was: " << was << endl;
-        // cout << "n, s, r: " << n << " " << s << " " << r << endl;
-        if (was) assert((n << 2) == s * s + r);
+
+        assert((n << (was ? 2 : 0)) == s * s + r);
+        // cout << n << endl;
 
         if (was) {
-            // cout << "s: " << s << endl;
+            // assert((n << (was ? 2 : 0)) == s * s + r);
+            // assert((s.digits[0] & 1) == 0);
             s >>= 1;
-            // cout << "s: " << s << endl;
-            // cout << n << " " << ((s * s) << 2 >> 2) << endl;
+            // assert((n << (was ? 2 : 0)) == (s * 2) * (s * 2) + r);
             r = n - s * s;
+            was = 0;
         }
-
-        // cout << "r: " << r << endl;
-        // cout << "sqrt rem: " << n << " "  << s * s << endl;
-// 
-
+        // cout << s << endl;
+        LongDouble res = LongDouble(s, s.digits_size + 2) / 1000;
+        res.floor();
+        // cout << "rem: " << s - res * 1000 << endl;
         assert(n == s * s + r);
         assert(n >= s * s);
         assert(n < (s + 1) * (s + 1));
-
-        // cout << "sqrt rem: " << n << " "  << s * s << endl;
 
 
     }
