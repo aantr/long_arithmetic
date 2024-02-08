@@ -148,6 +148,18 @@ namespace arithmetic_32 {
         init_from_int(*this, v);
     }
 
+    LongDouble::LongDouble(const unsigned long long &v) {
+        init_from_int(*this, v);
+        precision = default_precision;
+    }
+
+    LongDouble::LongDouble(const unsigned long long &v, int precision): precision(precision) {
+        if (precision < MIN_PRECISION) {
+            init_precison_error();
+        }
+        init_from_int(*this, v);
+    }
+
     LongDouble::LongDouble(const double &v) {
         init_from_double(*this, v);
         precision = default_precision;
@@ -528,10 +540,13 @@ namespace arithmetic_32 {
             if (B == 0) {
                 division_error();
             }
-            res = LongDouble((long long) (A / B), INT_MAX);
-            rem = LongDouble((long long) (A % B), INT_MAX);
+            // cout << A << " " << B << " " << res << " " << rem << endl;
+            res = LongDouble((uint64_t) (A / B), INT_MAX);
+            rem = LongDouble((uint64_t) (A % B), INT_MAX);
+            cout << x << " "<<y << " " << res << " " << rem << endl;
 
-            assert((rem.exponent & 31) == 0);
+
+            assert((rem.exponent % 32) == 0);
             int d = rem.exponent >> 5;
             rem.digits_size += d;
             digit* temp = (digit*) malloc(rem.digits_size * sizeof(digit));
@@ -729,6 +744,9 @@ namespace arithmetic_32 {
             sqrt_int_limit_error();
         }
 
+        // cout << "sqrt rem start: " << n << endl;
+
+
 
 
         assert(n.isZero() || n.digits[n.digits_size - 1] != 0);
@@ -866,24 +884,27 @@ namespace arithmetic_32 {
         }
         // cout << "n, A, B: " << n << " " << A << " " << B << endl;
         // cout << "was: " << was << endl;
-        cout << "n, s, r: " << n << " " << s << " " << r << endl;
+        // cout << "n, s, r: " << n << " " << s << " " << r << endl;
         if (was) assert((n << 2) == s * s + r);
 
         if (was) {
-            cout << "s: " << s << endl;
+            // cout << "s: " << s << endl;
             s >>= 1;
-            cout << "s: " << s << endl;
-            cout << n << " " << ((s * s) << 2 >> 2) << endl;
+            // cout << "s: " << s << endl;
+            // cout << n << " " << ((s * s) << 2 >> 2) << endl;
             r = n - s * s;
         }
 
-        cout << "r: " << r << endl;
-        cout << "sqrt rem: " << n << " "  << s * s << endl;
-
+        // cout << "r: " << r << endl;
+        // cout << "sqrt rem: " << n << " "  << s * s << endl;
+// 
 
         assert(n == s * s + r);
         assert(n >= s * s);
         assert(n < (s + 1) * (s + 1));
+
+        // cout << "sqrt rem: " << n << " "  << s * s << endl;
+
 
     }
 

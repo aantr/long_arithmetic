@@ -278,9 +278,13 @@ TEST(ld32, Sqrt) {
 		cout << "test: " << x << endl;
 
 		arithmetic_32::sqrt_rem(x, s, r);
+		cout << "test: " << x << endl;
+		
 		ASSERT_TRUE(s * s + r == x);
 		ASSERT_TRUE(r >= 0);
 		ASSERT_TRUE((s + 1) * (s + 1) > x);
+
+
 		
 		x.sqrt_fast();
 		xx.sqrt_int();

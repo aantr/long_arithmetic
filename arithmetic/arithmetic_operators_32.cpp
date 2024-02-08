@@ -483,8 +483,6 @@ namespace arithmetic_32 {
             int x_exp_div = x.exponent / 32, x_exp_mod = x.exponent % 32;
             if (x_exp_mod < 0) x_exp_mod += 32, x_exp_div--;
 
-            cout << exp_mod << " " << x_exp_mod << " " << exp_div << " " << x_exp_div << endl;
-
             int res_size = max(digits_size + exp_div, x.digits_size + x_exp_div) - min(exp_div, x_exp_div) + 1;
             digit* resd = (digit*) malloc(res_size * sizeof(digit));
             if (!resd) memory_error();
