@@ -23,6 +23,7 @@ namespace arithmetic_32 {
         }
 
         for (int i = 0; i < value.digits_size; i++) os << value.digits[value.digits_size - 1 - i] << " ";
+        cout << "e" << value.exponent;
         return os;
     }
 
@@ -67,6 +68,28 @@ namespace arithmetic_32 {
         return res;
     }
 
+    void remove_right_zeroes(LongDouble &v) {
+        v.removeZeroes();
+        if (v.digits_size == 0) {
+            return;
+        }
+        int d = 0;
+        while ((v.digits[0] >> d & 1) == 0) {
+            d++;
+        }
+        if (d == 0) {
+            return;
+        }
+        for (int i = 0; i < v.digits_size; i++) {
+            if (i) {
+                v.digits[i - 1] |= (v.digits[i] & (v.ones[d])) << (32 - d);
+            }
+            v.digits[i] = v.digits[i] >> d;
+        }
+        v.exponent += d;
+        v.removeZeroes();
+    }
+
     void LongDouble::operator>>=(unsigned int val) {
         assert(isInt());
         int e = min((unsigned int) exponent, val);
@@ -76,9 +99,13 @@ namespace arithmetic_32 {
         removeFirst(d);
         exponent -= val;
         d = val - (d << 5);
+        assert(d < 32);
         if (digits_size != 0) {
-            digits[0] &= (UINT_MAX - ((1u << d) - 1));
+            digits[0] &= (ones[32] - ones[d]);
+            remove_right_zeroes(*this); 
+
         }
+
     }
 
     LongDouble LongDouble::operator*(const LongDouble& x) const {
@@ -141,7 +168,6 @@ namespace arithmetic_32 {
 
         digits = newres;
         digits_size = newressize;
-
         // int res_size = 0;
         // fft::digit* res = (fft::digit*) malloc(0 * sizeof(fft::digit));
         // if (!res) memory_error();
@@ -158,6 +184,7 @@ namespace arithmetic_32 {
             removeFirst(digits_size - precision);
         }
         removeZeroes();
+
     }
 
     LongDouble LongDouble::operator-() const {
@@ -315,8 +342,8 @@ namespace arithmetic_32 {
         return *this > x || *this == x;
     }
 
-    #define SUM(a, b) (a <= (a += b))
-    #define SUB(a, b) (a >= (a -= b))
+    #define SUM(a, b) (a += b, a - b <= a)
+    #define SUB(a, b) (a -= b, a + b >= a)
 
     LongDouble LongDouble::operator+(const LongDouble& x) const {
         if (sign == x.sign) {
@@ -348,14 +375,16 @@ namespace arithmetic_32 {
                 for (int i = 0; i < x.digits_size; i++) {
                     next_d = (i - 1 >= 0 && x_exp_mod ? x.digits[i - 1] >> (32 - (x_exp_mod)) : 0);
                     digit y = ((x.digits[i] & ones[32 - x_exp_mod]) << x_exp_mod) | next_d;
-                    if (!SUM(resd[i + x_exp_div - exp_div], y + carry)) {
+                    bool c = SUM(y, carry);
+                    if (!c || !SUM(resd[i + x_exp_div - exp_div], y)) {
                         carry = 1;
                     } else {
                         carry = 0;
                     }
                 }
                 next_d = (x.digits_size - 1 >= 0 && x_exp_mod ? x.digits[x.digits_size - 1] >> (32 - (x_exp_mod)) : 0);
-                if (!SUM(resd[x.digits_size + x_exp_div - exp_div], next_d + carry)) {
+                bool c = SUM(next_d, carry);
+                if (!c || !SUM(resd[x.digits_size + x_exp_div - exp_div], next_d)) {
                     carry = 1;
                 } else {
                     carry = 0;
@@ -373,14 +402,16 @@ namespace arithmetic_32 {
                 for (int i = 0; i < digits_size; i++) {
                     next_d = (i - 1 >= 0 && exp_mod ? digits[i - 1] >> (32 - (exp_mod)) : 0);
                     digit y = (((digits[i] & ones[32 - exp_mod]) << exp_mod) | next_d);
-                    if (!SUM(resd[i + exp_div - x_exp_div], y + carry)) {
+                    bool c = SUM(y, carry);
+                    if (!c || !SUM(resd[i + exp_div - x_exp_div], y)) {
                         carry = 1;
                     } else {
                         carry = 0;
                     }
                 }
                 next_d = (digits_size - 1 >= 0 && exp_mod ? digits[digits_size - 1] >> (32 - (exp_mod)) : 0);
-                if (!SUM(resd[digits_size + exp_div - x_exp_div], next_d + carry)) {
+                bool c = SUM(next_d, carry);
+                if (!c || !SUM(resd[digits_size + exp_div - x_exp_div], next_d)) {
                     carry = 1;
                 } else {
                     carry = 0;
@@ -450,14 +481,16 @@ namespace arithmetic_32 {
                 for (int i = 0; i < x.digits_size; i++) {
                     next_d = (i - 1 >= 0 && x_exp_mod ? x.digits[i - 1] >> (32 - (x_exp_mod)) : 0);
                     digit y = ((x.digits[i] & ones[32 - x_exp_mod]) << x_exp_mod) | next_d;
-                    if (!SUB(resd[i + x_exp_div - exp_div], y + carry)) {
+                    bool c = SUM(y, carry);
+                    if (!c || !SUB(resd[i + x_exp_div - exp_div], y)) {
                         carry = 1;
                     } else {
                         carry = 0;
                     }
                 }
                 next_d = (x.digits_size - 1 >= 0 && x_exp_mod ? (x.digits[x.digits_size - 1] >> (32 - (x_exp_mod))) : 0);
-                if (!SUB(resd[x.digits_size + x_exp_div - exp_div], next_d + carry)) {
+                bool c = SUM(next_d, carry);
+                if (!c || !SUB(resd[x.digits_size + x_exp_div - exp_div], next_d)) {
                     carry = 1;
                 } else {
                     carry = 0;
@@ -487,14 +520,16 @@ namespace arithmetic_32 {
                 for (int i = 0; i < x.digits_size; i++) {
                     next_d = (i - 1 >= 0 && x_exp_mod ? x.digits[i - 1] >> (32 - (x_exp_mod)) : 0);
                     int y = ((x.digits[i] & ones[32 - x_exp_mod]) << x_exp_mod) | next_d;
-                    if (!SUB(resd[i], y + carry)) {
+                    bool c = SUM(y, carry);
+                    if (!c || !SUB(resd[i], y)) {
                         carry = 1;
                     } else {
                         carry = 0;
                     }
                 }
                 next_d = (x.digits_size - 1 >= 0 && x_exp_mod ? x.digits[x.digits_size - 1] >> (32 - (x_exp_mod)) : 0);
-                if (!SUB(resd[x.digits_size], next_d + carry)) {
+                bool c = SUM(next_d, carry);
+                if (!c || !SUB(resd[x.digits_size], next_d)) {
                     carry = 1;
                 } else {
                     carry = 0;

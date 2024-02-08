@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wshadow -Werror -Wparentheses -O2")
 
 add_subdirectory("arithmetic")
+add_subdirectory("include")
 add_subdirectory("fft")
 add_subdirectory("pi")
 add_subdirectory("test")

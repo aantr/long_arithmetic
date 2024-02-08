@@ -211,14 +211,16 @@ namespace arithmetic_32 {
         }
         if (right == digits_size) {
             free(digits);
-            digits = (digit*) malloc(0 * sizeof(digit*));
+            digits = (digit*) malloc(0 * sizeof(digit));
             if (!digits) memory_error();
             digits_size = 0;
             sign = 1;
             exponent = 0;
-        }
-        else {
+        } else {
             if (left == 0) {
+                if (right == 0) {
+                    return;
+                }
                 digits_size = digits_size - right;
                 digits = (digit*) realloc(digits, (digits_size) * sizeof(digit));
                 if (!digits) memory_error();
@@ -236,7 +238,8 @@ namespace arithmetic_32 {
     }
 
     LongDouble LongDouble::getFirstBits(unsigned int value) const {
-        assert(isInt() ** digits_size << 5 >= value && value >= 0);
+        assert(isInt());
+        assert((unsigned int) (digits_size << 5) + exponent >= value && value >= 0);
         unsigned int e = min(value, (unsigned int) exponent);
         value -= e;
         LongDouble res(0, precision);
@@ -354,8 +357,6 @@ namespace arithmetic_32 {
     }
 
     void LongDouble::sqrt_int() {
-                    assert(0);
-
         if (!(isInt() && *this >= 1)) {
             sqrt_int_limit_error();
         }
@@ -529,7 +530,7 @@ namespace arithmetic_32 {
             res = LongDouble((long long) (A / B), INT_MAX);
             rem = LongDouble((long long) (A % B), INT_MAX);
 
-            assert(rem.exponent & UINT_MAX == 0);
+            assert((rem.exponent & 31) == 0);
             int d = rem.exponent >> 5;
             rem.digits_size += d;
             digit* temp = (digit*) malloc(rem.digits_size * sizeof(digit));
@@ -564,7 +565,14 @@ namespace arithmetic_32 {
             // rem.digits = temp;
             // rem.exponent = 0;
             assert(rem.sign == 1);
+            cout << x << " " << y << endl;
+            cout << y * res << endl;
+            cout << rem << endl;
+            cout << x - y * res << endl;
             assert(a == b * res + rem);
+            // assert(a == b * res + rem);
+            cout << "tesetererr" << endl;
+
             assert(rem < b);
             assert(rem >= 0);
             return;
@@ -643,7 +651,7 @@ namespace arithmetic_32 {
 
         // cout << current_rem.digits_size << " " << endl;
 
-        int q;
+        uint64_t q;
 
         uint64_t A = 0, B = 0;
         if (current_rem.digits_size < y.digits_size || current_rem >= 0) {
@@ -669,12 +677,12 @@ namespace arithmetic_32 {
         // q = rightq;
 
         assert(q == 0 || current_rem.digits_size < y.digits_size || current_rem.digits_size - y.digits_size == 0);
-        assert(q == 0 || current_rem.digits_size < y.digits_size || q >= A / B && abs(q - A / B) <= 1);
+        assert(q == 0 || current_rem.digits_size < y.digits_size || q >= A / B && q - A / B <= 1);
 
-        current_rem += y * q;
-        res1 -= q;  
+        current_rem += y * (int64_t) q;
+        res1 -= (int64_t)q;  
 
-        assert(q <= LongDouble::base);
+        assert(q <= (1ll << 32));
 
         while (current_rem < 0) {
             res1 -= 1;
@@ -727,14 +735,20 @@ namespace arithmetic_32 {
         if (n <= 4) {
             LongDouble x(n, 4);
 
-            x.sqrt_int();  
+            x.sqrt_int();
             x.floor();
+            remove_right_zeroes(x);
+
 
             s = x;
             r = n - s * s;
             assert(n == s * s + r);
+            cout << "res: " << n << " " << x << endl;
+
             return;
         }
+
+
 
         int current_precison = n.digits_size + ((n.exponent - 1) >> 5) + 3;
         LongDouble x(n, current_precison);
@@ -785,18 +799,26 @@ namespace arithmetic_32 {
             was = 1;
         }
 
-        cout << n << " " << n.exponent << endl;
+        cout << "x: " << x << " " << x.exponent << endl;
 
         int power_b = ((power - 1) >> 2) + 1;
         LongDouble a0 = x.getFirstBits(power_b);
+        cout << "a0: " << a0 << " " << a0.exponent << endl;
+        cout << power_b << endl;
         x >>= power_b;
-        cout << x << " " << x.exponent << endl;
+        cout << "x: " << x << " " << x.exponent << endl;
 
         LongDouble a1 = x.getFirstBits(power_b);
         x >>= power_b;
+        cout << "x: " << x << " " << x.exponent << endl;
+
         LongDouble a2 = x.getFirstBits(power_b);
         x >>= power_b;
+
         LongDouble a3 = x;
+
+        cout << "a3: " << a3 << endl;
+
 
         LongDouble s1, r1, q, u;
         sqrt_rem((a3 << power_b) + a2, s1, r1);
@@ -805,12 +827,20 @@ namespace arithmetic_32 {
         r1.precision = current_precison;
 
         LongDouble A((r1 << power_b) + a1, current_precison), B((s1 << 1), current_precison);
+
+        cout << "n, A, B: " << n << " " << A << " " << B << endl;
+
+
         A.precision = max(MIN_PRECISION, A.digits_size + ((A.exponent - 1) >> 5) - (B.digits_size + ((B.exponent - 1) >> 5))) + 3;
 
         q = A / B;
         q.floor();
+        remove_right_zeroes(q);
         q.precision = INT_MAX;
         u = A - q * B;
+
+        cout << "n, q, u: " << n << " " << q << " " << u << endl;
+
 
         u.precision = INT_MAX;
         s = (s1 << power_b) + q;
@@ -820,10 +850,17 @@ namespace arithmetic_32 {
             r = r + (s << 1) - 1;
             s -= 1;
         }
+        cout << "n, A, B: " << n << " " << A << " " << B << endl;
+        cout << was << endl;
         if (was) {
+            cout << "s: " << s << endl;
             s >>= 1;
+            cout << "s: " << s << endl;
+            throw "ssd";
             r = n - s * s;
         }
+
+
 
         assert(n == s * s + r);
 

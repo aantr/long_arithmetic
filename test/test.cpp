@@ -283,7 +283,7 @@ TEST(ld32, Sqrt) {
 		
 		x.sqrt_fast();
 		xx.sqrt_int();
-
+		cout << "test: " << x << endl;
 
 		x.floor(10);
 		xx.floor(10);

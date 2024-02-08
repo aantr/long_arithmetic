@@ -135,6 +135,8 @@ namespace arithmetic_32 {
 
     ostream& operator<<(ostream& os, const LongDouble& value);
 
+    void remove_right_zeroes(LongDouble &v);
+
     void div32(const LongDouble &a, const LongDouble &b, int n, LongDouble &res, LongDouble& rem);
 
     void div21(const LongDouble &a, const LongDouble &b, int n, LongDouble &res);
