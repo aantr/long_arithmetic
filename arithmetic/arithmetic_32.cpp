@@ -406,9 +406,8 @@ namespace arithmetic_32 {
     }
 
     void div21(const LongDouble &a, const LongDouble &b, int n, LongDouble &res) {
-
         assert(a.exponent == 0 && b.exponent == 0 && a.sign == 1 && b.sign == 1);
-        assert(a.isZero() || a.digits[a.digits_size - 1] != 0);
+        assert(a.isZero() || a.digits[a.digits_size - 1] != 0); 
         assert(b.isZero() || b.digits[b.digits_size - 1] != 0);
         // should be assert on no right nulls digits
         LongDouble x = a, y = b;
@@ -427,7 +426,7 @@ namespace arithmetic_32 {
             if (B == 0) {
                 division_error();
             }
-            res = LongDouble(static_cast<const int64_t>(A / B), INT_MAX);
+            res = LongDouble(A / B, INT_MAX);
             return;
         }
 
@@ -446,7 +445,7 @@ namespace arithmetic_32 {
             if (!first3m.digits) memory_error();
         }
 
-        LongDouble res1(0, (int) 1e9), rem1(0, (int) 1e9);
+        LongDouble res1(0, INT_MAX), rem1(0, INT_MAX);
 
         assert(first3m.isZero() || first3m.digits[first3m.digits_size - 1] != 0);
         div32(first3m, y, m, res1, rem1);
@@ -462,7 +461,7 @@ namespace arithmetic_32 {
         free(rem1.digits);
         rem1.digits = temp;
         memcpy(rem1.digits, x.digits, min(m, x.digits_size) * sizeof(digit));
-        LongDouble res2(0, (int) 1e9), rem2(0, (int) 1e9);
+        LongDouble res2(0, INT_MAX), rem2(0, INT_MAX);
 
         LongDouble::context_remove_left_zeroes = false;
         rem1.removeZeroes();
@@ -486,7 +485,8 @@ namespace arithmetic_32 {
         res1.removeZeroes();
         LongDouble::context_remove_left_zeroes = true;
         res = res1;
-
+        assert(a >= b * res);
+        assert(a <= b * (res + 1));
     }
 
     void div32(const LongDouble &a, const LongDouble &b, int n, LongDouble &res, LongDouble& rem) {
@@ -618,7 +618,6 @@ namespace arithmetic_32 {
             res1 -= 1;
         } else {
             assert(x1.isZero() || x1.digits[x1.digits_size - 1] != 0);
-
             div21(x1, y1, n, res1);            
         }
 
@@ -644,8 +643,8 @@ namespace arithmetic_32 {
             q = 0;
         } else {
             for (int i = 0; i < min(2, current_rem.digits_size); i++) {
-                A = A * LongDouble::base + current_rem.digits[current_rem.digits_size - 1 - i];
-                B = B * LongDouble::base + y.digits[y.digits_size - 1 - i];
+                A = (A << 32) | current_rem.digits[current_rem.digits_size - 1 - i];
+                B = (B << 32) | y.digits[y.digits_size - 1 - i];
             }
             if (A == 0) {
                 q = 0;
@@ -665,8 +664,8 @@ namespace arithmetic_32 {
         assert(q == 0 || current_rem.digits_size < y.digits_size || current_rem.digits_size - y.digits_size == 0);
         assert(q == 0 || current_rem.digits_size < y.digits_size || q >= A / B && q - A / B <= 1);
 
-        current_rem += y * (int64_t) q;
-        res1 -= (int64_t)q;  
+        current_rem += y * q;
+        res1 -= q;  
 
         assert(q <= (1ll << 32));
 

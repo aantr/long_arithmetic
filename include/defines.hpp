@@ -1,5 +1,5 @@
-#undef assert
-#define assert(x) 
+// #undef assert
+// #define assert(x) 
 #pragma once
 
 #include <iostream>
