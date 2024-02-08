@@ -255,6 +255,7 @@ namespace arithmetic_32 {
                 res.digits[res.digits_size - 1] &= ((1u << (32 - remove)) - 1);
             }
         }
+        res.removeZeroes();
         return res;
     }
 
@@ -565,13 +566,13 @@ namespace arithmetic_32 {
             // rem.digits = temp;
             // rem.exponent = 0;
             assert(rem.sign == 1);
-            cout << x << " " << y << endl;
-            cout << y * res << endl;
-            cout << rem << endl;
-            cout << x - y * res << endl;
-            cout << b * res + rem<< endl;
+            // cout << x << " " << y << endl;
+            // cout << y * res << endl;
+            // cout << rem << endl;
+            // cout << x - y * res << endl;
+            // cout << b * res + rem<< endl;
             assert(a == b * res + rem);
-            cout << "tesetererr" << endl;
+            // cout << "tesetererr" << endl;
 
             assert(rem < b);
             assert(rem >= 0);
@@ -729,6 +730,7 @@ namespace arithmetic_32 {
         }
 
 
+
         assert(n.isZero() || n.digits[n.digits_size - 1] != 0);
 
 
@@ -743,7 +745,7 @@ namespace arithmetic_32 {
             s = x;
             r = n - s * s;
             assert(n == s * s + r);
-            cout << "res: " << n << " " << x << endl;
+            // cout << "res: " << n << " " << x << endl;
 
             return;
         }
@@ -799,25 +801,26 @@ namespace arithmetic_32 {
             was = 1;
         }
 
-        cout << "x: " << x << " " << x.exponent << endl;
+        // cout << "x: " << x << " " << x.exponent << endl;
 
         int power_b = ((power - 1) >> 2) + 1;
+        LongDouble b = 1_ld << power_b;
         LongDouble a0 = x.getFirstBits(power_b);
-        cout << "a0: " << a0 << " " << a0.exponent << endl;
-        cout << power_b << endl;
+        // cout << "a0: " << a0 << " " << a0.exponent << endl;
+        // cout << power_b << endl;
         x >>= power_b;
-        cout << "x: " << x << " " << x.exponent << endl;
+        // cout << "x: " << x << " " << x.exponent << endl;
 
         LongDouble a1 = x.getFirstBits(power_b);
         x >>= power_b;
-        cout << "x: " << x << " " << x.exponent << endl;
+        // cout << "x: " << x << " " << x.exponent << endl;
 
         LongDouble a2 = x.getFirstBits(power_b);
         x >>= power_b;
 
         LongDouble a3 = x;
 
-        cout << "a3: " << a3 << endl;
+        // cout << "a3: " << a3 << endl;
 
 
         LongDouble s1, r1, q, u;
@@ -828,7 +831,7 @@ namespace arithmetic_32 {
 
         LongDouble A((r1 << power_b) + a1, current_precison), B((s1 << 1), current_precison);
 
-        cout << "n, A, B: " << n << " " << A << " " << B << endl;
+        // cout << "n, A, B: " << n << " " << A << " " << B << endl;
 
 
         A.precision = max(MIN_PRECISION, A.digits_size + ((A.exponent - 1) >> 5) - (B.digits_size + ((B.exponent - 1) >> 5))) + 3;
@@ -838,32 +841,49 @@ namespace arithmetic_32 {
         remove_right_zeroes(q);
         q.precision = INT_MAX;
         u = A - q * B;
+        assert(u >= 0);
+        assert(A == B * q + u);
         assert(A >= B * q);
         assert(A < B * (q + 1));
-        cout << "n, q, u: " << n << " " << q << " " << u << endl;
+        // cout << "n, q, u: " << n << " " << q << " " << u << endl;
 
 
         u.precision = INT_MAX;
+
         s = (s1 << power_b) + q;
+        assert(s == s1 * b + q);
+        // cout << "s: " << (s1 << power_b) << " " << power_b << " " << q << " " << s << endl;
         r = (u << power_b) + a0 - q * q;
+        // cout << "power_b: " << power_b << endl;
+        // cout << "r: " << u << " " << power_b << " " << (u << power_b) << " " << a0 << " " << " " << q * q << endl;
+        // cout << "r: " << u << " " << endl;
+        assert(u == (r + q * q - a0) >> power_b);
+        assert(r == u * b + a0 - q * q);
 
         if (r < 0) {
             r = r + (s << 1) - 1;
             s -= 1;
         }
-        cout << "n, A, B: " << n << " " << A << " " << B << endl;
-        cout << was << endl;
+        // cout << "n, A, B: " << n << " " << A << " " << B << endl;
+        // cout << "was: " << was << endl;
         cout << "n, s, r: " << n << " " << s << " " << r << endl;
+        if (was) assert((n << 2) == s * s + r);
+
         if (was) {
             cout << "s: " << s << endl;
             s >>= 1;
             cout << "s: " << s << endl;
+            cout << n << " " << ((s * s) << 2 >> 2) << endl;
             r = n - s * s;
         }
 
+        cout << "r: " << r << endl;
+        cout << "sqrt rem: " << n << " "  << s * s << endl;
 
 
         assert(n == s * s + r);
+        assert(n >= s * s);
+        assert(n < (s + 1) * (s + 1));
 
     }
 

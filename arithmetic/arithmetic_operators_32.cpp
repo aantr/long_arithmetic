@@ -59,7 +59,7 @@ namespace arithmetic_32 {
 
     void LongDouble::operator<<=(unsigned int val) {
         assert(isInt());
-        exponent += val;
+        if (!isZero()) exponent += val;
     }
 
     LongDouble LongDouble::operator>>(unsigned int val) const {
@@ -96,6 +96,10 @@ namespace arithmetic_32 {
         exponent -= e;
         val -= e;
         unsigned int d = val >> 5;
+        if (d >= (unsigned int) digits_size) {
+            *this = LongDouble(0, precision);
+            return;
+        }
         removeFirst(d);
         exponent -= val;
         d = val - (d << 5);
@@ -103,7 +107,6 @@ namespace arithmetic_32 {
         if (digits_size != 0) {
             digits[0] &= (ones[32] - ones[d]);
             remove_right_zeroes(*this); 
-
         }
 
     }
@@ -356,7 +359,6 @@ namespace arithmetic_32 {
             int x_exp_div = x.exponent / 32, x_exp_mod = x.exponent % 32;
             if (x_exp_mod < 0) x_exp_mod += 32, x_exp_div--;
 
-
             int res_size = max(digits_size + exp_div, x.digits_size + x_exp_div) - min(exp_div, x_exp_div) + 1;
             digit* resd = (digit*) malloc(res_size * sizeof(digit));
             if (!resd) memory_error();
@@ -382,6 +384,7 @@ namespace arithmetic_32 {
                         carry = 0;
                     }
                 }
+
                 next_d = (x.digits_size - 1 >= 0 && x_exp_mod ? x.digits[x.digits_size - 1] >> (32 - (x_exp_mod)) : 0);
                 bool c = SUM(next_d, carry);
                 if (!c || !SUM(resd[x.digits_size + x_exp_div - exp_div], next_d)) {
@@ -389,7 +392,6 @@ namespace arithmetic_32 {
                 } else {
                     carry = 0;
                 }
-
                 for (int i = x.digits_size + x_exp_div - exp_div + 1; i < res_size; i++) {
                     if (!carry) {
                         break;
@@ -401,10 +403,6 @@ namespace arithmetic_32 {
                     }
                     resd[i]++;
                 }
-
-                cout << "resd: "; for (int i = 0; i < res_size; i++) cout << resd[i] << " " ; cout << endl;        
-
-
 
             } else {
                 res.exponent = x_exp_div * 32;
@@ -485,6 +483,8 @@ namespace arithmetic_32 {
             int x_exp_div = x.exponent / 32, x_exp_mod = x.exponent % 32;
             if (x_exp_mod < 0) x_exp_mod += 32, x_exp_div--;
 
+            cout << exp_mod << " " << x_exp_mod << " " << exp_div << " " << x_exp_div << endl;
+
             int res_size = max(digits_size + exp_div, x.digits_size + x_exp_div) - min(exp_div, x_exp_div) + 1;
             digit* resd = (digit*) malloc(res_size * sizeof(digit));
             if (!resd) memory_error();
@@ -541,7 +541,7 @@ namespace arithmetic_32 {
 
                 for (int i = 0; i < x.digits_size; i++) {
                     next_d = (i - 1 >= 0 && x_exp_mod ? x.digits[i - 1] >> (32 - (x_exp_mod)) : 0);
-                    int y = ((x.digits[i] & ones[32 - x_exp_mod]) << x_exp_mod) | next_d;
+                    digit y = ((x.digits[i] & ones[32 - x_exp_mod]) << x_exp_mod) | next_d;
                     bool c = SUM(y, carry);
                     if (!c || !SUB(resd[i], y)) {
                         carry = 1;
@@ -549,6 +549,7 @@ namespace arithmetic_32 {
                         carry = 0;
                     }
                 }
+                
                 next_d = (x.digits_size - 1 >= 0 && x_exp_mod ? x.digits[x.digits_size - 1] >> (32 - (x_exp_mod)) : 0);
                 bool c = SUM(next_d, carry);
                 if (!c || !SUB(resd[x.digits_size], next_d)) {

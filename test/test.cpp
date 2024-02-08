@@ -275,6 +275,7 @@ TEST(ld32, Sqrt) {
 		ld x(i, 16 + 1);
 		ld xx(i, 16  + 1);
 		ld s, r;
+		cout << "test: " << x << endl;
 
 		arithmetic_32::sqrt_rem(x, s, r);
 		ASSERT_TRUE(s * s + r == x);
@@ -283,7 +284,6 @@ TEST(ld32, Sqrt) {
 		
 		x.sqrt_fast();
 		xx.sqrt_int();
-		cout << "test: " << x << endl;
 
 		x.floor(10);
 		xx.floor(10);
