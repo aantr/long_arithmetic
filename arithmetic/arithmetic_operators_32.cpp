@@ -22,8 +22,15 @@ namespace arithmetic_32 {
             return os;
         }
 
-        for (int i = 0; i < value.digits_size; i++) os << value.digits[value.digits_size - 1 - i] << " ";
-        cout << "e" << value.exponent;
+        for (int i = 0; i < value.digits_size; i++) {
+            for (int j = 7; j >= 0; j--) {
+                int d = 0;
+                for (int k = 3; k >= 0; k--) d = (d << 1) | (value.digits[value.digits_size - 1 - i] >> (j * 4 + k) & 1);
+                if (d < 10) os << d;
+                else os << (char)('a' + (d - 10));
+            }
+        }
+        os << "e" << value.exponent;
         return os;
     }
 

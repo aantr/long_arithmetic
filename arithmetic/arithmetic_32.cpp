@@ -300,7 +300,7 @@ namespace arithmetic_32 {
         removeFirst(d);
         assert(digits_size >= 1);
         int rem = (-exponent - number - 1) & (31);
-        digits[0] -= digits[0] & ((1u << rem) - 1);
+        digits[0] -= digits[0] & ones[rem];
 
         bool was = true;
         if ((digits[0] >> rem & 1) < 1) was = false;
@@ -323,7 +323,7 @@ namespace arithmetic_32 {
     }
 
     void LongDouble::floor(int number) {
-        if (-exponent <= number) return;
+        if (-exponent <= number || digits_size == 0) return;
         if (-exponent - number >= digits_size << 5) {
             *this = LongDouble(0, precision);
             return;
@@ -344,7 +344,7 @@ namespace arithmetic_32 {
         if (*this < 0) {
             sqrt_limit_error();
         }
-        LongDouble l, r = *this;
+        LongDouble l, r = *this + 1;
         l.precision = precision;
         r.precision = precision;
         LongDouble prev = -1;
@@ -367,36 +367,6 @@ namespace arithmetic_32 {
         }
         if (l.digits_size > l.precision) l.removeFirst(l.digits_size - l.precision);
         *this = l;
-    }
-
-    void LongDouble::sqrt_int() {
-        if (!(isInt() && *this >= 1)) {
-            sqrt_int_limit_error();
-        }
-        LongDouble x(1, precision);
-        x.mulBase((digits_size - 1) / 2);
-        LongDouble prev = -1;
-            // cout << "sqrt_int: " << x << endl;                      
-
-        for (int i = 0; i < 5; i++) {
-            // cout << "current sqrt_int: " << x << " "  << (LongDouble(*this, precision + 1) / x + x) * 0.5 << endl;                      
-            x = (LongDouble(*this, precision + 1) / x + x) * 0.5;
-                // throw "ass";
-
-            if (x.digits_size > precision) {
-                x.removeFirst(x.digits_size - precision);
-            }
-
-            x.precision = precision;
-            if (x == prev) {
-                break;
-            }
-            prev = x;
-
-
-        }
-        // cout << "result: "<<x <<endl;
-        *this = x;
     }
 
     void LongDouble::sqrt_fast() { // works only for integers >= 1
@@ -543,7 +513,7 @@ namespace arithmetic_32 {
             // cout << A << " " << B << " " << res << " " << rem << endl;
             res = LongDouble((uint64_t) (A / B), INT_MAX);
             rem = LongDouble((uint64_t) (A % B), INT_MAX);
-            cout << x << " "<<y << " " << res << " " << rem << endl;
+            // cout << x << " "<<y << " " << res << " " << rem << endl;
 
 
             assert((rem.exponent % 32) == 0);
@@ -744,31 +714,25 @@ namespace arithmetic_32 {
             sqrt_int_limit_error();
         }
 
-        // cout << "sqrt rem start: " << n << endl;
-
-
-
-
         assert(n.isZero() || n.digits[n.digits_size - 1] != 0);
 
 
         if (n <= 4) {
-            LongDouble x(n, 4);
-
-            x.sqrt_int();
-            x.floor();
-            remove_right_zeroes(x);
-
-
-            s = x;
-            r = n - s * s;
-            assert(n == s * s + r);
-            // cout << "res: " << n << " " << x << endl;
-
+            if (n == 1) {
+                s = 1;
+                r = 0;
+            } else if (n == 2) {
+                s = 1;
+                r = 1;
+            } else if (n == 3) {
+                s = 1;
+                r = 2;
+            } else {
+                s = 2;
+                r = 0;
+            }
             return;
         }
-
-
 
         int current_precison = n.digits_size + ((n.exponent - 1) >> 5) + 3;
         LongDouble x(n, current_precison);
@@ -856,7 +820,6 @@ namespace arithmetic_32 {
 
         q = A / B;
         q.floor();
-        remove_right_zeroes(q);
         q.precision = INT_MAX;
         u = A - q * B;
         assert(u >= 0);

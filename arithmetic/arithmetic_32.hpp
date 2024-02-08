@@ -102,7 +102,6 @@ namespace arithmetic_32 {
         void floor(int number);
         void floor();
         void sqrt();
-        void sqrt_int();
         void sqrt_fast();
         void pow(int power);
         LongDouble abs() const;

@@ -230,7 +230,7 @@ TEST(LongDouble32, Sub) {
 }
 
 
-TEST(ld32, Mul) {
+TEST(LongDouble32, Mul) {
 	int count = 100;
 	for (int i = 0; i < count; i++) {
 		cout << setprecision(200);
@@ -253,7 +253,7 @@ TEST(ld32, Mul) {
 	}
 }
 
-TEST(ld32, Div) {
+TEST(LongDouble32, Div) {
 	int count = 1000;
 	for (int i = 0; i < count; i++) {
 		int x = (long long) (rnd() - rnd()) % 1000000, y = (long long) (rnd()) % 1000000 + 1;
@@ -268,33 +268,59 @@ TEST(ld32, Div) {
 	}
 }
 
-TEST(ld32, Sqrt) {
+TEST(LongDouble32, Sqrt) {
 
-	int count = 10;
+	int count = 200;
 	for (int i = 1; i < count; i++) {
-		ld x(i, 16 + 1);
-		ld xx(i, 16  + 1);
+		ld x(i, 4);
+		ld xx(i, 4);
+		ld xxx(i, 4);
 		ld s, r;
-		cout << "test: " << x << endl;
-
 		arithmetic_32::sqrt_rem(x, s, r);
-		cout << "test: " << x << endl;
-		
+
 		ASSERT_TRUE(s * s + r == x);
 		ASSERT_TRUE(r >= 0);
 		ASSERT_TRUE((s + 1) * (s + 1) > x);
-
-
 		
 		x.sqrt_fast();
-		xx.sqrt_int();
+		xx.sqrt();
+		// xxx.sqrt();
 
-		x.floor(10);
-		xx.floor(10);
-		ASSERT_TRUE(x == xx);
+		x.floor(20);
+		xx.floor(20);
+		xxx.floor(20);
+
+		EXPECT_TRUE(x == xx) << "test: \n" << x << "\n" << xx << endl;
+		// EXPECT_TRUE(xxx == xx) << "test: \n" << x << "\n" << xx << endl;
+		ASSERT_TRUE(x == xx) << "test: \n" << x << "\n" << xx << endl;
+
+
 	}
 }
 
+
+// TEST(LongDouble32, Precision) {
+// 	int count = 50;
+// 	for (int i = 0; i < count; i++) {
+// 		int len = 10; // тестируем числа с len цифрами
+// 		LongDouble x(0, len * 2 / LongDouble::base_exp + 1), y(0, len * 2 / LongDouble::base_exp + 1);
+
+// 		for (int j = 0; j < len; j++) {
+// 			x = x * LongDouble(10) + LongDouble((int) (rnd() % 10));
+// 			y = y * LongDouble(10) + LongDouble((int) (rnd() % 10));
+// 		}
+
+// 		int expx = rnd() % len + 1;
+// 		x.divBase(expx);
+// 		y.divBase(rnd() % len + 1);
+// 		LongDouble power = 1; power.divBase(expx - 1); // допускаем последнюю цифру
+
+// 		ASSERT_TRUE((x - x / y * y).abs() < power);
+// 		ASSERT_TRUE((x - x * y / y).abs() < power);
+// 		ASSERT_TRUE((x - x / y / y * y * y).abs() < power * 10); // допуск 2 цифры
+// 		ASSERT_TRUE((x - x / y * y / y * y).abs() < power * 10);
+// 	}
+// }
 
 
 
