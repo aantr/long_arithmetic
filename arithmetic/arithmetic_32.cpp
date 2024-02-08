@@ -569,8 +569,8 @@ namespace arithmetic_32 {
             cout << y * res << endl;
             cout << rem << endl;
             cout << x - y * res << endl;
+            cout << b * res + rem<< endl;
             assert(a == b * res + rem);
-            // assert(a == b * res + rem);
             cout << "tesetererr" << endl;
 
             assert(rem < b);
@@ -838,7 +838,8 @@ namespace arithmetic_32 {
         remove_right_zeroes(q);
         q.precision = INT_MAX;
         u = A - q * B;
-
+        assert(A >= B * q);
+        assert(A < B * (q + 1));
         cout << "n, q, u: " << n << " " << q << " " << u << endl;
 
 
@@ -852,11 +853,11 @@ namespace arithmetic_32 {
         }
         cout << "n, A, B: " << n << " " << A << " " << B << endl;
         cout << was << endl;
+        cout << "n, s, r: " << n << " " << s << " " << r << endl;
         if (was) {
             cout << "s: " << s << endl;
             s >>= 1;
             cout << "s: " << s << endl;
-            throw "ssd";
             r = n - s * s;
         }
 

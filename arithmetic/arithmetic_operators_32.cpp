@@ -390,6 +390,22 @@ namespace arithmetic_32 {
                     carry = 0;
                 }
 
+                for (int i = x.digits_size + x_exp_div - exp_div + 1; i < res_size; i++) {
+                    if (!carry) {
+                        break;
+                    }
+                    if (resd[i] == ones[32]) {
+                        carry = 1;
+                    } else {
+                        carry = 0;
+                    }
+                    resd[i]++;
+                }
+
+                cout << "resd: "; for (int i = 0; i < res_size; i++) cout << resd[i] << " " ; cout << endl;        
+
+
+
             } else {
                 res.exponent = x_exp_div * 32;
                 digit next_d;
@@ -416,13 +432,19 @@ namespace arithmetic_32 {
                 } else {
                     carry = 0;
                 }
+                for (int i = digits_size + exp_div - x_exp_div + 1; i < res_size; i++) {
+                    if (!carry) {
+                        break;
+                    }
+                    if (resd[i] == ones[32]) {
+                        carry = 1;
+                    } else {
+                        carry = 0;
+                    }
+                    resd[i]++;
+                }
             }
-            if (carry) {
-                resd = (digit*) realloc(resd, (res_size + 1) * sizeof(digit));
-                if (!resd) memory_error();
-                resd[res_size] = 1;
-                res_size++;
-            }
+            assert(carry == 0);
             free(res.digits);
             res.digits = resd;
             res.digits_size = res_size;
