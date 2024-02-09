@@ -457,10 +457,12 @@ namespace arithmetic {
         assert(a.exponent == 0 && b.exponent == 0 && a.sign == 1 && b.sign == 1);
         assert(a.isZero() || a.digits[a.digits_size - 1] != 0);
         assert(b.isZero() || b.digits[b.digits_size - 1] != 0);
+        assert(a.precision == INT_MAX && b.precision == INT_MAX);
+
         // should be assert on no right nulls digits
         LongDouble x = a, y = b;
-        x.precision = (int) 1e9;
-        y.precision = (int) 1e9;
+        x.precision = INT_MAX;
+        y.precision = INT_MAX;
 
         int m = n >> 1;
         if (n <= 1) {
@@ -477,11 +479,11 @@ namespace arithmetic {
             if (B == 0) {
                 division_error();
             }
-            res = LongDouble(A / B, (int) 1e9);
+            res = LongDouble(A / B, INT_MAX);
             return;
         }
 
-        LongDouble first3m(0, (int) 1e9);
+        LongDouble first3m(0, INT_MAX);
 
         if (x.digits_size >= m) {
             first3m.digits_size = x.digits_size - m;
@@ -496,7 +498,7 @@ namespace arithmetic {
             if (!first3m.digits) memory_error();
         }
 
-        LongDouble res1(0, (int) 1e9), rem1(0, (int) 1e9);
+        LongDouble res1(0, INT_MAX), rem1(0, INT_MAX);
 
         assert(first3m.isZero() || first3m.digits[first3m.digits_size - 1] != 0);
         div32(first3m, y, m, res1, rem1);
@@ -513,7 +515,7 @@ namespace arithmetic {
         free(rem1.digits);
         rem1.digits = temp;
         memcpy(rem1.digits, x.digits, min(m, x.digits_size) * sizeof(digit));
-        LongDouble res2(0, (int) 1e9), rem2(0, (int) 1e9);
+        LongDouble res2(0, INT_MAX), rem2(0, INT_MAX);
 
         LongDouble::context_remove_left_zeroes = false;
         rem1.removeZeroes();
@@ -546,12 +548,13 @@ namespace arithmetic {
         assert(a.exponent == 0 && b.exponent == 0 && a.sign == 1 && b.sign == 1);
         assert(a.isZero() || a.digits[a.digits_size - 1] != 0);
         assert(b.isZero() || b.digits[b.digits_size - 1] != 0);
+        assert(a.precision == INT_MAX && b.precision == INT_MAX);
 
         // should be assert on no right nulls digits
 
         LongDouble x = a, y = b;
-        x.precision = (int) 1e9;
-        y.precision = (int) 1e9;
+        x.precision = INT_MAX;
+        y.precision = INT_MAX;
 
         if (n <= 1) {
 
@@ -565,8 +568,8 @@ namespace arithmetic {
             if (B == 0) {
                 division_error();
             }
-            res = LongDouble((long long) (A / B), (int) 1e9);
-            rem = LongDouble((long long) (A % B), (int) 1e9);
+            res = LongDouble((long long) (A / B), INT_MAX);
+            rem = LongDouble((long long) (A % B), INT_MAX);
 
             assert(rem.exponent % rem.base_exp == 0);
             int d = rem.exponent / rem.base_exp;
@@ -610,14 +613,14 @@ namespace arithmetic {
             return;
         }
 
-        LongDouble x1(0, (int) 1e9); // first |x| - (|y| - n)
+        LongDouble x1(0, INT_MAX); // first |x| - (|y| - n)
         x1.digits_size = max(0, x.digits_size - (y.digits_size - n));
         x1.digits = (digit*) malloc(x1.digits_size * sizeof(digit));
         if (!x1.digits) memory_error();
 
         memcpy(x1.digits, x.digits + (y.digits_size - n), (x1.digits_size) * sizeof(digit));
 
-        LongDouble y1(0, (int) 1e9); // first n
+        LongDouble y1(0, INT_MAX); // first n
         y1.digits_size = n;
         y1.digits = (digit*) malloc(y1.digits_size * sizeof(digit));
         if (!y1.digits) memory_error();
@@ -656,10 +659,10 @@ namespace arithmetic {
 
 
 
-        LongDouble res1(0, (int) 1e9);
+        LongDouble res1(0, INT_MAX);
         if (maxres) {
             res1 = 1;
-            res1.precision = (int) 1e9;
+            res1.precision = INT_MAX;
             res1.mulBase(n * x.base_exp);
             res1 -= 1;
         } else {
@@ -670,7 +673,7 @@ namespace arithmetic {
 
         LongDouble::context_remove_left_zeroes = false;
 
-        LongDouble current_rem = LongDouble(x, (int) 1e9) - res1 * y; 
+        LongDouble current_rem = LongDouble(x, INT_MAX) - res1 * y; 
                 assert(current_rem.isZero() || current_rem.digits[current_rem.digits_size - 1] != 0);
         assert(y.isZero() || y.digits[y.digits_size - 1] != 0);
         assert(current_rem.isZero() || current_rem.digits[current_rem.digits_size - 1] != 0);
@@ -820,21 +823,21 @@ namespace arithmetic {
         x.precision = x.digits_size + (x.exponent - 1) / LongDouble::base_exp - (b.digits_size + (b.exponent - 1) / LongDouble::base_exp) + 3;
         x /= b;
         x.floor();
-        x.precision = (int) 1e9;
+        x.precision = INT_MAX;
         a0 = temp_ - x * b;
 
         temp_ = x;
         x.precision = x.digits_size + (x.exponent - 1) / LongDouble::base_exp - (b.digits_size + (b.exponent - 1) / LongDouble::base_exp) + 3;
         x /= b;
         x.floor();
-        x.precision = (int) 1e9;
+        x.precision = INT_MAX;
         a1 = temp_ - x * b;
 
         temp_ = x;
         x.precision = x.digits_size + (x.exponent - 1) / LongDouble::base_exp - (b.digits_size + (b.exponent - 1) / LongDouble::base_exp) + 3;
         x /= b;
         x.floor();
-        x.precision = (int) 1e9;
+        x.precision = INT_MAX;
         a2 = temp_ - x * b;
 
         a3 = x;
@@ -851,9 +854,9 @@ namespace arithmetic {
 
         q = A / B;
         q.floor();
-        q.precision = (int) 1e9;
+        q.precision = INT_MAX;
         u = A - q * B;
-        u.precision = (int) 1e9;
+        u.precision = INT_MAX;
         s = s1 * b + q;
         r = u * b + a0 - q * q;
 
@@ -864,7 +867,6 @@ namespace arithmetic {
 
         assert((n * (was ? 4 : 1)) == s * s + r);
 
-
         if (was) { // if n was multipled by 4
             // assert((s.digits[0] & 1) == 0);
             s *= 0.5;
@@ -872,7 +874,7 @@ namespace arithmetic {
 
             r = n - s * s;
         }
-        // cout << s << endl;
+
         assert(n == s * s + r);
         assert(n >= s * s);
         assert(n < (s + 1) * (s + 1));

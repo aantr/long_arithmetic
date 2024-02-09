@@ -1,5 +1,5 @@
-// #undef assert
-// #define assert(x) 
+#undef assert
+#define assert(x) 
 #pragma once
 
 #include <iostream>
@@ -14,3 +14,5 @@ void _print(T t, V... v);
 	cerr<<"["<<#__VA_ARGS__<<"] = [";\
 	_print(__VA_ARGS__);\
 }
+
+

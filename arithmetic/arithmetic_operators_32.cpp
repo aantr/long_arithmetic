@@ -142,11 +142,21 @@ namespace arithmetic_32 {
                 memcpy(res, arr, size * sizeof(fft::digit));
                 return {res, size};
             }
-            int newsize = size * 2;
+            // int newsize = size * 2;
+            // fft::digit* res = (fft::digit*) malloc(newsize * sizeof(fft::digit));
+            // for (int i = 0; i < size; i++) {
+            //     res[i * 2] = arr[i] & ((1u << 8) - 1);
+            //     res[i * 2 + 1] = arr[i] >> 8;
+            // }
+            // return {res, newsize};
+
+            int newsize = size * 4;
             fft::digit* res = (fft::digit*) malloc(newsize * sizeof(fft::digit));
             for (int i = 0; i < size; i++) {
-                res[i * 2] = arr[i] & ((1u << 16) - 1);
-                res[i * 2 + 1] = arr[i] >> 16;
+                res[i * 4] = arr[i] & ones[8];
+                res[i * 4 + 1] = (arr[i] & ones[16]) >> 8;
+                res[i * 4 + 2] = (arr[i] & ones[24]) >> 16;
+                res[i * 4 + 3] = (arr[i] & ones[32]) >> 24;
             }
             return {res, newsize};
         };
@@ -158,11 +168,21 @@ namespace arithmetic_32 {
                 }
                 return {res, size};
             }
-            int newsize = (size - 1) / 2 + 1;
+            // int newsize = (size - 1) / 2 + 1;
+            // digit* res = (digit*) malloc(newsize * sizeof(digit));
+            // for (int i = 0; i < size; i++) {
+            //     if (i % 2 == 0) res[i / 2] = arr[i];
+            //     else res[i / 2] |= (digit) arr[i] << 16;
+            // }
+            // return {res, newsize};
+
+            int newsize = (size - 1) / 4 + 1;
             digit* res = (digit*) malloc(newsize * sizeof(digit));
             for (int i = 0; i < size; i++) {
-                if (i % 2 == 0) res[i / 2] = arr[i];
-                else res[i / 2] |= (digit) arr[i] << 16;
+                if (i % 4 == 0) res[i / 4] = arr[i];
+                else if (i % 4 == 1) res[i / 4] |= arr[i] << 8;
+                else if (i % 4 == 2) res[i / 4] |= arr[i] << 16;
+                else if (i % 4 == 3) res[i / 4] |= arr[i] << 24;
             }
             return {res, newsize};
         };
@@ -170,7 +190,7 @@ namespace arithmetic_32 {
         free(digits);
 
         auto [second, second_size] = cut(x.digits, x.digits_size);
-        fft.multiply(first, first_size, second, second_size, res, res_size, 1 << 16);
+        fft.multiply(first, first_size, second, second_size, res, res_size, 1 << 8);
         free(first);
         free(second);
         auto [newres, newressize] = merge(res, res_size);
@@ -632,7 +652,10 @@ namespace arithmetic_32 {
         int n = 1;
         while (x.digits_size > 2 * n || y.digits_size > n || x.digits_size - y.digits_size + 1 > n) n <<= 1;
 
+        x.precision = INT_MAX;
+        y.precision = INT_MAX;
         div21(x, y, n, res);
+
         res.precision = precision;
         res.exponent += res_exponent;
         res.sign = sign * other.sign;

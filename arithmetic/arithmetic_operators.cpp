@@ -528,7 +528,8 @@ namespace arithmetic {
         LongDouble res;
         int n = 1;
         while (x.digits_size > 2 * n || y.digits_size > n || x.digits_size - y.digits_size + 1 > n) n <<= 1;
-
+        x.precision = INT_MAX;
+        y.precision = INT_MAX;
         div21(x, y, n, res);
         res.precision = precision;
         res.exponent += res_exponent;

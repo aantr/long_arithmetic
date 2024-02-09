@@ -194,17 +194,9 @@ namespace fft {
             res = (digit*) malloc(0 * sizeof(digit));
             return;
         }
-
-
         int mult_size = 0;
         int64_t* mult = (int64_t*) malloc(0);
         fft_tourist::multiply(a, size_a, b, size_b, mult, mult_size);
-
-        // vector<int> A{a, a + size_a}, B{b, b + size_b};
-        // vector<int64_t> result = fft_vector::multiply(A, B);
-        // int mult_size = (int) result.size();
-        // int64_t* mult = (int64_t*) malloc(mult_size * sizeof(int64_t));
-        // memcpy(mult, result.data(), mult_size * sizeof(int64_t));
 
         res_size = (int) mult_size + 1;
         res = (digit*) malloc(res_size * sizeof(digit));

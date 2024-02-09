@@ -47,13 +47,6 @@ void __print(bool x) {
 	cerr << (x ? "true" : "false");
 }
 
-void __print(arithmetic::LongDouble x) {
-	cerr << x;
-}
-void __print(arithmetic_32::LongDouble x) {
-	cerr << x;
-}
-
 template<class T, class V>
 void __print(const pair<T, V>& x) {
 	cerr << '{';
@@ -75,12 +68,22 @@ void __print(const T& x) {
 void _print() {
 	cerr << "]" << endl;
 }
+// template <typename T>
+// void _print(int t) {
+// 	__print(t);
+// }
+
 template <typename T, typename... V>
 void _print(T t, V... v) {
 	__print(t);
 	if (sizeof...(v))
 		cerr << ", ";
 	_print(v...);
+}
+
+// template<>
+void _print(int t) {
+	__print(t);
 }
 
 

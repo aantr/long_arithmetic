@@ -35,7 +35,7 @@ array<LongDouble, 3> binary_split(int l, int r) {
 }
 
 LongDouble Chudnovsky(int digits) {
-    int precision = ceil(((double) digits * log2(10) / 32)) + 2;
+    int precision = (digits / 8 + 2);
     int default_precision = LongDouble::default_precision;
     LongDouble::default_precision = precision;
     LongDouble sq10005 = 10005;
@@ -54,13 +54,10 @@ LongDouble Chudnovsky(int digits) {
 
 int main() {
 
-    // LongDouble res, rem;
-    // sqrt_rem(LongDouble(10005, INT_MAX) << 1000000, res, rem);
-
     int digits;
     const int right_bound = 1000000;
 
-    cout << "Количество знаков после запятой (0 - " << right_bound << "): ";
+    cout << "Количество знаков после запятой в hex (0 - " << right_bound << "): ";
     cin >> digits;
     
     if (cin.fail() || digits < 0 || digits > right_bound) {

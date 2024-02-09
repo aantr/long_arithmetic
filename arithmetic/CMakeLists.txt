@@ -17,3 +17,4 @@ target_include_directories(arithmetic_32 PUBLIC
                           )
 
 target_link_libraries(arithmetic_32 PRIVATE fft)
+target_link_libraries(arithmetic_32 PRIVATE defines)

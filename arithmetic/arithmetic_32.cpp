@@ -407,9 +407,11 @@ namespace arithmetic_32 {
 
     void div21(const LongDouble &a, const LongDouble &b, int n, LongDouble &res) {
         assert(a.exponent == 0 && b.exponent == 0 && a.sign == 1 && b.sign == 1);
+        assert(a.precision == INT_MAX && b.precision == INT_MAX);
         assert(a.isZero() || a.digits[a.digits_size - 1] != 0); 
         assert(b.isZero() || b.digits[b.digits_size - 1] != 0);
         // should be assert on no right nulls digits
+
         LongDouble x = a, y = b;
         x.precision = INT_MAX;
         y.precision = INT_MAX;
@@ -430,6 +432,7 @@ namespace arithmetic_32 {
             return;
         }
 
+        // div32 first n - m digits by y
         LongDouble first3m(0, INT_MAX);
 
         if (x.digits_size >= m) {
@@ -445,13 +448,12 @@ namespace arithmetic_32 {
             if (!first3m.digits) memory_error();
         }
 
-        LongDouble res1(0, INT_MAX), rem1(0, INT_MAX);
+        LongDouble rem1(0, INT_MAX);
+        res = LongDouble(0, INT_MAX);
 
-        assert(first3m.isZero() || first3m.digits[first3m.digits_size - 1] != 0);
-        div32(first3m, y, m, res1, rem1);
+        div32(first3m, y, m, res, rem1);
 
-        assert(first3m == y * res1 + rem1);
-
+        // add m last x digits to result and divide by y
         rem1.digits_size = rem1.digits_size + m;
         digit* temp = (digit*) malloc(rem1.digits_size * sizeof(digit));
         if (!temp) memory_error();
@@ -469,32 +471,34 @@ namespace arithmetic_32 {
 
         div32(rem1, y, m, res2, rem2);
 
-        assert(rem1 == y * res2 + rem2);
-        res1.digits_size = res1.digits_size + m;
-        temp = (digit*) malloc(res1.digits_size * sizeof(digit));
+        // make res = (res << m) | res2
+        res.digits_size = res.digits_size + m;
+        temp = (digit*) malloc(res.digits_size * sizeof(digit));
         if (!temp) memory_error();
         memset(temp, 0, m * sizeof(digit));
 
-        memcpy(temp + m, res1.digits, (res1.digits_size - m) * sizeof(digit));
+        memcpy(temp + m, res.digits, (res.digits_size - m) * sizeof(digit));
 
-        free(res1.digits);
-        res1.digits = temp;
+        free(res.digits);
+        res.digits = temp;
 
-        memcpy(res1.digits, res2.digits, res2.digits_size * sizeof(digit)); // add m digits
+        memcpy(res.digits, res2.digits, res2.digits_size * sizeof(digit));
         LongDouble::context_remove_left_zeroes = false;
-        res1.removeZeroes();
+        res.removeZeroes();
         LongDouble::context_remove_left_zeroes = true;
-        res = res1;
-        cout << a << " " << b << " " << res << endl;
 
+        LongDouble rem = a - b * res;
         assert(a >= b * res);
-        assert(a <= b * (res + 1));
+        assert(a < b * (res + 1));
+        assert(rem < b);
+        assert(rem >= 0);
     }
 
     void div32(const LongDouble &a, const LongDouble &b, int n, LongDouble &res, LongDouble& rem) {
         assert(a.exponent == 0 && b.exponent == 0 && a.sign == 1 && b.sign == 1);
         assert(a.isZero() || a.digits[a.digits_size - 1] != 0);
         assert(b.isZero() || b.digits[b.digits_size - 1] != 0);
+        assert(a.precision == INT_MAX && b.precision == INT_MAX);
 
         LongDouble x = a, y = b;
         x.precision = INT_MAX;
@@ -818,9 +822,11 @@ namespace arithmetic_32 {
             was = 0;
         }
         // cout << s << endl;
-        LongDouble res = LongDouble(s, s.digits_size + 2) / 1000;
-        res.floor();
-        // cout << "rem: " << s - res * 1000 << endl;
+        // cout << s << endl;
+        // LongDouble res = LongDouble(s, s.digits_size + 1) / 1000000;
+        // res.floor();
+        // cout << res << endl;
+        // cout << "rem: " << s - res * 1000000 << endl;
         assert(n == s * s + r);
         assert(n >= s * s);
         assert(n < (s + 1) * (s + 1));
