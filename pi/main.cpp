@@ -40,7 +40,7 @@ LongDouble Chudnovsky(int digits) {
     LongDouble::default_precision = precision;
     LongDouble sq10005 = 10005;
     sq10005.sqrt_fast();
-    
+
     LongDouble::default_precision = (int) 1e9;
     auto [P1n, Q1n, R1n] = binary_split(1, digits / 10 + 2); // todo: proof that we can use this constant
     Q1n.precision = precision;

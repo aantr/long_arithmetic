@@ -11,35 +11,39 @@ namespace arithmetic_32 {
     using namespace std;
     using digit = uint32_t;
 
-    class DivisionByZeroException {
+    class DivisionByZeroException: public exception {
 
     };
 
-    class MemoryLimitException {
+    class MemoryLimitException: public exception {
 
     };
 
-    class InitError {
+    class InitError: public exception {
 
     };
 
-    class InitPrecisonError {
+    class InitPrecisonError: public exception {
 
     };
 
-    class InitStringError {
+    class InitStringError: public exception {
 
     };
 
-    class SqrtLimitError {
+    class SqrtLimitError: public exception {
 
     };
 
-    class SqrtIntLimitError {
+    class SqrtIntLimitError: public exception {
 
     };
 
-    class NegativePowerError {
+    class NegativePowerError: public exception {
+
+    };
+
+    class IntError: public exception {
 
     };
 
@@ -59,11 +63,11 @@ namespace arithmetic_32 {
 
     void negative_power_error();
 
+    void int_error();
+
     class LongDouble {
     public:
 
-        
-        static bool use_scientific_output;
         static bool output_insignificant_zeroes;
         static bool context_remove_left_zeroes;
         static int default_precision;
@@ -74,7 +78,7 @@ namespace arithmetic_32 {
         digit* digits; 
         int digits_size;
         int precision; // >= MIN_PRECISION
-        int exponent; // base 10
+        int exponent; // base 2
 
         LongDouble(); 
         LongDouble(const LongDouble& x); 

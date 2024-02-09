@@ -14,7 +14,6 @@ namespace arithmetic_32 {
     using namespace std;
 
     bool LongDouble::context_remove_left_zeroes = true;
-    bool LongDouble::use_scientific_output = false;
     bool LongDouble::output_insignificant_zeroes = false;
     int LongDouble::default_precision = 8;
     const uint64_t LongDouble::base = 1ll << 32;
@@ -32,6 +31,60 @@ namespace arithmetic_32 {
                                     0b111111111111111111111111111111u, 0b1111111111111111111111111111111u, 
                                     0b11111111111111111111111111111111u };
 
+
+    class DivisionByZeroException: public exception {
+        const char * what() const noexcept override {
+            return "Division by zero";
+        }
+    };
+
+    class MemoryLimitException: public exception {
+        const char * what() const noexcept override {
+            return "Cannot allocate or reallocate memory";
+        }
+    };
+
+    class InitError: public exception {
+        const char * what() const noexcept override {
+            return "Wrong format captured in initialization";
+        }
+    };
+
+    class InitPrecisonError: public exception {
+        const char * what() const noexcept override {
+            return "Precision must be >= MIN_PRECISION constant";
+        }
+    };
+
+    class InitStringError: public exception {
+        const char * what() const noexcept override {
+            return "Wrong format captured in string initialization";
+        }
+    };
+
+    class SqrtLimitError: public exception {
+        const char * what() const noexcept override {
+            return "Expected non negative value";
+        }
+    };
+
+    class SqrtIntLimitError: public exception {
+        const char * what() const noexcept override {
+            return "Expected integer >= 1";
+        }
+    };
+
+    class NegativePowerError: public exception {
+        const char * what() const noexcept override {
+            return "Non negative value of power expected";
+        }
+    };
+
+    class IntError: public exception {
+        const char * what() const noexcept override {
+            return "Integer expected";
+        }
+    };
 
     void division_error() {
         throw DivisionByZeroException();
@@ -63,6 +116,10 @@ namespace arithmetic_32 {
 
     void negative_power_error() {
         throw NegativePowerError();
+    }
+
+    void int_error() {
+        throw InitError();
     }
 
     LongDouble::~LongDouble() {

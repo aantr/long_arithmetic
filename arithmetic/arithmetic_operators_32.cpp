@@ -65,7 +65,9 @@ namespace arithmetic_32 {
     }
 
     void LongDouble::operator<<=(unsigned int val) {
-        assert(isInt());
+        if (!isInt()) {
+            int_error();
+        }
         if (!isZero()) exponent += val;
     }
 
@@ -98,7 +100,9 @@ namespace arithmetic_32 {
     }
 
     void LongDouble::operator>>=(unsigned int val) {
-        assert(isInt());
+        if (!isInt()) {
+            int_error();
+        }
         int e = min((unsigned int) exponent, val);
         exponent -= e;
         val -= e;

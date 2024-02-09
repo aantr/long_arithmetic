@@ -91,6 +91,8 @@ namespace arithmetic {
 
     void negative_power_error();
 
+    void int_error();
+
     class LongDouble {
     public:
 
