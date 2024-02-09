@@ -12,39 +12,57 @@ namespace arithmetic_32 {
     using digit = uint32_t;
 
     class DivisionByZeroException: public exception {
-
+        const char * what() const noexcept override {
+            return "Division by zero";
+        }
     };
 
     class MemoryLimitException: public exception {
-
+        const char * what() const noexcept override {
+            return "Cannot allocate or reallocate memory";
+        }
     };
 
     class InitError: public exception {
-
+        const char * what() const noexcept override {
+            return "Wrong format captured in initialization";
+        }
     };
 
     class InitPrecisonError: public exception {
-
+        const char * what() const noexcept override {
+            return "Precision must be >= MIN_PRECISION constant";
+        }
     };
 
     class InitStringError: public exception {
-
+        const char * what() const noexcept override {
+            return "Wrong format captured in string initialization";
+        }
     };
 
     class SqrtLimitError: public exception {
-
+        const char * what() const noexcept override {
+            return "Expected non negative value";
+        }
     };
 
     class SqrtIntLimitError: public exception {
-
+        const char * what() const noexcept override {
+            return "Expected integer >= 1";
+        }
     };
 
     class NegativePowerError: public exception {
-
+        const char * what() const noexcept override {
+            return "Non negative value of power expected";
+        }
     };
 
     class IntError: public exception {
-
+        const char * what() const noexcept override {
+            return "Integer expected";
+        }
     };
 
     void division_error();

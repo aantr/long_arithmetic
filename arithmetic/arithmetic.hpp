@@ -43,36 +43,58 @@ namespace arithmetic {
     using namespace std;
     using digit = int32_t;
 
-    class DivisionByZeroException {
-
+    class DivisionByZeroException: public exception {
+        const char * what() const noexcept override {
+            return "Division by zero";
+        }
     };
 
-    class MemoryLimitException {
-
+    class MemoryLimitException: public exception {
+        const char * what() const noexcept override {
+            return "Cannot allocate or reallocate memory";
+        }
     };
 
-    class InitError {
-
+    class InitError: public exception {
+        const char * what() const noexcept override {
+            return "Wrong format captured in initialization";
+        }
     };
 
-    class InitPrecisonError {
-
+    class InitPrecisonError: public exception {
+        const char * what() const noexcept override {
+            return "Precision must be >= MIN_PRECISION constant";
+        }
     };
 
-    class InitStringError {
-
+    class InitStringError: public exception {
+        const char * what() const noexcept override {
+            return "Wrong format captured in string initialization";
+        }
     };
 
-    class SqrtLimitError {
-
+    class SqrtLimitError: public exception {
+        const char * what() const noexcept override {
+            return "Expected non negative value";
+        }
     };
 
-    class SqrtIntLimitError {
-
+    class SqrtIntLimitError: public exception {
+        const char * what() const noexcept override {
+            return "Expected integer >= 1";
+        }
     };
 
-    class NegativePowerError {
+    class NegativePowerError: public exception {
+        const char * what() const noexcept override {
+            return "Non negative value of power expected";
+        }
+    };
 
+    class IntError: public exception {
+        const char * what() const noexcept override {
+            return "Integer expected";
+        }
     };
 
     void division_error();

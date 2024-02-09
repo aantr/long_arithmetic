@@ -17,20 +17,49 @@ namespace arithmetic_32 {
     ostream& operator<<(ostream& os, const LongDouble& value) {
         if (value.sign == -1)
             os << '-';
+        // os << "0x";
         if (value.digits_size == 0) {
             os << '0';
             return os;
         }
 
-        for (int i = 0; i < value.digits_size; i++) {
-            for (int j = 7; j >= 0; j--) {
-                int d = 0;
-                for (int k = 3; k >= 0; k--) d = (d << 1) | (value.digits[value.digits_size - 1 - i] >> (j * 4 + k) & 1);
-                if (d < 10) os << d;
-                else os << (char)('a' + (d - 10));
-            }
+        int shift = (value.exponent % 4 + 4) % 4;
+        auto get_digit = [&](int index) -> digit {
+            if (index < 0 || index >= value.digits_size) return 0;
+            return value.digits[index];
+        };
+        auto get_correct_hex = [&](int index) -> digit {
+            // [index * 4 + 3 - shift ... index * 4, (index - 1) * 4 + 3 ... (index - 1) * 4 + 4 - shift]
+            int digit_index = (index * 4 + 3 - shift) >> 5;
+            int digit_index2 = ((index - 1) * 4 + 3) >> 5;
+            return ((get_digit(digit_index) >> ((index * 4) & 31) & LongDouble::ones[4 - shift]) << shift) | 
+                        (get_digit(digit_index2) >> (((index - 1) * 4 + 4 - shift) & 31) & LongDouble::ones[shift]);
+        };
+        auto get_char = [&](int value) -> char {
+            if (value < 10) return (char) ('0' + value);
+            return (char) ('a' + value - 10);
+        };
+
+        int digits_size_hex = (value.digits_size << 3) + 1;
+        while (digits_size_hex > 0 && get_correct_hex(digits_size_hex - 1) == 0) {
+            digits_size_hex--;
         }
-        os << "e" << value.exponent;
+        int left = max(0, digits_size_hex - (int) os.precision());
+        while (LongDouble::output_insignificant_zeroes == false && left < digits_size_hex && get_correct_hex(left) == 0) {
+            left++;
+        }
+        int exponent = (value.exponent - shift) / 4;
+        for (int i = -exponent; i > digits_size_hex - 1; i--) {
+            os << '0';
+            if (i == -exponent) os << '.';
+        }
+        for (int i = digits_size_hex - 1; i >= left; i--) {
+            os << get_char(get_correct_hex(i));
+            if (i > left && i == -exponent) os << '.';
+        }
+        for (int i = 0; i < exponent + left; i++) {
+            os << '0';
+        }
         return os;
     }
 
