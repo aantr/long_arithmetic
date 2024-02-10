@@ -1,3 +1,5 @@
+*1000000 digits of pi*
+
 *Build with cmake*
 ```
 mkdir build
