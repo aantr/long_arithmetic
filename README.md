@@ -1,4 +1,4 @@
-*1000000 digits of pi*
+*digits of pi with chudnovsky formula*
 
 *Build with cmake*
 ```
