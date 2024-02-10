@@ -298,29 +298,53 @@ TEST(LongDouble32, Sqrt) {
 	}
 }
 
+TEST(LongDouble32, AddSpeed) {
+	int count = 100;
 
-// TEST(LongDouble32, Precision) {
-// 	int count = 50;
-// 	for (int i = 0; i < count; i++) {
-// 		int len = 10; // тестируем числа с len цифрами
-// 		LongDouble x(0, len * 2 / LongDouble::base_exp + 1), y(0, len * 2 / LongDouble::base_exp + 1);
+	ld x(1, INT_MAX), y(1, INT_MAX);
 
-// 		for (int j = 0; j < len; j++) {
-// 			x = x * LongDouble(10) + LongDouble((int) (rnd() % 10));
-// 			y = y * LongDouble(10) + LongDouble((int) (rnd() % 10));
-// 		}
+	int len = 1000000;
+	x <<= len * 32;
+	x -= 1;
+	y <<= len * 32;
+	y -= 2;
+	for (int i = 0; i < count; i++) {
 
-// 		int expx = rnd() % len + 1;
-// 		x.divBase(expx);
-// 		y.divBase(rnd() % len + 1);
-// 		LongDouble power = 1; power.divBase(expx - 1); // допускаем последнюю цифру
+		ld result = x + y;
+	}
+}
 
-// 		ASSERT_TRUE((x - x / y * y).abs() < power);
-// 		ASSERT_TRUE((x - x * y / y).abs() < power);
-// 		ASSERT_TRUE((x - x / y / y * y * y).abs() < power * 10); // допуск 2 цифры
-// 		ASSERT_TRUE((x - x / y * y / y * y).abs() < power * 10);
-// 	}
-// }
+TEST(LongDouble32, SubSpeed) {
+	int count = 100;
+
+	ld x(1, INT_MAX), y(1, INT_MAX);
+
+	int len = 1000000;
+	x <<= len * 32;
+	x -= 1;
+	y <<= len * 32;
+	y -= 2;
+	for (int i = 0; i < count; i++) {
+
+		ld result = x - y;
+	}
+}
+
+
+TEST(LongDouble32, MulSpeed) {
+	int count = 10;
+	for (int i = 0; i < count; i++) {
+		ld x(1, INT_MAX), y(1, INT_MAX);
+
+		int len = 100000;
+		x <<= len * 32;
+		x -= i;
+		y <<= len * 32;
+		y -= i + 1;
+
+		ld result = x * y;
+	}
+}
 
 
 

@@ -611,24 +611,8 @@ namespace arithmetic_32 {
             LongDouble::context_remove_left_zeroes = true;
             assert(rem >= 0);
             assert(rem.exponent == 0);
-            // rem.digits_size += rem.exponent;
-            // digit* temp = (digit*) malloc(rem.digits_size * sizeof(digit));
-            // if (!temp) memory_error();
-            // memset(temp, 0, rem.exponent * sizeof(digit));
-
-            // memcpy(temp + rem.exponent, rem.digits, (rem.digits_size - rem.exponent) * sizeof(digit));
-            // free(rem.digits);
-            // rem.digits = temp;
-            // rem.exponent = 0;
             assert(rem.sign == 1);
-            // cout << x << " " << y << endl;
-            // cout << y * res << endl;
-            // cout << rem << endl;
-            // cout << x - y * res << endl;
-            // cout << b * res + rem<< endl;
             assert(a == b * res + rem);
-            // cout << "tesetererr" << endl;
-
             assert(rem < b);
             assert(rem >= 0);
             return;
@@ -678,8 +662,6 @@ namespace arithmetic_32 {
         // x1 / (y1 + 1) <= x/y <= x1/y1
         // x1/y1-base <= x/y <= x1/y1
 
-
-
         res = LongDouble(0, INT_MAX);
         if (maxres) {
             res = 1;
@@ -697,14 +679,6 @@ namespace arithmetic_32 {
         assert(current_rem.isZero() || current_rem.digits[current_rem.digits_size - 1] != 0);
         assert(y.isZero() || y.digits[y.digits_size - 1] != 0);
         assert(current_rem.isZero() || current_rem.digits[current_rem.digits_size - 1] != 0);
-
-
-        // current_rem /= y ? 
-        // current_rem / y * y + current_rem
-        // -current_rem % y
-        // q = ceil(abs(current_rem) / y)
-
-        // cout << current_rem.digits_size << " " << endl;
 
         uint64_t q;
 
