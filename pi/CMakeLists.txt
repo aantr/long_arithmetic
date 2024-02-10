@@ -5,6 +5,8 @@ add_custom_target(start_pi COMMAND pi)
 
 target_include_directories(pi PRIVATE
                           "${PROJECT_SOURCE_DIR}/include"
+                          "${PROJECT_SOURCE_DIR}/arithmetic"
+                          "${PROJECT_SOURCE_DIR}/fft"
                           )
 
 target_link_libraries(pi PRIVATE arithmetic)
@@ -16,6 +18,8 @@ add_custom_target(start_pi_32 COMMAND pi_32)
 
 target_include_directories(pi_32 PRIVATE
                           "${PROJECT_SOURCE_DIR}/include"
+                          "${PROJECT_SOURCE_DIR}/arithmetic"
+                          "${PROJECT_SOURCE_DIR}/fft"
                           )
 
 target_link_libraries(pi_32 PRIVATE arithmetic_32)

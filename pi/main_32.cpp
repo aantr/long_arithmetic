@@ -10,6 +10,7 @@
 #include <arithmetic_32.hpp>
 #include <assert.h>
 #include <sstream>
+#include <fft.hpp>
 
 #define TIME (double) clock() / CLOCKS_PER_SEC
 

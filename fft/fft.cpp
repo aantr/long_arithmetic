@@ -6,6 +6,7 @@
 #include <assert.h>
 #include <fft.hpp>
 #include <iostream>
+
 using namespace std;
 
 namespace fft_tourist { // by tourist https://codeforces.com/contest/1054/submission/48071254
@@ -83,10 +84,10 @@ void fft(num*& a, int &a_size, int n = -1) {
 num* fa = new num[0], *fb = new num[0];
 int fa_size = 0, fb_size = 0;
  
-void square(int*& a, int &a_size, int64_t*& res, int &res_size) {
+void square(uint32_t *& a, int &a_size, uint64_t *& res, int &res_size) {
   if (a_size == 0) {
     res_size = 0;
-    res = (int64_t*) malloc(0);
+    res = (uint64_t*) malloc(0);
     return;
   }
   int need = (int) a_size + (int) a_size - 1;
@@ -117,16 +118,16 @@ void square(int*& a, int &a_size, int64_t*& res, int &res_size) {
   }
   fft(fa, fa_size, sz >> 1);
   res_size = need;
-  res = (int64_t*) malloc(res_size * sizeof(int64_t));
+  res = (uint64_t*) malloc(res_size * sizeof(uint64_t));
   for (int i = 0; i < need; i++) {
     res[i] = llround(i % 2 == 0 ? fa[i >> 1].x : fa[i >> 1].y);
   }
 }
  
-void multiply(int*& a, int &a_size, int*& b, int &b_size, int64_t*& res, int &res_size) {
+void multiply(uint32_t *& a, int &a_size, uint32_t*& b, int &b_size, uint64_t*& res, int &res_size) {
   if (a_size == 0 || b_size == 0) {
     res_size = 0;
-    res = (int64_t*) malloc(0);
+    res = (uint64_t*) malloc(0);
     return;
   }
   int eq = 1;
@@ -174,7 +175,7 @@ void multiply(int*& a, int &a_size, int*& b, int &b_size, int64_t*& res, int &re
   fft(fa, fa_size, sz >> 1);
 
   res_size = need;
-  res = (int64_t*) malloc(res_size * sizeof(int64_t));
+  res = (uint64_t*) malloc(res_size * sizeof(uint64_t));
   memset(res, 0, res_size * sizeof(int64_t));
   // vector<int64_t> res(need);
   for (int i = 0; i < need; i++) {
@@ -186,6 +187,61 @@ void multiply(int*& a, int &a_size, int*& b, int &b_size, int64_t*& res, int &re
 }  // namespace fft
 
 
+
+
+void karatsuba_mul(int n, uint64_t* a, uint64_t* b, uint64_t*& res, int &res_size) {
+    auto k = n >> 1;
+    
+    if (n == 1) {
+        res = (uint64_t*) malloc(2 * sizeof(uint64_t));
+        res[0] = a[0] * b[0];
+        res[1] = 0;
+        res_size = 2;
+        return;
+    }
+
+    uint64_t* P1;
+    int P1_size;
+    uint64_t* P2;
+    int P2_size;
+    uint64_t* P3;
+    int P3_size;
+    karatsuba_mul(k, a + k, b + k, P1, P1_size);
+    karatsuba_mul(k, a, b, P2, P2_size);
+
+    uint64_t* Xlr = (uint64_t*) malloc(k * sizeof(uint64_t));
+    uint64_t* Ylr = (uint64_t*) malloc(k * sizeof(uint64_t));
+    
+    for (int i = 0; i < k; ++i) {
+        Xlr[i] = a[i + k] + a[i];
+        Ylr[i] = b[i + k] + b[i];
+    }
+    
+    karatsuba_mul(k, Xlr, Ylr, P3, P3_size);
+
+    res = (uint64_t*) malloc(2 * n * sizeof(uint64_t));
+    memset(res, 0, 2 * n * sizeof(uint64_t));
+    res_size = 2 * n;
+    
+    for (auto i = 0; i < n; ++i) {
+        P3[i] -= P2[i] + P1[i];
+    }
+    
+    for (auto i = 0; i < n; ++i) {
+        res[i] = P2[i];
+    }
+
+    for (auto i = n; i < 2 * n; ++i) {
+        res[i] = P1[i - n];
+    }
+
+    for (auto i = k; i < n + k; ++i) {
+        res[i] += P3[i - k];
+    }
+
+}
+
+
 namespace fft {
 
     void FFT::multiply(digit*& a, int size_a, digit*& b, int size_b, digit*& res, int &res_size, int base) {
@@ -194,21 +250,56 @@ namespace fft {
             res = (digit*) malloc(0 * sizeof(digit));
             return;
         }
-        int mult_size = 0;
-        int64_t* mult = (int64_t*) malloc(0);
-        fft_tourist::multiply(a, size_a, b, size_b, mult, mult_size);
 
+        int n = 1;
+        while (n < size_a || n < size_b) n <<= 1;
+        int prev_size_a = size_a, prev_size_b = size_b;
+        uint64_t* A = (uint64_t*) malloc(n * sizeof(uint64_t));
+        uint64_t* B = (uint64_t*) malloc(n * sizeof(uint64_t));
+        memset(A + size_a, 0, (n - size_a) * sizeof(uint64_t));
+        memset(B + size_b, 0, (n - size_b) * sizeof(uint64_t));
+        for (int i = 0; i < size_a; i++) {
+            A[i] = a[i];
+        }
+        for (int i = 0; i < size_b; i++) {
+            B[i] = b[i];
+        }
+
+        int mult_size = 0;
+        uint64_t* mult = (uint64_t*) malloc(0);
+        // karatsuba_mul(n, A, B, mult, mult_size);
+        fft_tourist::multiply(a, size_a, b, size_b, mult, mult_size);
         res_size = (int) mult_size + 1;
         res = (digit*) malloc(res_size * sizeof(digit));
-        int carry = 0;
-        for (int i = 0; i < res_size - 1; i++) {
-            uint64_t d = mult[i] + carry;
-            carry = d / base;
-            res[i] = (digit) (d % base);
+        if (__builtin_popcount(base) == 1) {
+            int pow = 0;
+            int x = 1;
+            while (x < base) {
+                x <<= 1;
+                pow++;
+            }
+            digit carry = 0;
+            for (int i = 0; i < res_size - 1; i++) {
+                uint64_t d = mult[i] + carry;
+                carry = d >> pow;
+                res[i] = (d & ((1 << pow) - 1));
+            }
+            res[res_size - 1] = carry;
+        } else {
+            digit carry = 0;
+            for (int i = 0; i < res_size - 1; i++) {
+                uint64_t d = mult[i] + carry;
+                carry = d / base;
+                res[i] = (digit) (d % base);
+            }
+            res[res_size - 1] = carry;
         }
-        res[res_size - 1] = carry;
+    
         for (int i = 0; i < res_size; i++) assert(res[i] >= 0);
         free(mult);
+
+        a = (digit*) realloc(a, prev_size_a * sizeof(digit));
+        b = (digit*) realloc(b, prev_size_b * sizeof(digit));
     }
 
 }

@@ -1,2 +1,2 @@
-// #undef assert
-// #define assert(x)
+#undef assert
+#define assert(x)

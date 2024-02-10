@@ -306,7 +306,7 @@ TEST(LongDouble32, AddSpeed) {
 	int len = 1000000;
 	x <<= len * 32;
 	x -= 1;
-	y <<= len * 32;
+	y <<= len * 31;
 	y -= 2;
 	for (int i = 0; i < count; i++) {
 
@@ -322,7 +322,7 @@ TEST(LongDouble32, SubSpeed) {
 	int len = 1000000;
 	x <<= len * 32;
 	x -= 1;
-	y <<= len * 32;
+	y <<= len * 31;
 	y -= 2;
 	for (int i = 0; i < count; i++) {
 
