@@ -20,3 +20,14 @@ or
 ```
 ctest
 ```
+
+*Hex version (faster)*
+
+*Run*
+```
+make start_pi_32
+```
+or 
+```
+./pi/pi_32
+```
