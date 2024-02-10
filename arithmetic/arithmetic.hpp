@@ -43,78 +43,6 @@ namespace arithmetic {
     using namespace std;
     using digit = int32_t;
 
-    class DivisionByZeroException: public exception {
-        const char * what() const noexcept override {
-            return "Division by zero";
-        }
-    };
-
-    class MemoryLimitException: public exception {
-        const char * what() const noexcept override {
-            return "Cannot allocate or reallocate memory";
-        }
-    };
-
-    class InitError: public exception {
-        const char * what() const noexcept override {
-            return "Wrong format captured in initialization";
-        }
-    };
-
-    class InitPrecisonError: public exception {
-        const char * what() const noexcept override {
-            return "Precision must be >= MIN_PRECISION constant";
-        }
-    };
-
-    class InitStringError: public exception {
-        const char * what() const noexcept override {
-            return "Wrong format captured in string initialization";
-        }
-    };
-
-    class SqrtLimitError: public exception {
-        const char * what() const noexcept override {
-            return "Expected non negative value";
-        }
-    };
-
-    class SqrtIntLimitError: public exception {
-        const char * what() const noexcept override {
-            return "Expected integer >= 1";
-        }
-    };
-
-    class NegativePowerError: public exception {
-        const char * what() const noexcept override {
-            return "Non negative value of power expected";
-        }
-    };
-
-    class IntError: public exception {
-        const char * what() const noexcept override {
-            return "Integer expected";
-        }
-    };
-
-    void division_error();
-
-    void memory_error();
-
-    void init_error();
-
-    void init_precison_error();
-
-    void init_string_error();
-
-    void sqrt_limir_error();
-
-    void sqrt_int_limir_error();
-
-    void negative_power_error();
-
-    void int_error();
-
     class LongDouble {
     public:
 
@@ -202,4 +130,77 @@ namespace arithmetic {
     LongDouble operator""_ld (long double x);
 
     LongDouble operator""_ld (unsigned long long x);
+
+    class DivisionByZeroException: public exception {
+        const char * what() const noexcept override {
+            return "Division by zero";
+        }
+    };
+
+    class MemoryLimitException: public exception {
+        const char * what() const noexcept override {
+            return "Cannot allocate or reallocate memory";
+        }
+    };
+
+    class InitError: public exception {
+        const char * what() const noexcept override {
+            return "Wrong format captured in initialization";
+        }
+    };
+
+    class InitPrecisonError: public exception {
+        const char * what() const noexcept override {
+            return "Precision must be >= MIN_PRECISION constant";
+        }
+    };
+
+    class InitStringError: public exception {
+        const char * what() const noexcept override {
+            return "Wrong format captured in string initialization";
+        }
+    };
+
+    class SqrtLimitError: public exception {
+        const char * what() const noexcept override {
+            return "Expected non negative value";
+        }
+    };
+
+    class SqrtIntLimitError: public exception {
+        const char * what() const noexcept override {
+            return "Expected integer >= 1";
+        }
+    };
+
+    class NegativePowerError: public exception {
+        const char * what() const noexcept override {
+            return "Non negative value of power expected";
+        }
+    };
+
+    class IntError: public exception {
+        const char * what() const noexcept override {
+            return "Integer expected";
+        }
+    };
+
+    void division_error();
+
+    void memory_error();
+
+    void init_error();
+
+    void init_precison_error();
+
+    void init_string_error();
+
+    void sqrt_limir_error();
+
+    void sqrt_int_limir_error();
+
+    void negative_power_error();
+
+    void int_error();
+    
 };

@@ -205,6 +205,35 @@ namespace arithmetic_32 {
         return digits_size == 1 && digits[0] == 1;
     }
 
+    /*
+    Removes all null right bits and changes exponent
+    */
+    void LongDouble::removeRightZeroes() {
+        removeZeroes();
+        if (digits_size == 0) {
+            return;
+        }
+        int d = 0;
+        while ((digits[0] >> d & 1) == 0) {
+            d++;
+        }
+        if (d == 0) {
+            return;
+        }
+        for (int i = 0; i < digits_size; i++) {
+            if (i) {
+                digits[i - 1] |= (digits[i] & (ones[d])) << (32 - d);
+            }
+            digits[i] = digits[i] >> d;
+        }
+        exponent += d;
+        removeZeroes();
+    }
+
+    /*
+    Removes all null left and right -digits- and changes exponent
+    Does not remove left digits if context_remove_left_zeroes == false
+    */
     void LongDouble::removeZeroes() {
         int left = 0, right = 0;
         for (int i = digits_size - 1; i >= 0; i--) {
@@ -252,6 +281,9 @@ namespace arithmetic_32 {
         
     }
 
+    /*
+    Returns new obj that consists of first value bits
+    */
     LongDouble LongDouble::getFirstBits(unsigned int value) const {
         assert(isInt());
         assert((unsigned int) (digits_size << 5) + exponent >= value && value >= 0);
@@ -274,6 +306,9 @@ namespace arithmetic_32 {
         return res;
     }
 
+    /*
+    Removes first value digits from right sight 
+    */
     void LongDouble::removeFirst(int value) {
         assert(digits_size >= value && value >= 0);
         digits_size = digits_size - value;
@@ -293,6 +328,9 @@ namespace arithmetic_32 {
         exponent -= power;
     }
 
+    /*
+    Round using math rules and 2 base
+    */
     void LongDouble::round(int number) { // base = 2
         if (-exponent <= number || digits_size == 0) return;
         if (-exponent - number - 1 >= digits_size << 5) {
@@ -325,6 +363,9 @@ namespace arithmetic_32 {
         round(0);
     }
 
+    /*
+    Floor using 2 base
+    */
     void LongDouble::floor(int number) {
         if (-exponent <= number || digits_size == 0) return;
         if (-exponent - number >= digits_size << 5) {
@@ -343,6 +384,9 @@ namespace arithmetic_32 {
         floor(0);
     }
 
+    /*
+    Simple sqrt using binary search
+    */
     void LongDouble::sqrt() { // use binary search
         if (*this < 0) {
             sqrt_limit_error();
@@ -372,6 +416,9 @@ namespace arithmetic_32 {
         *this = l;
     }
 
+    /*
+    Fast sqrt
+    */
     void LongDouble::sqrt_fast() { // works only for integers >= 1
         if (!(isInt() && *this >= 1)) {
             sqrt_int_limit_error();
@@ -408,6 +455,13 @@ namespace arithmetic_32 {
         }
     }
 
+    /*
+    Input: const a, b, st: 
+        exponent == 0, sign == 0, precision == INT_MAX, 
+        the highest digit of a, b is not null,
+        |a| <= 2n, |b| <= n, |result| <= n!
+    Output: result of division floor(a / b)
+    */
     void div21(const LongDouble &a, const LongDouble &b, int n, LongDouble &res) {
         assert(a.exponent == 0 && b.exponent == 0 && a.sign == 1 && b.sign == 1);
         assert(a.precision == INT_MAX && b.precision == INT_MAX);
@@ -497,6 +551,13 @@ namespace arithmetic_32 {
         assert(rem >= 0);
     }
 
+    /*
+    Input: const a, b, st: 
+        exponent == 0, sign == 0, precision == INT_MAX, 
+        the highest digit of a, b is not null,
+        |a| <= 3n, |b| <= 2n, |result| <= n!
+    Output: result of division floor(a / b), reminder = a - b * result. precison = INT_MAX
+    */
     void div32(const LongDouble &a, const LongDouble &b, int n, LongDouble &res, LongDouble& rem) {
         assert(a.exponent == 0 && b.exponent == 0 && a.sign == 1 && b.sign == 1);
         assert(a.isZero() || a.digits[a.digits_size - 1] != 0);
@@ -619,20 +680,20 @@ namespace arithmetic_32 {
 
 
 
-        LongDouble res1(0, INT_MAX);
+        res = LongDouble(0, INT_MAX);
         if (maxres) {
-            res1 = 1;
-            res1.precision = INT_MAX;
-            res1.mulBase(n << 5);
-            res1 -= 1;
+            res = 1;
+            res.precision = INT_MAX;
+            res.mulBase(n << 5);
+            res -= 1;
         } else {
             assert(x1.isZero() || x1.digits[x1.digits_size - 1] != 0);
-            div21(x1, y1, n, res1);            
+            div21(x1, y1, n, res);            
         }
 
         LongDouble::context_remove_left_zeroes = false;
 
-        LongDouble current_rem = LongDouble(x, INT_MAX) - res1 * y; 
+        LongDouble current_rem = LongDouble(x, INT_MAX) - res * y; 
         assert(current_rem.isZero() || current_rem.digits[current_rem.digits_size - 1] != 0);
         assert(y.isZero() || y.digits[y.digits_size - 1] != 0);
         assert(current_rem.isZero() || current_rem.digits[current_rem.digits_size - 1] != 0);
@@ -662,57 +723,33 @@ namespace arithmetic_32 {
             }
         }
 
-
-        // int leftq = -1, rightq = LongDouble::base;
-        // while (rightq - leftq > 1) {
-        //     int m = (leftq + rightq) / 2;
-        //     (current_rem + y * m >= 0 ? rightq : leftq) = m; // n log**2(n)
-        // }
-        // q = rightq;
-
         assert(q == 0 || current_rem.digits_size < y.digits_size || current_rem.digits_size - y.digits_size == 0);
         assert(q == 0 || current_rem.digits_size < y.digits_size || q >= A / B && q - A / B <= 1);
 
         current_rem += y * q;
-        res1 -= q;  
+        res -= q;  
 
         assert(q <= (1ll << 32));
 
         while (current_rem < 0) {
-            res1 -= 1;
+            res -= 1;
             current_rem += y;
         }
 
         LongDouble::context_remove_left_zeroes = true;
-        assert(res1.exponent == 0);
-
-        // temp = (digit*) malloc((current_rem.digits_size + current_rem.exponent) * sizeof(digit));
-        // if (!temp) memory_error();
-
-        // memcpy(temp + current_rem.exponent, current_rem.digits, (current_rem.digits_size) * sizeof(digit));
-        // memset(temp, 0, (current_rem.exponent) * sizeof(digit));
-        // free(current_rem.digits);
-        // current_rem.digits = temp;
-        // current_rem.digits_size += current_rem.exponent;
-        // current_rem.exponent = 0;
-
-        // temp = (digit*) malloc((res1.digits_size + res1.exponent) * sizeof(digit));
-        // if (!temp) memory_error();
-
-        // memcpy(temp + res1.exponent, res1.digits, (res1.digits_size) * sizeof(digit));
-        // memset(temp, 0, (res1.exponent) * sizeof(digit));
-        // free(res1.digits);
-        // res1.digits = temp;
-        // res1.digits_size += res1.exponent;
-        // res1.exponent = 0;
-        
-        res = res1;
+        assert(res.exponent == 0);
         rem = current_rem;
+
         assert(a == b * res + rem);
         assert(rem < b);
         assert(rem >= 0);
     }
 
+    /*
+    Input: const n, st: 
+        n is integer, n >= 1, the highest digit is not null
+    Output: s = floor(sqrt(n)), reminder = n - s * s, precison = INT_MAX
+    */
     void sqrt_rem(const LongDouble n, LongDouble &s, LongDouble &r) {
 
 
@@ -797,14 +834,6 @@ namespace arithmetic_32 {
         assert(s == s1 * b + q);
         assert(u == (r + q * q - a0) >> power_b);
         assert(r == u * b + a0 - q * q);
-
-
-        // cout << n << endl;
-        // cout << a0 << endl << a1 << endl << a2 << endl << a3 << endl;
-        // cout << (a3 << power_b) + a2 << endl;
-        // cout << endl;
-        // cout << s1 << endl;
-        // cout << r1 << endl;
         assert((n << (was ? 2 : 0)) == s * s + r);
 
 
@@ -814,22 +843,12 @@ namespace arithmetic_32 {
         }
 
         assert((n << (was ? 2 : 0)) == s * s + r);
-        // cout << n << endl;
 
         if (was) {
-            // assert((n << (was ? 2 : 0)) == s * s + r);
-            // assert((s.digits[0] & 1) == 0);
             s >>= 1;
-            // assert((n << (was ? 2 : 0)) == (s * 2) * (s * 2) + r);
             r = n - s * s;
             was = 0;
         }
-        // cout << s << endl;
-        // cout << s << endl;
-        // LongDouble res = LongDouble(s, s.digits_size + 1) / 1000000;
-        // res.floor();
-        // cout << res << endl;
-        // cout << "rem: " << s - res * 1000000 << endl;
         assert(n == s * s + r);
         assert(n >= s * s);
         assert(n < (s + 1) * (s + 1));

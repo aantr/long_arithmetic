@@ -106,28 +106,6 @@ namespace arithmetic_32 {
         return res;
     }
 
-    void remove_right_zeroes(LongDouble &v) {
-        v.removeZeroes();
-        if (v.digits_size == 0) {
-            return;
-        }
-        int d = 0;
-        while ((v.digits[0] >> d & 1) == 0) {
-            d++;
-        }
-        if (d == 0) {
-            return;
-        }
-        for (int i = 0; i < v.digits_size; i++) {
-            if (i) {
-                v.digits[i - 1] |= (v.digits[i] & (v.ones[d])) << (32 - d);
-            }
-            v.digits[i] = v.digits[i] >> d;
-        }
-        v.exponent += d;
-        v.removeZeroes();
-    }
-
     void LongDouble::operator>>=(unsigned int val) {
         if (!isInt()) {
             int_error();
@@ -146,7 +124,7 @@ namespace arithmetic_32 {
         assert(d < 32);
         if (digits_size != 0) {
             digits[0] &= (ones[32] - ones[d]);
-            remove_right_zeroes(*this); 
+            removeRightZeroes(); 
         }
 
     }
