@@ -209,13 +209,9 @@ namespace arithmetic_32 {
 
         digits = newres;
         digits_size = newressize;
-        // int res_size = 0;
-        // fft::digit* res = (fft::digit*) malloc(0 * sizeof(fft::digit));
-        // if (!res) memory_error();
-        // int res_size = 0;
         
+        // dont cut
         // fft.multiply(digits, digits_size, x.digits, x.digits_size, res, res_size, base);
-
         // free(digits);
         // digits = res;
         // digits_size = res_size;

@@ -244,7 +244,7 @@ void karatsuba_mul(int n, uint64_t* a, uint64_t* b, uint64_t*& res, int &res_siz
 
 namespace fft {
 
-    void FFT::multiply(digit*& a, int size_a, digit*& b, int size_b, digit*& res, int &res_size, int base) {
+    void FFT::multiply(digit*& a, int size_a, digit*& b, int size_b, digit*& res, int &res_size, uint32_t base) {
         if (size_a == 0 || size_b == 0) {
             res_size = 0;
             res = (digit*) malloc(0 * sizeof(digit));
@@ -272,8 +272,8 @@ namespace fft {
         res_size = (int) mult_size + 1;
         res = (digit*) malloc(res_size * sizeof(digit));
         if (__builtin_popcount(base) == 1) {
-            int pow = 0;
-            int x = 1;
+            uint64_t pow = 0;
+            uint64_t x = 1;
             while (x < base) {
                 x <<= 1;
                 pow++;
