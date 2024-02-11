@@ -21,9 +21,9 @@ using namespace std;
 array<LongDouble, 3> binary_split(int l, int r) {
     LongDouble Pab, Qab, Rab;
     if (r == l + 1) {
-        Pab = -LongDouble((6 * l - 5)) * LongDouble((2 * l - 1)) * LongDouble((6 * l - 1));
-        Qab = LongDouble(l) * l * l * 10939058860032000_ld;
-        Rab = Pab * LongDouble(545140134_ld * l + 13591409);
+        Pab = -(6_ld * l - 5) * (2_ld * l - 1) * (6_ld * l - 1);
+        Qab = 10939058860032000_ld * l * l * l;
+        Rab = Pab * (545140134_ld * l + 13591409);
     } else {
         int m = (l + r) / 2;
         auto [Pam, Qam, Ram] = binary_split(l, m);
@@ -36,7 +36,7 @@ array<LongDouble, 3> binary_split(int l, int r) {
 }
 
 LongDouble Chudnovsky(int digits) {
-    int precision = (digits / 8 + 2);
+    int precision = (digits / 8 + 2) * 2;
     int default_precision = LongDouble::default_precision;
     LongDouble::default_precision = precision;
     LongDouble sq10005 = 10005;
@@ -46,8 +46,9 @@ LongDouble Chudnovsky(int digits) {
     auto [P1n, Q1n, R1n] = binary_split(1, digits / 10 + 2);
     Q1n.precision = precision;
     LongDouble::default_precision = default_precision;
-    LongDouble res = Q1n * LongDouble(426880) * sq10005;
-    LongDouble res2 = Q1n * LongDouble(13591409) + R1n;
+
+    LongDouble res = Q1n * 426880 * sq10005;
+    LongDouble res2 = Q1n * 13591409 + R1n;
     res /= res2;
 
     return res;
@@ -56,7 +57,7 @@ LongDouble Chudnovsky(int digits) {
 int main() {
 
     int digits;
-    const int right_bound = 1000000;
+    const int right_bound = 10000000;
 
     cout << "Количество знаков после запятой в hex (0 - " << right_bound << "): ";
     cin >> digits;
