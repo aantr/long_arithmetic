@@ -237,15 +237,12 @@ void karatsuba_mul(int n, uint64_t* a, uint64_t* b, uint64_t*& res, int& res_siz
 
 namespace fft {
 
-double FFT::fft_time = 0;
-
 void FFT::multiply(digit*& a, int size_a, digit*& b, int size_b, digit*& res, int& res_size, uint32_t base) {
     if (size_a == 0 || size_b == 0) {
         res_size = 0;
         res = (digit*)malloc(0 * sizeof(digit));
         return;
     }
-    double start = (double) clock() / CLOCKS_PER_SEC;
 
 
     // int prev_size_a = size_a, prev_size_b = size_b;
@@ -297,7 +294,7 @@ void FFT::multiply(digit*& a, int size_a, digit*& b, int size_b, digit*& res, in
 
     // a = (digit*)realloc(a, prev_size_a * sizeof(digit));
     // b = (digit*)realloc(b, prev_size_b * sizeof(digit));
-  
+
 }
 
 }
