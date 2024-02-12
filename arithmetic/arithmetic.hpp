@@ -1,7 +1,5 @@
 #pragma once
 
-#include <iostream>
-
 #define PRECISION_ADD
 #define PRECISION_SUB
 #define MIN_PRECISION 1
@@ -33,8 +31,8 @@ assymptotics:
 
 sub / add O(n)
 mul O(n * log n) (fft)
-div O(n * log ^ 2 (n)) ????????????
-sqrt O(n * log ^ 2(n)) Karatsuba square root algorithm ??????????????????
+div O(n * log ^ 2 (n)) fast div algorithm
+sqrt O(n * log ^ 2(n)) Karatsuba square root algorithm 
 
 */
 

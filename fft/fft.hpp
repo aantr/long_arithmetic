@@ -1,11 +1,5 @@
 #pragma once 
 
-#include <math.h>
-#include <vector>
-#include <complex.h>
-#include <algorithm>
-#include <assert.h>
-
 namespace fft {
 
     using namespace std;

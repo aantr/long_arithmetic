@@ -1,7 +1,5 @@
 #pragma once
 
-#include <iostream>
-
 #define PRECISION_ADD
 #define PRECISION_SUB
 #define MIN_PRECISION 1
