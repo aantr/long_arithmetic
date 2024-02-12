@@ -35,6 +35,10 @@ namespace arithmetic_32 {
         LongDouble(const int64_t &value, int precision); 
         LongDouble(const uint64_t &value); 
         LongDouble(const uint64_t &value, int precision); 
+        LongDouble(const int &value);
+        LongDouble(const int &value, int precision); 
+        LongDouble(const long long &value);
+        LongDouble(const long long &value, int precision); 
         LongDouble(const double &value); 
         LongDouble(const double &value, int precision); 
         LongDouble(const long double &value); 

@@ -163,6 +163,42 @@ namespace arithmetic_32 {
         init_from_int(*this, v);
     }
 
+        LongDouble::LongDouble(const int &v) {
+        init_from_int(*this, v);
+        precision = default_precision;
+    }
+
+    LongDouble::LongDouble(const int &v, int precision): precision(precision) {
+        if (precision < MIN_PRECISION) {
+            init_precison_error();
+        }
+        init_from_int(*this, v);
+    }
+
+    LongDouble::LongDouble(const long long &v) {
+        init_from_int(*this, v);
+        precision = default_precision;
+    }
+
+    LongDouble::LongDouble(const long long &v, int precision): precision(precision) {
+        if (precision < MIN_PRECISION) {
+            init_precison_error();
+        }
+        init_from_int(*this, v);
+    }
+
+    LongDouble::LongDouble(const unsigned long long &v) {
+        init_from_int(*this, v);
+        precision = default_precision;
+    }
+
+    LongDouble::LongDouble(const unsigned long long &v, int precision): precision(precision) {
+        if (precision < MIN_PRECISION) {
+            init_precison_error();
+        }
+        init_from_int(*this, v);
+    }
+
     LongDouble::LongDouble(const double &v) {
         init_from_double(*this, v);
         precision = default_precision;
