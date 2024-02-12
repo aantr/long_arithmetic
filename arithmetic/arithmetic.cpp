@@ -182,24 +182,36 @@ namespace arithmetic {
         init_from_string(*this, value.c_str());
     }
 
-    LongDouble::LongDouble(const int &v) {
+    LongDouble::LongDouble(const int32_t &v) {
         init_from_int(*this, v);
         precision = default_precision;
     }
 
-    LongDouble::LongDouble(const int &v, int precision): precision(precision) {
+    LongDouble::LongDouble(const int32_t &v, int precision): precision(precision) {
         if (precision < MIN_PRECISION) {
             init_precison_error();
         }
         init_from_int(*this, v);
     }
 
-    LongDouble::LongDouble(const long long &v) {
+    LongDouble::LongDouble(const int64_t &v) {
         init_from_int(*this, v);
         precision = default_precision;
     }
 
-    LongDouble::LongDouble(const long long &v, int precision): precision(precision) {
+    LongDouble::LongDouble(const int64_t &v, int precision): precision(precision) {
+        if (precision < MIN_PRECISION) {
+            init_precison_error();
+        }
+        init_from_int(*this, v);
+    }
+
+    LongDouble::LongDouble(const uint64_t &v) {
+        init_from_int(*this, v);
+        precision = default_precision;
+    }
+
+    LongDouble::LongDouble(const uint64_t &v, int precision): precision(precision) {
         if (precision < MIN_PRECISION) {
             init_precison_error();
         }
