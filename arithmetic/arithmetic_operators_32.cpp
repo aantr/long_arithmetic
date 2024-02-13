@@ -8,6 +8,9 @@
 #include <arithmetic_32.hpp>
 #include <fft.hpp>
 
+// #define HALF_FFT
+#define QUARTER_FFT
+
 namespace arithmetic_32 {
 
     using namespace std;
@@ -147,12 +150,14 @@ namespace arithmetic_32 {
         int res_size = 0;
 
         // cut on a half blocks
+        #if defined(HALF_FFT) || defined(QUARTER_FFT)
         auto cut = [](digit* arr, int size) -> pair<fft::digit*, int> {
             if (size == 0) {
                 fft::digit* res = (fft::digit*) malloc(size * sizeof(fft::digit));
                 memcpy(res, arr, size * sizeof(fft::digit));
                 return {res, size};
             }
+            #ifdef HALF_FFT
             int newsize = size * 2;
             fft::digit* res = (fft::digit*) malloc(newsize * sizeof(fft::digit));
             for (int i = 0; i < size; i++) {
@@ -160,16 +165,19 @@ namespace arithmetic_32 {
                 res[i * 2 + 1] = arr[i] >> 16;
             }
             return {res, newsize};
+            #endif
 
-            // int newsize = size * 4;
-            // fft::digit* res = (fft::digit*) malloc(newsize * sizeof(fft::digit));
-            // for (int i = 0; i < size; i++) {
-            //     res[i * 4] = arr[i] & ones[8];
-            //     res[i * 4 + 1] = (arr[i] & ones[16]) >> 8;
-            //     res[i * 4 + 2] = (arr[i] & ones[24]) >> 16;
-            //     res[i * 4 + 3] = (arr[i] & ones[32]) >> 24;
-            // }
-            // return {res, newsize};
+            #ifdef QUARTER_FFT
+            int newsize = size * 4;
+            fft::digit* res = (fft::digit*) malloc(newsize * sizeof(fft::digit));
+            for (int i = 0; i < size; i++) {
+                res[i * 4] = arr[i] & ones[8];
+                res[i * 4 + 1] = (arr[i] & ones[16]) >> 8;
+                res[i * 4 + 2] = (arr[i] & ones[24]) >> 16;
+                res[i * 4 + 3] = (arr[i] & ones[32]) >> 24;
+            }
+            return {res, newsize};
+            #endif
         };
         auto merge = [](fft::digit* arr, int size) -> pair<digit*, int> {
             if (size == 0) {
@@ -179,6 +187,7 @@ namespace arithmetic_32 {
                 }
                 return {res, size};
             }
+            #ifdef HALF_FFT
             int newsize = (size - 1) / 2 + 1;
             digit* res = (digit*) malloc(newsize * sizeof(digit));
             for (int i = 0; i < size; i++) {
@@ -186,22 +195,28 @@ namespace arithmetic_32 {
                 else res[i / 2] |= (digit) arr[i] << 16;
             }
             return {res, newsize};
-
-            // int newsize = (size - 1) / 4 + 1;
-            // digit* res = (digit*) malloc(newsize * sizeof(digit));
-            // for (int i = 0; i < size; i++) {
-            //     if (i % 4 == 0) res[i / 4] = arr[i];
-            //     else if (i % 4 == 1) res[i / 4] |= arr[i] << 8;
-            //     else if (i % 4 == 2) res[i / 4] |= arr[i] << 16;
-            //     else if (i % 4 == 3) res[i / 4] |= arr[i] << 24;
-            // }
-            // return {res, newsize};
+            #endif
+            #ifdef QUARTER_FFT
+            int newsize = (size - 1) / 4 + 1;
+            digit* res = (digit*) malloc(newsize * sizeof(digit));
+            for (int i = 0; i < size; i++) {
+                if (i % 4 == 0) res[i / 4] = arr[i];
+                else if (i % 4 == 1) res[i / 4] |= arr[i] << 8;
+                else if (i % 4 == 2) res[i / 4] |= arr[i] << 16;
+                else if (i % 4 == 3) res[i / 4] |= arr[i] << 24;
+            }
+            return {res, newsize};
+            #endif
         };
         auto [first, first_size] = cut(digits, digits_size);
         free(digits);
 
         auto [second, second_size] = cut(x.digits, x.digits_size);
+        #ifdef HALF_FFT
         fft.multiply(first, first_size, second, second_size, res, res_size, 1 << 16);
+        #elif defined(QUARTER_FFT)
+        fft.multiply(first, first_size, second, second_size, res, res_size, 1 << 8);
+        #endif
         free(first);
         free(second);
         auto [newres, newressize] = merge(res, res_size);
@@ -209,12 +224,16 @@ namespace arithmetic_32 {
 
         digits = newres;
         digits_size = newressize;
+
+        #else
         
         // dont cut
-        // fft.multiply(digits, digits_size, x.digits, x.digits_size, res, res_size, base);
-        // free(digits);
-        // digits = res;
-        // digits_size = res_size;
+        fft.multiply(digits, digits_size, x.digits, x.digits_size, res, res_size, LongDouble::base);
+        free(digits);
+        digits = res;
+        digits_size = res_size;
+
+        #endif
 
         removeZeroes();
         if (digits_size > precision) {
