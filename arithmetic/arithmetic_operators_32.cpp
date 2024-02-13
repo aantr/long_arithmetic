@@ -8,8 +8,8 @@
 #include <arithmetic_32.hpp>
 #include <fft.hpp>
 
-// #define HALF_FFT
-#define QUARTER_FFT
+#define HALF_FFT
+// #define QUARTER_FFT
 
 namespace arithmetic_32 {
 

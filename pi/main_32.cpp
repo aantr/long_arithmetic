@@ -57,7 +57,7 @@ LongDouble Chudnovsky(int digits) {
 int main() {
 
     int digits;
-    const int right_bound = 10000000;
+    const int right_bound = 500000; // fft might cause error
 
     cout << "Количество знаков после запятой в hex (0 - " << right_bound << "): ";
     cin >> digits;

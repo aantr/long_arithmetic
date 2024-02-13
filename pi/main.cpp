@@ -74,7 +74,7 @@ LongDouble Leibnica(int digits) {
 int main() {
 
     int digits;
-    const int right_bound = 10000000;
+    const int right_bound = 5000000; // 5e6 fft might cause error
     // 1e3 - 201989
     // 1e4 - 5678
     // 1e5 - 4646 // 2 sec
