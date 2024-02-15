@@ -79,17 +79,17 @@ namespace arithmetic {
         return *this;
     }
 
-    // LongDouble& LongDouble::operator=(LongDouble &&other) noexcept { // move
-    //     if (this == &other) {
-    //         return *this;
-    //     }
-    //     swap(sign, other.sign);
-    //     swap(digits, other.digits);
-    //     swap(digits_size, other.digits_size);
-    //     swap(precision, other.precision);
-    //     swap(exponent, other.exponent);
-    //     return *this;
-    // }
+    LongDouble& LongDouble::operator=(LongDouble &&other) noexcept { // move
+        if (this == &other) {
+            return *this;
+        }
+        swap(sign, other.sign);
+        swap(digits, other.digits);
+        swap(digits_size, other.digits_size);
+        swap(precision, other.precision);
+        swap(exponent, other.exponent);
+        return *this;
+    }
 
     LongDouble operator""_ld (const char* x, unsigned long size) {
         LongDouble res(x, max((unsigned long) LongDouble::default_precision, (size - 1) / LongDouble::base_exp + 1));
