@@ -2,8 +2,8 @@ CC = g++
 
 build:
 	mkdir -p build 
-	cmake -S . -B build -Wno-dev
-	cmake --build build --verbose
+	cmake -S . -B build
+	cmake --build build
 
 run_pi: build
 	build/pi/pi
