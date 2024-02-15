@@ -5,6 +5,7 @@
 #include <defines.hpp>
 #include <fft.hpp>
 #include <iostream>
+#include <cstring>
 
 using namespace std;
 
