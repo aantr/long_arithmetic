@@ -44,7 +44,7 @@ LongDouble Chudnovsky(int digits) {
 
     LongDouble::default_precision = INT_MAX;
     auto [P1n, Q1n, R1n] = binary_split(1, digits / 10 + 2);
-    Q1n.precision = precision;
+    Q1n.set_precision(precision);
     LongDouble::default_precision = default_precision;
 
     LongDouble res = Q1n * 426880 * sq10005;

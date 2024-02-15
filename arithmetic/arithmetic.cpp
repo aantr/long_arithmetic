@@ -250,9 +250,13 @@ namespace arithmetic {
         }
         precision = v;
     } 
-    
+
     int LongDouble::get_precision() const {
         return precision;
+    }
+
+    int LongDouble::get_sign() const {
+        return sign;
     }
 
     LongDouble LongDouble::abs() const {

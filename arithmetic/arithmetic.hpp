@@ -58,6 +58,7 @@ namespace arithmetic {
         static void init_from_int(LongDouble&, const T&);
         template<class T>
         static void init_from_double(LongDouble&, const T&);
+
         static void div32(const LongDouble &a, const LongDouble &b, int n, LongDouble &res, LongDouble& rem);
         static void div21(const LongDouble &a, const LongDouble &b, int n, LongDouble &res);
         static void sqrt_rem(const LongDouble n, LongDouble &s, LongDouble &r);
@@ -92,6 +93,8 @@ namespace arithmetic {
 
         void set_precision(int); 
         int get_precision() const; 
+        int get_sign() const;
+        
         bool isInt() const; 
         bool isZero() const; 
         bool isPower() const; 

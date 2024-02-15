@@ -94,7 +94,7 @@ namespace arithmetic_32 {
     }
 
     template<class T>
-    void init_from_int(LongDouble& res, T value) { // todo: check restrictions
+    void LongDouble::init_from_int(LongDouble& res, const T& value) { // todo: check restrictions
         T x = value;
         res.sign = 1;
         if (x < 0) res.sign = -1, x = -x;
@@ -115,22 +115,22 @@ namespace arithmetic_32 {
     }
 
     template<class T>
-    void init_from_double(LongDouble& res, T& v) {
+    void LongDouble::init_from_double(LongDouble& res, const T& v) {
         int exp;
         int sign = 1;
         if (v < 0) {
             sign = -1;
         }
-        double fr = frexp(abs(v), &exp);
+        double fr = frexp(std::abs(v), &exp);
         fr *= 1ll << 62;
-        int64_t result = round(fr);
+        int64_t result = std::round(fr);
         init_from_int(res, result * sign);
         // cout << "constructor: " << result << " " << exp - 62 << endl;
         res.exponent += exp - 62;
     }
 
     LongDouble::LongDouble(const int32_t &v) {
-        init_from_int(*this, v);
+        LongDouble::init_from_int(*this, v);
         precision = default_precision;
     }
 
@@ -138,11 +138,11 @@ namespace arithmetic_32 {
         if (p < MIN_PRECISION) {
             init_precison_error();
         }
-        init_from_int(*this, v);
+        LongDouble::init_from_int(*this, v);
     }
 
     LongDouble::LongDouble(const int64_t &v) {
-        init_from_int(*this, v);
+        LongDouble::init_from_int(*this, v);
         precision = default_precision;
     }
 
@@ -150,11 +150,11 @@ namespace arithmetic_32 {
         if (p < MIN_PRECISION) {
             init_precison_error();
         }
-        init_from_int(*this, v);
+        LongDouble::init_from_int(*this, v);
     }
 
     LongDouble::LongDouble(const uint64_t &v) {
-        init_from_int(*this, v);
+        LongDouble::init_from_int(*this, v);
         precision = default_precision;
     }
 
@@ -162,11 +162,11 @@ namespace arithmetic_32 {
         if (p < MIN_PRECISION) {
             init_precison_error();
         }
-        init_from_int(*this, v);
+        LongDouble::init_from_int(*this, v);
     }
 
     LongDouble::LongDouble(const double &v) {
-        init_from_double(*this, v);
+        LongDouble::init_from_double(*this, v);
         precision = default_precision;
     }
 
@@ -174,11 +174,11 @@ namespace arithmetic_32 {
         if (p < MIN_PRECISION) {
             init_precison_error();
         }
-        init_from_double(*this, v);
+        LongDouble::init_from_double(*this, v);
     }
 
     LongDouble::LongDouble(const long double &v) {
-        init_from_double(*this, v);
+        LongDouble::init_from_double(*this, v);
         precision = default_precision;
     }
 
@@ -186,7 +186,7 @@ namespace arithmetic_32 {
         if (p < MIN_PRECISION) {
             init_precison_error();
         }
-        init_from_double(*this, v);
+        LongDouble::init_from_double(*this, v);
     }
 
     void LongDouble::set_precision(int v) {
@@ -200,6 +200,9 @@ namespace arithmetic_32 {
         return precision;
     }
 
+    int LongDouble::get_sign() const {
+        return sign;
+    }
 
     LongDouble LongDouble::abs() const {
         if (digits_size == 0) return 0;
@@ -476,7 +479,7 @@ namespace arithmetic_32 {
         |a| <= 2n, |b| <= n, |result| <= n!
     Output: result of division floor(a / b)
     */
-    void div21(const LongDouble &a, const LongDouble &b, int n, LongDouble &res) {
+    void LongDouble::div21(const LongDouble &a, const LongDouble &b, int n, LongDouble &res) {
         assert(a.exponent == 0 && b.exponent == 0 && a.sign == 1 && b.sign == 1);
         assert(a.precision == INT_MAX && b.precision == INT_MAX);
         assert(a.isZero() || a.digits[a.digits_size - 1] != 0); 
@@ -572,7 +575,7 @@ namespace arithmetic_32 {
         |a| <= 3n, |b| <= 2n, |result| <= n!
     Output: result of division floor(a / b), reminder = a - b * result. precison = INT_MAX
     */
-    void div32(const LongDouble &a, const LongDouble &b, int n, LongDouble &res, LongDouble& rem) {
+    void LongDouble::div32(const LongDouble &a, const LongDouble &b, int n, LongDouble &res, LongDouble& rem) {
         assert(a.exponent == 0 && b.exponent == 0 && a.sign == 1 && b.sign == 1);
         assert(a.isZero() || a.digits[a.digits_size - 1] != 0);
         assert(b.isZero() || b.digits[b.digits_size - 1] != 0);
@@ -738,7 +741,7 @@ namespace arithmetic_32 {
         n is integer, n >= 1, the highest digit is not null
     Output: s = floor(sqrt(n)), reminder = n - s * s, precison = INT_MAX
     */
-    void sqrt_rem(const LongDouble n, LongDouble &s, LongDouble &r) {
+    void LongDouble::sqrt_rem(const LongDouble n, LongDouble &s, LongDouble &r) {
 
 
         if (!(n.isInt() && n >= 1)) {

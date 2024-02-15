@@ -10,6 +10,23 @@ namespace arithmetic_32 {
     using digit = uint32_t;
 
     class LongDouble {
+    private:
+
+        int sign;
+        digit* digits; 
+        int digits_size;
+        int precision; // >= MIN_PRECISION
+        int exponent; // base 2
+
+        template<class T>
+        static void init_from_int(LongDouble&, const T&);
+        template<class T>
+        static void init_from_double(LongDouble&, const T&);
+
+        static void div32(const LongDouble &a, const LongDouble &b, int n, LongDouble &res, LongDouble& rem);
+        static void div21(const LongDouble &a, const LongDouble &b, int n, LongDouble &res);
+        static void sqrt_rem(const LongDouble n, LongDouble &s, LongDouble &r);
+
     public:
 
         static bool output_insignificant_zeroes;
@@ -17,12 +34,6 @@ namespace arithmetic_32 {
         static int default_precision;
         static const uint64_t base;
         static digit ones[33];
-
-        int sign;
-        digit* digits; 
-        int digits_size;
-        int precision; // >= MIN_PRECISION
-        int exponent; // base 2
 
         LongDouble(); 
         LongDouble(const LongDouble& x); 
@@ -41,6 +52,8 @@ namespace arithmetic_32 {
 
         void set_precision(int); 
         int get_precision() const;
+        int get_sign() const;
+        
         bool isInt() const; 
         bool isZero() const; 
         bool isPower() const; 
@@ -84,15 +97,9 @@ namespace arithmetic_32 {
         
         ~LongDouble();
 
+        friend ostream& operator<<(ostream& os, const LongDouble& value);
+
     };
-
-    ostream& operator<<(ostream& os, const LongDouble& value);
-
-    void div32(const LongDouble &a, const LongDouble &b, int n, LongDouble &res, LongDouble& rem);
-
-    void div21(const LongDouble &a, const LongDouble &b, int n, LongDouble &res);
-
-    void sqrt_rem(const LongDouble n, LongDouble &s, LongDouble &r);
 
     LongDouble operator""_ld (long double x);
 

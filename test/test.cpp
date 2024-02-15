@@ -198,7 +198,7 @@ TEST(LongDouble, Precision) {
 TEST(LongDouble32, Inequality) {
 	ld a(123.1), b, c, d = -123.1, e = 123.0, k = 0.0;
 	ASSERT_TRUE(1_ld < 2);
-	ASSERT_TRUE((a >= d) == true) << a << " " << a.sign << "  " << d << " " << d.sign;
+	ASSERT_TRUE((a >= d) == true) << a << " " << a.get_sign() << "  " << d << " " << d.get_sign();
 	ASSERT_TRUE((b <= k) == true);
 	ASSERT_TRUE((d > a) == false);
 	ASSERT_TRUE((e < d) == false);
@@ -270,13 +270,7 @@ TEST(LongDouble32, Sqrt) {
 		ld x(i, 4);
 		ld xx(i, 4);
 		ld xxx(i, 4);
-		ld s, r;
-		arithmetic_32::sqrt_rem(x, s, r);
-
-		ASSERT_TRUE(s * s + r == x);
-		ASSERT_TRUE(r >= 0);
-		ASSERT_TRUE((s + 1) * (s + 1) > x);
-		
+		ld s, r; 
 		x.sqrt_fast();
 		xx.sqrt();
 		// xxx.sqrt();
