@@ -9,6 +9,7 @@
 #include <arithmetic_32.hpp>
 #include <fft.hpp>
 #include <math.h>
+#include <climits>
 
 namespace arithmetic_32 {
 
@@ -287,7 +288,7 @@ namespace arithmetic_32 {
     */
     LongDouble LongDouble::getFirstBits(unsigned int value) const {
         assert(isInt());
-        assert((unsigned int) (digits_size << 5) + exponent >= value && value >= 0);
+        assert((unsigned int) (digits_size << 5) + exponent >= value);
         unsigned int e = min(value, (unsigned int) exponent);
         value -= e;
         LongDouble res(0, precision);
@@ -699,7 +700,7 @@ namespace arithmetic_32 {
         }
 
         assert(q == 0 || current_rem.digits_size < y.digits_size || current_rem.digits_size - y.digits_size == 0);
-        assert(q == 0 || current_rem.digits_size < y.digits_size || q >= A / B && q - A / B <= 1);
+        assert(q == 0 || current_rem.digits_size < y.digits_size || (q >= A / B && q - A / B <= 1));
 
         current_rem += y * q;
         res -= q;  
