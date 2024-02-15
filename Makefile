@@ -1,7 +1,7 @@
 CC = g++
 
 build:
-	@mkdir -p build
+	mkdir -p build
 	cmake -S . -B build -Wno-dev
 	cmake --build build 
 
