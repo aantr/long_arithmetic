@@ -58,16 +58,16 @@ namespace arithmetic {
         throw NegativePowerError();
     }
 
-    LongDouble::LongDouble(LongDouble &&other) noexcept { // move;
-        if (this == &other) {
-            return;
-        }
-        sign = exchange(other.sign, 1);
-        digits = exchange(digits, nullptr);
-        digits_size = exchange(digits_size, 0);
-        precision = exchange(precision, default_precision);
-        exponent = exchange(exponent, 0);
-    }
+    // LongDouble::LongDouble(LongDouble &&other) noexcept { // move;
+    //     if (this == &other) {
+    //         return;
+    //     }
+    //     sign = exchange(other.sign, 1);
+    //     digits = exchange(digits, nullptr);
+    //     digits_size = exchange(digits_size, 0);
+    //     precision = exchange(precision, default_precision);
+    //     exponent = exchange(exponent, 0);
+    // }
 
     LongDouble::~LongDouble() {
         free(digits);
