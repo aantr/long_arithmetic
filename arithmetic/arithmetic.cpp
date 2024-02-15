@@ -582,8 +582,8 @@ namespace arithmetic {
             if (B == 0) {
                 division_error();
             }
-            res = LongDouble((long long) (A / B), INT_MAX);
-            rem = LongDouble((long long) (A % B), INT_MAX);
+            res = LongDouble((uint64_t) (A / B), INT_MAX);
+            rem = LongDouble((uint64_t) (A % B), INT_MAX);
 
             assert(rem.exponent % rem.base_exp == 0);
             int d = rem.exponent / rem.base_exp;
@@ -702,7 +702,7 @@ namespace arithmetic {
 
         int q;
 
-        long long A = 0, B = 0;
+        uint64_t A = 0, B = 0;
         if (current_rem.digits_size < y.digits_size || current_rem >= 0) {
             q = 0;
         } else {
