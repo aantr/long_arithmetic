@@ -2,32 +2,21 @@
 
 *Build with cmake*
 ```
-mkdir build
-cd build
-cmake ../long_arithmetic
-cmake --build .
+make build
 ```
 *Run*
 ```
-make start_pi
-```
-or 
-```
-./pi/pi
+make run_pi
 ```
 
 *Test*
 ```
-ctest
+make test
 ```
 
 *Hex version (faster)*
 
 *Run*
 ```
-make start_pi_32
-```
-or 
-```
-./pi/pi_32
+make run_pi
 ```
