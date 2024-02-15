@@ -9,6 +9,7 @@
 #include <fft.hpp>
 #include <defines.hpp>
 #include <math.h>
+#include <climits>
 
 namespace arithmetic {
 
