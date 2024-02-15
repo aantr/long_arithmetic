@@ -732,7 +732,7 @@ namespace arithmetic {
 
         // cout << current_rem.digits_size << " " << endl;
 
-        int q;
+        uint64_t q;
 
         uint64_t A = 0, B = 0;
         if (current_rem.digits_size < y.digits_size || current_rem >= 0) {
@@ -758,12 +758,12 @@ namespace arithmetic {
         // q = rightq;
 
         assert(q == 0 || current_rem.digits_size < y.digits_size || current_rem.digits_size - y.digits_size == 0);
-        assert(q == 0 || current_rem.digits_size < y.digits_size || q >= A / B && abs(q - A / B) <= 1);
+        assert(q == 0 || current_rem.digits_size < y.digits_size || q >= A / B && std::abs((long long) (q - A / B)) <= 1);
 
         current_rem += y * q;
         res1 -= q;  
 
-        assert(q <= LongDouble::base);
+        assert(q <= (uint64_t) LongDouble::base);
 
         while (current_rem < 0) {
             res1 -= 1;

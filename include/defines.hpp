@@ -1,3 +1,3 @@
 // on release
-#undef assert
-#define assert(x)
+// #undef assert
+// #define assert(x)
