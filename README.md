@@ -18,5 +18,5 @@ make test
 
 *Run*
 ```
-make run_pi
+make run_pi_32
 ```
