@@ -1,9 +1,10 @@
-CC = g++
+CC = gcc
+CXX = g++
 
 build:
 	mkdir -p build 
-	cmake -S . -B build
-	cmake --build build
+	CC=${CC} CXX=${CXX} cmake -S . -B build
+	CC=${CC} CXX=${CXX} cmake --build build
 
 run_pi: build
 	build/pi/pi
