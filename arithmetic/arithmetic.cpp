@@ -75,21 +75,37 @@ namespace arithmetic {
 
     LongDouble::LongDouble() {
         digits = (digit*) malloc(0);
-        *this = 0;
+        sign = 1;
+        digits_size = 0;
+        exponent = 0;
+        precision = default_precision;
     }
 
     LongDouble::LongDouble(const LongDouble& x) {
         digits = (digit*) malloc(0);
-        *this = x;
+        sign = x.sign;
+        digits_size = x.digits_size;
+        digits = (digit*) malloc(x.digits_size * sizeof(digit));
+        if (!digits) memory_error();
+        memcpy(digits, x.digits, x.digits_size * sizeof(digit));
+        assert(digits != x.digits);
+        precision = x.precision;
+        exponent = x.exponent;
     }
 
-    LongDouble::LongDouble(const LongDouble& other, int p) {
+    LongDouble::LongDouble(const LongDouble& x, int p) {
         if (p < MIN_PRECISION) {
             init_precison_error();
         }
         digits = (digit*) malloc(0);
-        *this = other;
-        this->precision = p;
+        sign = x.sign;
+        digits_size = x.digits_size;
+        digits = (digit*) malloc(x.digits_size * sizeof(digit));
+        if (!digits) memory_error();
+        memcpy(digits, x.digits, x.digits_size * sizeof(digit));
+        assert(digits != x.digits);
+        exponent = x.exponent;
+        precision = p;
     }
 
     template<class T>
