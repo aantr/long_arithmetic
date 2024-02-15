@@ -12,7 +12,7 @@ run_pi_32: build
 	build/pi/pi_32
 
 test: build
-	build/test/test_
+	cd build && ctest
 
 clean:
 	rm -rf build
