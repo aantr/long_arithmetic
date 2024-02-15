@@ -82,13 +82,13 @@ namespace arithmetic_32 {
         *this = x;
     }
 
-    LongDouble::LongDouble(const LongDouble& other, int precision) {
-        if (precision < MIN_PRECISION) {
+    LongDouble::LongDouble(const LongDouble& other, int p) {
+        if (p < MIN_PRECISION) {
             init_precison_error();
         }
         digits = (digit*) malloc(0);
         *this = other;
-        this->precision = precision;
+        this->precision = p;
     }
 
     template<class T>
@@ -132,8 +132,8 @@ namespace arithmetic_32 {
         precision = default_precision;
     }
 
-    LongDouble::LongDouble(const int32_t &v, int precision): precision(precision) {
-        if (precision < MIN_PRECISION) {
+    LongDouble::LongDouble(const int32_t &v, int p): precision(p) {
+        if (p < MIN_PRECISION) {
             init_precison_error();
         }
         init_from_int(*this, v);
@@ -144,8 +144,8 @@ namespace arithmetic_32 {
         precision = default_precision;
     }
 
-    LongDouble::LongDouble(const int64_t &v, int precision): precision(precision) {
-        if (precision < MIN_PRECISION) {
+    LongDouble::LongDouble(const int64_t &v, int p): precision(p) {
+        if (p < MIN_PRECISION) {
             init_precison_error();
         }
         init_from_int(*this, v);
@@ -156,8 +156,8 @@ namespace arithmetic_32 {
         precision = default_precision;
     }
 
-    LongDouble::LongDouble(const uint64_t &v, int precision): precision(precision) {
-        if (precision < MIN_PRECISION) {
+    LongDouble::LongDouble(const uint64_t &v, int p): precision(p) {
+        if (p < MIN_PRECISION) {
             init_precison_error();
         }
         init_from_int(*this, v);
@@ -168,8 +168,8 @@ namespace arithmetic_32 {
         precision = default_precision;
     }
 
-    LongDouble::LongDouble(const double &v, int precision): precision(precision) {
-        if (precision < MIN_PRECISION) {
+    LongDouble::LongDouble(const double &v, int p): precision(p) {
+        if (p < MIN_PRECISION) {
             init_precison_error();
         }
         init_from_double(*this, v);
@@ -180,8 +180,8 @@ namespace arithmetic_32 {
         precision = default_precision;
     }
 
-    LongDouble::LongDouble(const long double &v, int precision): precision(precision) {
-        if (precision < MIN_PRECISION) {
+    LongDouble::LongDouble(const long double &v, int p): precision(p) {
+        if (p < MIN_PRECISION) {
             init_precison_error();
         }
         init_from_double(*this, v);

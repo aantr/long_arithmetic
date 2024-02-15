@@ -61,21 +61,21 @@ namespace arithmetic {
 
         LongDouble(); 
         LongDouble(const LongDouble& x); 
-        LongDouble(const LongDouble& x, int precision); 
+        LongDouble(const LongDouble& x, int p); 
         LongDouble(const char *value); 
-        LongDouble(const char *value, int precision);
+        LongDouble(const char *value, int p);
         LongDouble(const string &value); 
-        LongDouble(const string &value, int precision);
+        LongDouble(const string &value, int p);
         LongDouble(const int32_t &value);
-        LongDouble(const int32_t &value, int precision); 
+        LongDouble(const int32_t &value, int p); 
         LongDouble(const int64_t &value);
-        LongDouble(const int64_t &value, int precision); 
+        LongDouble(const int64_t &value, int p); 
         LongDouble(const uint64_t &value); 
-        LongDouble(const uint64_t &value, int precision);
+        LongDouble(const uint64_t &value, int p);
         LongDouble(const double &value); 
-        LongDouble(const double &value, int precision); 
+        LongDouble(const double &value, int p); 
         LongDouble(const long double &value); 
-        LongDouble(const long double &value, int precision); 
+        LongDouble(const long double &value, int p); 
 
         bool isInt() const; 
         bool isZero() const; 
