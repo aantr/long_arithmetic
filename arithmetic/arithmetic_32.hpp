@@ -53,6 +53,7 @@ namespace arithmetic_32 {
         void set_precision(int); 
         int get_precision() const;
         int get_sign() const;
+        int get_digits_size() const;
 
         bool isInt() const; 
         bool isZero() const; 

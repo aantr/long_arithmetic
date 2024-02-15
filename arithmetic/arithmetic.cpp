@@ -272,6 +272,10 @@ namespace arithmetic {
         return sign;
     }
 
+    int LongDouble::get_digits_size() const {
+        return digits_size;
+    }
+
     LongDouble LongDouble::abs() const {
         if (digits_size == 0) return 0;
         if (sign == -1) return -(*this);
