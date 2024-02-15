@@ -7,6 +7,7 @@
 #include <iomanip>
 #include <arithmetic.hpp>
 #include <fft.hpp>
+#include <climits>
 
 namespace arithmetic {
 
@@ -88,7 +89,7 @@ namespace arithmetic {
     }
 
     LongDouble operator""_ld (unsigned long long x) {
-        LongDouble res = (long long) x;
+        LongDouble res = (uint64_t) x;
         return res;
     }
 
@@ -112,37 +113,37 @@ namespace arithmetic {
         // cut on a half blocks
         auto cut = [](digit* arr, int size) -> pair<fft::digit*, int> {
             if (base_exp == 1 || size == 0) {
-                fft::digit* res = (fft::digit*) malloc(size * sizeof(fft::digit));
-                memcpy(res, arr, size * sizeof(fft::digit));
-                return {res, size};
+                fft::digit* res_ = (fft::digit*) malloc(size * sizeof(fft::digit));
+                memcpy(res_, arr, size * sizeof(fft::digit));
+                return {res_, size};
             }
             assert(base_exp % 2 == 0);
             int newsize = size * 2;
             int k1 = base_exp / 2;
-            fft::digit* res = (fft::digit*) malloc(newsize * sizeof(fft::digit));
+            fft::digit* res_ = (fft::digit*) malloc(newsize * sizeof(fft::digit));
             for (int i = 0; i < size; i++) {
-                res[i * 2] = arr[i] % pow_10[k1];
-                res[i * 2 + 1] = arr[i] / pow_10[k1];
+                res_[i * 2] = arr[i] % pow_10[k1];
+                res_[i * 2 + 1] = arr[i] / pow_10[k1];
             }
-            return {res, newsize};
+            return {res_, newsize};
         };
         auto merge = [](fft::digit* arr, int size) -> pair<digit*, int> {
             if (base_exp == 1 || size == 0) {
-                digit* res = (digit*) malloc(size * sizeof(digit));
+                digit* res_ = (digit*) malloc(size * sizeof(digit));
                 for (int i = 0; i < size; i++) {
-                    res[i] = arr[i];
+                    res_[i] = arr[i];
                 }
-                return {res, size};
+                return {res_, size};
             }
             assert(base_exp % 2 == 0);
             int newsize = (size - 1) / 2 + 1;
             int k1 = base_exp / 2;
-            digit* res = (digit*) malloc(newsize * sizeof(digit));
+            digit* res_ = (digit*) malloc(newsize * sizeof(digit));
             for (int i = 0; i < size; i++) {
-                if (i % 2 == 0) res[i / 2] = arr[i];
-                else res[i / 2] += (digit) arr[i] * pow_10[k1];
+                if (i % 2 == 0) res_[i / 2] = arr[i];
+                else res_[i / 2] += (digit) arr[i] * pow_10[k1];
             }
-            return {res, newsize};
+            return {res_, newsize};
         };
         auto [first, first_size] = cut(digits, digits_size);
         free(digits);

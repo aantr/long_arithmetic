@@ -1,8 +1,9 @@
+#include <defines.hpp>
+
 #include <assert.h>
 #include <complex.h>
 #include <math.h>
 #include <algorithm>
-#include <defines.hpp>
 #include <fft.hpp>
 #include <iostream>
 #include <cstring>

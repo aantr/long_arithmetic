@@ -1,3 +1,5 @@
+#include <defines.hpp>
+
 #include <iostream>
 #include <cstring>
 #include <string>
@@ -6,7 +8,6 @@
 #include <exception>
 #include <arithmetic_32.hpp>
 #include <fft.hpp>
-#include <defines.hpp>
 #include <math.h>
 
 namespace arithmetic_32 {
