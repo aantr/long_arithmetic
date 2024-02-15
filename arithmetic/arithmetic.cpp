@@ -62,13 +62,6 @@ namespace arithmetic {
         if (this == &other) {
             return;
         }
-        free(digits);
-        digits = nullptr;
-        sign = 1;
-        digits_size = 0;
-        precision = default_precision;
-        exponent = 0;
-        
         swap(sign, other.sign);
         swap(digits, other.digits);
         swap(digits_size, other.digits_size);

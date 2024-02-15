@@ -88,8 +88,6 @@ namespace arithmetic_32 {
             return *this;
         }
         swap(sign, other.sign);
-        free(digits);
-        digits = nullptr;
         swap(digits, other.digits);
         swap(digits_size, other.digits_size);
         swap(precision, other.precision);
