@@ -39,9 +39,9 @@ namespace arithmetic_32 {
             return ((get_digit(digit_index) >> ((index * 4) & 31) & LongDouble::ones[4 - shift]) << shift) | 
                         (get_digit(digit_index2) >> (((index - 1) * 4 + 4 - shift) & 31) & LongDouble::ones[shift]);
         };
-        auto get_char = [&](int value) -> char {
-            if (value < 10) return (char) ('0' + value);
-            return (char) ('a' + value - 10);
+        auto get_char = [&](int value_) -> char {
+            if (value_ < 10) return (char) ('0' + value_);
+            return (char) ('a' + value_ - 10);
         };
 
         int digits_size_hex = (value.digits_size << 3) + 1;
@@ -87,7 +87,7 @@ namespace arithmetic_32 {
     }
 
     LongDouble operator""_ld (unsigned long long x) {
-        LongDouble res = (long long) x;
+        LongDouble res = (uint64_t) x;
         return res;
     }
 
