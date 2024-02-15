@@ -7,6 +7,7 @@
 #include <iomanip>
 #include <arithmetic_32.hpp>
 #include <fft.hpp>
+#include <climits>
 
 #define HALF_FFT
 // #define QUARTER_FFT
@@ -153,59 +154,59 @@ namespace arithmetic_32 {
         #if defined(HALF_FFT) || defined(QUARTER_FFT)
         auto cut = [](digit* arr, int size) -> pair<fft::digit*, int> {
             if (size == 0) {
-                fft::digit* res = (fft::digit*) malloc(size * sizeof(fft::digit));
-                memcpy(res, arr, size * sizeof(fft::digit));
-                return {res, size};
+                fft::digit* res_ = (fft::digit*) malloc(size * sizeof(fft::digit));
+                memcpy(res_, arr, size * sizeof(fft::digit));
+                return {res_, size};
             }
             #ifdef HALF_FFT
             int newsize = size * 2;
-            fft::digit* res = (fft::digit*) malloc(newsize * sizeof(fft::digit));
+            fft::digit* res_ = (fft::digit*) malloc(newsize * sizeof(fft::digit));
             for (int i = 0; i < size; i++) {
-                res[i * 2] = arr[i] & ones[16];
-                res[i * 2 + 1] = arr[i] >> 16;
+                res_[i * 2] = arr[i] & ones[16];
+                res_[i * 2 + 1] = arr[i] >> 16;
             }
-            return {res, newsize};
+            return {res_, newsize};
             #endif
 
             #ifdef QUARTER_FFT
             int newsize = size * 4;
-            fft::digit* res = (fft::digit*) malloc(newsize * sizeof(fft::digit));
+            fft::digit* res_ = (fft::digit*) malloc(newsize * sizeof(fft::digit));
             for (int i = 0; i < size; i++) {
-                res[i * 4] = arr[i] & ones[8];
-                res[i * 4 + 1] = (arr[i] & ones[16]) >> 8;
-                res[i * 4 + 2] = (arr[i] & ones[24]) >> 16;
-                res[i * 4 + 3] = (arr[i] & ones[32]) >> 24;
+                res_[i * 4] = arr[i] & ones[8];
+                res_[i * 4 + 1] = (arr[i] & ones[16]) >> 8;
+                res_[i * 4 + 2] = (arr[i] & ones[24]) >> 16;
+                res_[i * 4 + 3] = (arr[i] & ones[32]) >> 24;
             }
-            return {res, newsize};
+            return {res_, newsize};
             #endif
         };
         auto merge = [](fft::digit* arr, int size) -> pair<digit*, int> {
             if (size == 0) {
-                digit* res = (digit*) malloc(size * sizeof(digit));
+                digit* res_ = (digit*) malloc(size * sizeof(digit));
                 for (int i = 0; i < size; i++) {
-                    res[i] = arr[i];
+                    res_[i] = arr[i];
                 }
-                return {res, size};
+                return {res_, size};
             }
             #ifdef HALF_FFT
             int newsize = (size - 1) / 2 + 1;
-            digit* res = (digit*) malloc(newsize * sizeof(digit));
+            digit* res_ = (digit*) malloc(newsize * sizeof(digit));
             for (int i = 0; i < size; i++) {
-                if (i % 2 == 0) res[i / 2] = arr[i];
-                else res[i / 2] |= (digit) arr[i] << 16;
+                if (i % 2 == 0) res_[i / 2] = arr[i];
+                else res_[i / 2] |= (digit) arr[i] << 16;
             }
-            return {res, newsize};
+            return {res_, newsize};
             #endif
             #ifdef QUARTER_FFT
             int newsize = (size - 1) / 4 + 1;
-            digit* res = (digit*) malloc(newsize * sizeof(digit));
+            digit* res_ = (digit*) malloc(newsize * sizeof(digit));
             for (int i = 0; i < size; i++) {
-                if (i % 4 == 0) res[i / 4] = arr[i];
-                else if (i % 4 == 1) res[i / 4] |= arr[i] << 8;
-                else if (i % 4 == 2) res[i / 4] |= arr[i] << 16;
-                else if (i % 4 == 3) res[i / 4] |= arr[i] << 24;
+                if (i % 4 == 0) res_[i / 4] = arr[i];
+                else if (i % 4 == 1) res_[i / 4] |= arr[i] << 8;
+                else if (i % 4 == 2) res_[i / 4] |= arr[i] << 16;
+                else if (i % 4 == 3) res_[i / 4] |= arr[i] << 24;
             }
-            return {res, newsize};
+            return {res_, newsize};
             #endif
         };
         auto [first, first_size] = cut(digits, digits_size);
