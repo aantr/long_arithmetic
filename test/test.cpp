@@ -5,6 +5,7 @@
 #include <arithmetic_32.hpp>
 #include <random>
 #include <iomanip>
+#include <climits>
 
 using namespace std;
 using namespace arithmetic;
@@ -16,7 +17,7 @@ using ld = arithmetic_32::LongDouble;
 TEST(LongDouble, Init) {
 	ASSERT_TRUE(LongDouble("0.013459359706757822") < "0.0134594");
 	ASSERT_TRUE("+22.0"_ld == "22.");
-	ASSERT_TRUE((LongDouble((long long)1e18) == 1e18));
+	ASSERT_TRUE((LongDouble((int64_t)1e18) == 1e18));
 	ASSERT_TRUE(LongDouble((int)1e9 - 1) == 1e9 - 1);
 	ASSERT_TRUE(LongDouble((double)1e18) == LongDouble((long double)1e18));
 	LongDouble a(123), b = -0.00_ld, c = 0_ld, d = -123_ld, e("+0123.00"), k = "-0.0000";
@@ -47,7 +48,7 @@ TEST(LongDouble, Inequality) {
 TEST(LongDouble, Add) {
 	int count = 100;
 	for (int i = 0; i < count; i++) {
-		long long x = rnd(), y = rnd();
+		int64_t x = rnd(), y = rnd();
 		ASSERT_TRUE(LongDouble(x + y) == LongDouble(x) + LongDouble(y));
 	}
 }
@@ -55,7 +56,7 @@ TEST(LongDouble, Add) {
 TEST(LongDouble, Sub) {
 	int count = 100;
 	for (int i = 0; i < count; i++) {
-		long long x = (long long) rnd() - rnd(), y = (long long) rnd() - rnd();
+		int64_t x = (int64_t) rnd() - rnd(), y = (int64_t) rnd() - rnd();
 		ASSERT_TRUE(LongDouble(x - y) == LongDouble(x) - LongDouble(y));
 	}
 }
@@ -111,7 +112,7 @@ TEST(LongDouble, Mul) {
 	for (int i = 0; i < count; i++) {
 		cout << setprecision(200);
 		int precision = 18 / LongDouble::base_exp + 1;
-		long long x = (long long) (rnd() - rnd()) % 1000000000, y = (long long) (rnd() - rnd()) % 1000000000;
+		int64_t x = (int64_t) (rnd() - rnd()) % 1000000000, y = (int64_t) (rnd() - rnd()) % 1000000000;
 		if (!(LongDouble(x * y) == LongDouble(x, precision) * LongDouble(y))) {
 			cout << x << " " << y <<  " " << LongDouble(x, precision) * LongDouble(y)<< endl;	
 			exit(0);
@@ -132,7 +133,7 @@ TEST(LongDouble, Mul) {
 TEST(LongDouble, Div) {
 	int count = 1000;
 	for (int i = 0; i < count; i++) {
-		int x = (long long) (rnd() - rnd()) % 1000000, y = (long long) (rnd()) % 1000000 + 1;
+		int x = (int64_t) (rnd() - rnd()) % 1000000, y = (int64_t) (rnd()) % 1000000 + 1;
 
 		LongDouble res = LongDouble(x) / LongDouble(y);
 		res.floor();
@@ -215,7 +216,7 @@ TEST(LongDouble32, Inequality) {
 TEST(LongDouble32, Add) {
 	int count = 1000;
 	for (int i = 0; i < count; i++) {
-		long long x = rnd(), y = rnd();
+		int64_t x = rnd(), y = rnd();
 		ASSERT_TRUE(ld(x + y) == ld(x) + ld(y)) << "test: " << x << " " << y << " "<< ld(x) + ld(y);
 	}
 }
@@ -223,7 +224,7 @@ TEST(LongDouble32, Add) {
 TEST(LongDouble32, Sub) {
 	int count = 1000;
 	for (int i = 0; i < count; i++) {
-		long long x = (long long) rnd() - rnd(), y = (long long) rnd() - rnd();
+		int64_t x = (int64_t) rnd() - rnd(), y = (int64_t) rnd() - rnd();
 		ASSERT_TRUE(ld(x - y) == ld(x) - ld(y)) << "test: " << x << " " << y << " "<< ld(x) - ld(y);;
 	}
 }
@@ -234,7 +235,7 @@ TEST(LongDouble32, Mul) {
 	for (int i = 0; i < count; i++) {
 		cout << setprecision(200);
 		int precision = 10;
-		long long x = (long long) (rnd() - rnd()) % 1000000000, y = (long long) (rnd() - rnd()) % 1000000000;
+		int64_t x = (int64_t) (rnd() - rnd()) % 1000000000, y = (int64_t) (rnd() - rnd()) % 1000000000;
 		if (!(ld(x * y) == ld(x, precision) * ld(y))) {
 			cout << x << " " << y <<  " " << ld(x, precision) * ld(y) << endl;	
 			exit(0);
@@ -255,7 +256,7 @@ TEST(LongDouble32, Mul) {
 TEST(LongDouble32, Div) {
 	int count = 1000;
 	for (int i = 0; i < count; i++) {
-		int x = (long long) (rnd() - rnd()) % 1000000, y = (long long) (rnd()) % 1000000 + 1;
+		int x = (int64_t) (rnd() - rnd()) % 1000000, y = (int64_t) (rnd()) % 1000000 + 1;
 
 		ld res = ld(x) / ld(y);
 		res.floor();
