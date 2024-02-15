@@ -70,6 +70,19 @@ namespace arithmetic_32 {
         throw InitError();
     }
 
+    LongDouble::LongDouble(LongDouble &&other) noexcept { // move;
+        if (this == &other) {
+            return;
+        }
+        swap(sign, other.sign);
+        free(digits);
+        digits = nullptr;
+        swap(digits, other.digits);
+        swap(digits_size, other.digits_size);
+        swap(precision, other.precision);
+        swap(exponent, other.exponent);
+    }
+
     LongDouble::~LongDouble() {
         free(digits);
     }

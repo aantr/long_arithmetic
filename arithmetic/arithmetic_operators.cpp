@@ -63,8 +63,10 @@ namespace arithmetic {
         return os;
     }
 
-    LongDouble& LongDouble::operator=(const LongDouble& other) // C5267
-    {
+    LongDouble& LongDouble::operator=(const LongDouble& other) { // C5267
+        if (this == &other) {
+            return *this;
+        }
         sign = other.sign;
         digits_size = other.digits_size;
         free(digits);
@@ -74,6 +76,20 @@ namespace arithmetic {
         assert(digits != other.digits);
         precision = other.precision;
         exponent = other.exponent;
+        return *this;
+    }
+
+    LongDouble& LongDouble::operator=(LongDouble &&other) noexcept { // move
+        if (this == &other) {
+            return *this;
+        }
+        swap(sign, other.sign);
+        free(digits);
+        digits = nullptr;
+        swap(digits, other.digits);
+        swap(digits_size, other.digits_size);
+        swap(precision, other.precision);
+        swap(exponent, other.exponent);
         return *this;
     }
 

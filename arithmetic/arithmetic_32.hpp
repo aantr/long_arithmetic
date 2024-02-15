@@ -53,7 +53,7 @@ namespace arithmetic_32 {
         void set_precision(int); 
         int get_precision() const;
         int get_sign() const;
-        
+
         bool isInt() const; 
         bool isZero() const; 
         bool isPower() const; 
@@ -95,6 +95,8 @@ namespace arithmetic_32 {
         bool operator!=(const LongDouble& x) const;
         LongDouble& operator=(const LongDouble& x);
         
+        LongDouble(LongDouble &&other) noexcept; // move
+        LongDouble& operator=(LongDouble &&other) noexcept; // move
         ~LongDouble();
 
         friend ostream& operator<<(ostream& os, const LongDouble& value);
