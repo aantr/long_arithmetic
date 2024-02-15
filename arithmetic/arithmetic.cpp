@@ -762,7 +762,7 @@ namespace arithmetic {
         // q = rightq;
 
         assert(q == 0 || current_rem.digits_size < y.digits_size || current_rem.digits_size - y.digits_size == 0);
-        assert(q == 0 || current_rem.digits_size < y.digits_size || q >= A / B && std::abs((long long) (q - A / B)) <= 1);
+        assert(q == 0 || current_rem.digits_size < y.digits_size || (q >= A / B && std::abs((long long) (q - A / B)) <= 1));
 
         current_rem += y * q;
         res1 -= q;  
