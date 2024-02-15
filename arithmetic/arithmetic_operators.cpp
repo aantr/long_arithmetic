@@ -83,11 +83,11 @@ namespace arithmetic {
         if (this == &other) {
             return *this;
         }
-        swap(sign, other.sign);
-        swap(digits, other.digits);
-        swap(digits_size, other.digits_size);
-        swap(precision, other.precision);
-        swap(exponent, other.exponent);
+        sign = exchange(other.sign, 1);
+        digits = exchange(other.digits, nullptr);
+        digits_size = exchange(other.digits_size, 0);
+        precision = exchange(other.precision, default_precision);
+        exponent = exchange(other.exponent, 0);
         return *this;
     }
 
