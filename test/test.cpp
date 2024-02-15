@@ -224,7 +224,6 @@ TEST(LongDouble32, Sub) {
 	int count = 1000;
 	for (int i = 0; i < count; i++) {
 		long long x = (long long) rnd() - rnd(), y = (long long) rnd() - rnd();
-		cout << "test: " << x << " " << y << " "<< ld(x) - ld(y) << endl;
 		ASSERT_TRUE(ld(x - y) == ld(x) - ld(y)) << "test: " << x << " " << y << " "<< ld(x) - ld(y);;
 	}
 }
