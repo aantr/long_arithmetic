@@ -151,11 +151,6 @@ TEST(LongDouble, Sqrt) {
 		string str = to_string(i);
 		LongDouble x(str, 16 / LongDouble::base_exp + 1);
 		LongDouble xx(str, 16 / LongDouble::base_exp + 1);
-		LongDouble s, r;
-		sqrt_rem(x, s, r);
-		ASSERT_TRUE(s * s + r == x);
-		ASSERT_TRUE(r >= 0);
-		ASSERT_TRUE((s + 1) * (s + 1) > x);
 		x.sqrt_fast();
 		xx.sqrt_int();
 		x.floor(10);

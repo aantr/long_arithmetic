@@ -39,6 +39,8 @@ namespace arithmetic_32 {
         LongDouble(const long double &value); 
         LongDouble(const long double &value, int p); 
 
+        void set_precision(int); 
+        int get_precision() const;
         bool isInt() const; 
         bool isZero() const; 
         bool isPower() const; 

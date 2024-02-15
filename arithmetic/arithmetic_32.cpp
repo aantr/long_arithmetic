@@ -189,6 +189,18 @@ namespace arithmetic_32 {
         init_from_double(*this, v);
     }
 
+    void LongDouble::set_precision(int v) {
+        if (v < MIN_PRECISION) {
+            init_precison_error();
+        }
+        precision = v;
+    } 
+    
+    int LongDouble::get_precision() const {
+        return precision;
+    }
+
+
     LongDouble LongDouble::abs() const {
         if (digits_size == 0) return 0;
         if (sign == -1) return -(*this);

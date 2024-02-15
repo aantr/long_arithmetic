@@ -78,8 +78,7 @@ namespace arithmetic {
     }
 
     LongDouble operator""_ld (const char* x, unsigned long size) {
-        LongDouble res(x);
-        res.precision = max((unsigned long) res.precision, (size - 1) / LongDouble::base_exp + 1);
+        LongDouble res(x, max((unsigned long) LongDouble::default_precision, (size - 1) / LongDouble::base_exp + 1));
         return res;
     }
 
