@@ -544,6 +544,7 @@ namespace arithmetic_32 {
 
         if (x.digits_size >= m) {
             first3m.digits_size = x.digits_size - m;
+            free(first3m.digits);
             first3m.digits = (digit*) malloc(first3m.digits_size * sizeof(digit));
             if (!first3m.digits) memory_error();
             memcpy(first3m.digits, x.digits + m, (first3m.digits_size) * sizeof(digit));
@@ -551,6 +552,7 @@ namespace arithmetic_32 {
             first3m.removeZeroes();
             LongDouble::context_remove_left_zeroes = true;
         } else {
+            free(first3m.digits);
             first3m.digits = (digit*) malloc(0 * sizeof(digit));
             if (!first3m.digits) memory_error();
         }
@@ -671,12 +673,14 @@ namespace arithmetic_32 {
         LongDouble x1(0, INT_MAX); // first |x| - (|y| - n)
         x1.digits_size = max(0, x.digits_size - (y.digits_size - n));
         x1.digits = (digit*) malloc(x1.digits_size * sizeof(digit));
+        free(x1.digits);
         if (!x1.digits) memory_error();
 
         memcpy(x1.digits, x.digits + (y.digits_size - n), (x1.digits_size) * sizeof(digit));
 
         LongDouble y1(0, INT_MAX); // first n
         y1.digits_size = n;
+        free(y1.digits);
         y1.digits = (digit*) malloc(y1.digits_size * sizeof(digit));
         if (!y1.digits) memory_error();
 
