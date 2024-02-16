@@ -672,8 +672,8 @@ namespace arithmetic_32 {
 
         LongDouble x1(0, INT_MAX); // first |x| - (|y| - n)
         x1.digits_size = max(0, x.digits_size - (y.digits_size - n));
-        free(x1.digits);
         x1.digits = (digit*) malloc(x1.digits_size * sizeof(digit));
+        free(x1.digits);
         if (!x1.digits) memory_error();
 
         memcpy(x1.digits, x.digits + (y.digits_size - n), (x1.digits_size) * sizeof(digit));
