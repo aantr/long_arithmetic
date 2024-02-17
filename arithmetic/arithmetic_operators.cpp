@@ -335,7 +335,7 @@ namespace arithmetic {
 
     LongDouble LongDouble::operator+(const LongDouble& x) const {
         if (sign == x.sign) {
-            cout << "add " << *this << " "  << other << endl;
+            cout << "add " << *this << " "  << x << endl;
             LongDouble res;
             res.precision = precision;
             res.sign = sign;
@@ -430,7 +430,7 @@ namespace arithmetic {
                 LongDouble res = x - *this;
                 return -res;
             }
-            cout << "sub " << *this << " "  << other << endl;
+            cout << "sub " << *this << " "  << x << endl;
 
             LongDouble res;
             res.sign = 1;
