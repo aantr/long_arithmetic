@@ -56,6 +56,8 @@ TEST(LongDouble, Inequality) {
 	ASSERT_TRUE((d > c) == false);
 	ASSERT_TRUE((k < b) == false);
 	ASSERT_TRUE(("1"_ld < 123) == true);
+	cout << d << endl;
+
 	ASSERT_TRUE((d < d + 1) == true);
 }
 
