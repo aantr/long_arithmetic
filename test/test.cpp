@@ -109,7 +109,7 @@ TEST(LongDouble, Round) {
 		LongDouble x = i;
 		x.divBase(2);
 		x.round();
-		ASSERT_TRUE(x == (dеouble) round((double) i / 100));
+		ASSERT_TRUE(x == (double) round((double) i / 100));
 	}	
 }
 
