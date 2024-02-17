@@ -68,7 +68,7 @@ namespace arithmetic {
     }
 
     LongDouble::~LongDouble() {
-        cout << "start destructor" << endl;
+        cout << "start destructor " << digits_size << endl;
         free(digits);
         cout << "end destructor" << endl;
 
