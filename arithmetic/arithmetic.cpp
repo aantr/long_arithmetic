@@ -61,10 +61,10 @@ namespace arithmetic {
     LongDouble::LongDouble(LongDouble &&other) noexcept {
         cout << " move " << other << endl;
         sign = exchange(other.sign, 1);
-        digits = exchange(digits, nullptr);
-        digits_size = exchange(digits_size, 0);
-        precision = exchange(precision, default_precision);
-        exponent = exchange(exponent, 0);
+        digits = exchange(other.digits, nullptr);
+        digits_size = exchange(other.digits_size, 0);
+        precision = exchange(other.precision, default_precision);
+        exponent = exchange(other.exponent, 0);
         cout << "this, other: " << digits_size << " " << other.digits_size << endl;
     }
 
