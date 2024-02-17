@@ -65,10 +65,11 @@ namespace arithmetic {
         digits_size = exchange(digits_size, 0);
         precision = exchange(precision, default_precision);
         exponent = exchange(exponent, 0);
+        cout << "this, other: " << digits_size << " " << other.digits_size << endl;
     }
 
     LongDouble::~LongDouble() {
-        cout << "start destructor " << digits_size << endl;
+        cout << "start destructor " << *this << endl;
         free(digits);
         cout << "end destructor" << endl;
 
