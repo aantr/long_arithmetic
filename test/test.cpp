@@ -48,7 +48,6 @@ TEST(LongDouble, Inequality) {
 
 	LongDouble k = string("0");
 
-	exit(0);
 	ASSERT_TRUE(1_ld < 2);
 	ASSERT_TRUE((a >= d) == true);
 	ASSERT_TRUE((b <= k) == true);
