@@ -13,7 +13,7 @@ namespace arithmetic {
 
     using namespace std;
 
-    fft::FFT fft;
+    fft::fft fft;
 
     istream& operator>>(istream& os, LongDouble& value) {
         string s;

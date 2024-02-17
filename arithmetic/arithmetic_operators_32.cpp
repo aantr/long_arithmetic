@@ -16,7 +16,7 @@ namespace arithmetic_32 {
 
     using namespace std;
 
-    fft::FFT fft;
+    fft::fft fft;
 
     ostream& operator<<(ostream& os, const LongDouble& value) {
         if (value.sign == -1)
