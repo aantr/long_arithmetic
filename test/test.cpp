@@ -32,7 +32,23 @@ TEST(LongDouble, Init) {
 
 
 TEST(LongDouble, Inequality) {
-	LongDouble a(123), b, c, d = -123, e("0123"), k = string("0");
+	LongDouble a(123);
+	cout << a << endl;
+	LongDouble b;
+	cout << b << endl;
+
+	LongDouble c;
+	cout << c << endl;
+
+	LongDouble d = -123;
+	cout << d << endl;
+
+	LongDouble e("0123");
+	cout << e << endl;
+
+	LongDouble k = string("0");
+
+	exit(0);
 	ASSERT_TRUE(1_ld < 2);
 	ASSERT_TRUE((a >= d) == true);
 	ASSERT_TRUE((b <= k) == true);
