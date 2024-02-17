@@ -80,6 +80,7 @@ namespace arithmetic {
         if (this == &other) {
             return *this;
         }
+        free(digits);
         sign = exchange(other.sign, 1);
         digits = exchange(other.digits, nullptr);
         digits_size = exchange(other.digits_size, 0);

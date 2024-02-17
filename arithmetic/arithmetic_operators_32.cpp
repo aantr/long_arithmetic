@@ -83,10 +83,11 @@ namespace arithmetic_32 {
         return *this;
     }
 
-    LongDouble& LongDouble::operator=(LongDouble &&other) noexcept { // move
+    LongDouble& LongDouble::operator=(LongDouble &&other) noexcept {
         if (this == &other) {
             return *this;
         }
+        free(digits);
         sign = exchange(other.sign, 1);
         digits = exchange(other.digits, nullptr);
         digits_size = exchange(other.digits_size, 0);
