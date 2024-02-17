@@ -65,6 +65,7 @@ TEST(LongDouble, Add) {
 	int count = 100;
 	for (int i = 0; i < count; i++) {
 		int64_t x = rnd(), y = rnd();
+		cout << x << " " << y << endl;
 		ASSERT_TRUE(LongDouble(x + y) == LongDouble(x) + LongDouble(y));
 	}
 }
