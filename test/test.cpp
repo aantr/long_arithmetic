@@ -33,19 +33,10 @@ TEST(LongDouble, Init) {
 
 TEST(LongDouble, Inequality) {
 	LongDouble a(123);
-	cout << a << endl;
 	LongDouble b;
-	cout << b << endl;
-
 	LongDouble c;
-	cout << c << endl;
-
 	LongDouble d = -123;
-	cout << d << endl;
-
 	LongDouble e("0123");
-	cout << e << endl;
-
 	LongDouble k = string("0");
 
 	ASSERT_TRUE(1_ld < 2);
@@ -56,11 +47,7 @@ TEST(LongDouble, Inequality) {
 	ASSERT_TRUE((d > c) == false);
 	ASSERT_TRUE((k < b) == false);
 	ASSERT_TRUE(("1"_ld < 123) == true);
-	cout << d << endl;
-	cout << d + 1 << endl;
-
 	ASSERT_TRUE((d < d + 1) == true);
-	cout << "end" << endl;
 }
 
 
@@ -68,7 +55,6 @@ TEST(LongDouble, Add) {
 	int count = 100;
 	for (int i = 0; i < count; i++) {
 		int64_t x = rnd(), y = rnd();
-		cout << x << " " << y << endl;
 		ASSERT_TRUE(LongDouble(x + y) == LongDouble(x) + LongDouble(y));
 	}
 }
@@ -123,7 +109,7 @@ TEST(LongDouble, Round) {
 		LongDouble x = i;
 		x.divBase(2);
 		x.round();
-		ASSERT_TRUE(x == (double) round((double) i / 100));
+		ASSERT_TRUE(x == (dеouble) round((double) i / 100));
 	}	
 }
 
