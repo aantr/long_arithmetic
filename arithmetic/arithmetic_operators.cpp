@@ -80,7 +80,6 @@ namespace arithmetic {
         if (this == &other) {
             return *this;
         }
-        cout << exponent << " move assignment " << other << endl;
         sign = exchange(other.sign, 1);
         digits = exchange(other.digits, nullptr);
         digits_size = exchange(other.digits_size, 0);
@@ -335,7 +334,6 @@ namespace arithmetic {
 
     LongDouble LongDouble::operator+(const LongDouble& x) const {
         if (sign == x.sign) {
-            cout << "add " << *this << " "  << x << endl;
             LongDouble res;
             res.precision = precision;
             res.sign = sign;
@@ -413,10 +411,8 @@ namespace arithmetic {
         }
 
         if (sign == -1) {
-            cout << "add 1" << endl;
             return x - (-(*this));
         }
-        cout << "add 2" << endl;
         return *this - (-x); 
     }
 
@@ -430,8 +426,6 @@ namespace arithmetic {
                 LongDouble res = x - *this;
                 return -res;
             }
-            cout << "sub " << *this << " "  << x << endl;
-
             LongDouble res;
             res.sign = 1;
             res.precision = precision;
@@ -505,10 +499,8 @@ namespace arithmetic {
         }
 
         if (sign == -1 && x.sign == -1) {
-            cout << "-1 -1" << endl;
             return (-x) - (-(*this));
         }
-        cout << "change sign" << endl;
         return *this + (-x);
     }
 

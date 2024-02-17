@@ -59,20 +59,15 @@ namespace arithmetic {
     }
 
     LongDouble::LongDouble(LongDouble &&other) noexcept {
-        cout << " move " << other << endl;
         sign = exchange(other.sign, 1);
         digits = exchange(other.digits, nullptr);
         digits_size = exchange(other.digits_size, 0);
         precision = exchange(other.precision, default_precision);
         exponent = exchange(other.exponent, 0);
-        cout << "this, other: " << digits_size << " " << other.digits_size << endl;
     }
 
     LongDouble::~LongDouble() {
-        cout << "start destructor " << *this << endl;
         free(digits);
-        cout << "end destructor" << endl;
-
     }
 
     LongDouble::LongDouble() {
@@ -751,8 +746,6 @@ namespace arithmetic {
         // current_rem / y * y + current_rem
         // -current_rem % y
         // q = ceil(abs(current_rem) / y)
-
-        // cout << current_rem.digits_size << " " << endl;
 
         uint64_t q;
 

@@ -97,8 +97,8 @@ namespace arithmetic_32 {
         bool operator!=(const LongDouble& x) const;
         LongDouble& operator=(const LongDouble& x);
         
-        // LongDouble(LongDouble &&other) noexcept; // move
-        // LongDouble& operator=(LongDouble &&other) noexcept; // move
+        LongDouble(LongDouble &&other) noexcept; // move
+        LongDouble& operator=(LongDouble &&other) noexcept; // move
         ~LongDouble();
 
         friend ostream& operator<<(ostream& os, const LongDouble& value);
