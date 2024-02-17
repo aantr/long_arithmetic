@@ -59,7 +59,7 @@ namespace arithmetic {
     }
 
     LongDouble::LongDouble(LongDouble &&other) noexcept {
-        cout << exponent  << " move " << other << endl;
+        cout << " move " << other << endl;
         sign = exchange(other.sign, 1);
         digits = exchange(digits, nullptr);
         digits_size = exchange(digits_size, 0);
