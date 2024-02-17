@@ -80,7 +80,7 @@ namespace arithmetic {
         if (this == &other) {
             return *this;
         }
-        cout << *this << " move assignment " << other << endl;
+        cout << exponent << " move assignment " << other << endl;
         sign = exchange(other.sign, 1);
         digits = exchange(other.digits, nullptr);
         digits_size = exchange(other.digits_size, 0);
