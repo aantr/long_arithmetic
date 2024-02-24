@@ -8,6 +8,8 @@
 #include <arithmetic_32.hpp>
 #include <fft.hpp>
 #include <climits>
+#include <cstdint>
+#include <utility>
 
 #define HALF_FFT
 // #define QUARTER_FFT

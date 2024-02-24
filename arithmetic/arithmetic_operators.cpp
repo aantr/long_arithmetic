@@ -8,6 +8,8 @@
 #include <arithmetic.hpp>
 #include <fft.hpp>
 #include <climits>
+#include <cstdint>
+#include <utility>
 
 namespace arithmetic {
 

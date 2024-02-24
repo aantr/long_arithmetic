@@ -10,6 +10,8 @@
 #include <fft.hpp>
 #include <math.h>
 #include <climits>
+#include <cstdint>
+#include <utility>
 
 namespace arithmetic_32 {
 

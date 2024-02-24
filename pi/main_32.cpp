@@ -11,6 +11,7 @@
 #include <assert.h>
 #include <sstream>
 #include <fft.hpp>
+#include <array>
 
 #define TIME (double) clock() / CLOCKS_PER_SEC
 

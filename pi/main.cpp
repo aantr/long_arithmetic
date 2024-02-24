@@ -10,6 +10,7 @@
 #include <arithmetic.hpp>
 #include <assert.h>
 #include <sstream>
+#include <array>
 
 #define TIME (double) clock() / CLOCKS_PER_SEC
 // #define CHECK_FROM_FILE

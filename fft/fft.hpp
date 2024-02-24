@@ -1,5 +1,7 @@
 #pragma once 
 
+#include <cstdint>
+
 namespace fft {
 
     using namespace std;
